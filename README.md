@@ -80,6 +80,8 @@ composer install
 ```bash
 cp .env.example .env
 php artisan key:generate
+
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="permission-migrations"
 ```
 
 3. Configure database (PostgreSQL):

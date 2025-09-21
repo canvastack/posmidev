@@ -1,0 +1,16 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vite build",
+        "dev": "vite"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^5.0.2",
+        "axios": "^1.6.4",
+        "laravel-vite-plugin": "^2.0",
+        "react": "^19.1.1",
+        "react-dom": "^19.1.1",
+        "vite": "^7.1.6"
+    }
+}
