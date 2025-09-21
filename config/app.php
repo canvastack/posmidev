@@ -2,7 +2,7 @@
          /*
           * Package Service Providers...
           */
-+        Spatie\Permission\PermissionServiceProvider::class,
+        Spatie\Permission\PermissionServiceProvider::class,
 
          /*
           * Application Service Providers...
