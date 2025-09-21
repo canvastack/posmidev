@@ -12,6 +12,7 @@
      | requests. Typically, this should reference the `api` guard.
      |
      */
- 
+    'guard' => ['web'],
 -    'guard' => ['web'],
 +    'guard' => ['api'],
+    ))),
