@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvastack POSMID - Dokumentasi</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .section { margin-bottom: 30px; }
+        ul { padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Canvastack POSMID - Dokumentasi</h1>
+    <p><strong>Versión:</strong> 1.0.0 | <strong>Tanggal:</strong> Oktober 2024</p>
+
+    <div class="section">
+        <h2>Overview</h2>
+        <p>Canvastack POSMID adalah sistem Point of Sale (P.O.S.) multi-tenant yang dibangun dengan arsitektur Hexagonal (Ports and Adapters) menggunakan Laravel 10. Sistem ini dirancang dengan pendekatan API-First dan mengikuti prinsip-prinsip clean architecture.</p>
+        <p><strong>Frontend:</strong> React + Vite + TypeScript</p>
+        <p><strong>Backend:</strong> Laravel 10 dengan Hexagonal Architecture</p>
+        <p><strong>Database:</strong> PostgreSQL</p>
+        <p><strong>Authentication:</strong> Laravel Sanctum (stateless API)</p>
+        <p><strong>Authorization:</strong> Spatie Laravel Permission (role-based)</p>
+    </div>
+
+    <div class="section">
+        <h2>Fitur Utama</h2>
+        <ul>
+            <li>Multi-Tenancy dengan isolasi data per tenant</li>
+            <li>Authentication stateless dengan Bearer Token</li>
+            <li>Role-based permissions (Admin, Manager, Cashier)</li>
+            <li>Manajemen Produk dan Kategori</li>
+            <li>Transaksi Penjualan (Point of Sale)</li>
+            <li>Manajemen Stok dan Pelanggan</li>
+            <li>Laporan Bisnis</li>
+            <li>API-First dengan OpenAPI 3.0 spec</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Tahapan Setup dan Jalankan Aplikasi</h2>
+        <p>Ikuti langkah-langkah berikut untuk setup proyek dan menjalankannya secara lokal.</p>
+
+        <h3>1. Persiapan Environment</h3>
+        <p>Pastikan Anda memiliki:</p>
+        <ul>
+            <li>PHP 8.1+</li>
+            <li>Composer</li>
+            <li>Node.js 18+</li>
+            <li>PostgreSQL</li>
+        </ul>
+
+        <h3>2. Clone Repository</h3>
+        <pre><code>git clone https://github.com/canvastack/posmidev.git
+cd posmidev</code></pre>
+
+        <h3>3. Setup Backend (Laravel)</h3>
+        <pre><code>composer install</code></pre>
+        <pre><code>cp .env.example .env
+php artisan key:generate</code></pre>
+        <p>Edit <code>.env</code> untuk database PostgreSQL:</p>
+        <pre><code>DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=posmid
+DB_USERNAME=postgres
+DB_PASSWORD=your_password</code></pre>
+        <p>Konfigurasi Sanctum untuk stateless:</p>
+        <pre><code>SANCTUM_STATEFUL_DOMAINS=
+SESSION_DRIVER=array</code></pre>
+        <pre><code>php artisan migrate
+php artisan db:seed</code></pre>
+
+        <h3>4. Setup Frontend (React + Vite)</h3>
+        <pre><code>cd frontend
+npm install</code></pre>
+
+        <h3>5. Jalankan Aplikasi</h3>
+        <p><strong>Backend:</strong> (di direktori root)</p>
+        <pre><code>php artisan serve</code></pre>
+        <p>Server akan berjalan di <code>http://localhost:8000</code></p>
+
+        <p><strong>Frontend:</strong> (di direktori frontend)</p>
+        <pre><code>npm run dev</code></pre>
+        <p>Frontend akan berjalan di <code>http://localhost:5173</code></p>
+
+        <p><strong>Akses Browser:</strong></p>
+        <ul>
+            <li><strong>API Documentation:</strong> <a href="http://localhost:8000/api/documentation" target="_blank">http://localhost:8000/api/documentation</a> (jika ada)</li>
+            <li><strong>OpenAPI Spec:</strong> Lihat file <code>openapi.yaml</code> di root proyek</li>
+            <li><strong>Frontend App:</strong> <a href="http://localhost:5173" target="_blank">http://localhost:5173</a></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>API Endpoints Utama</h2>
+        <p>Berdasarkan OpenAPI spec:</p>
+        <ul>
+            <li><code>POST /api/v1/register</code> - Registrasi tenant dan user</li>
+            <li><code>POST /api/v1/login</code> - Login</li>
+            <li><code>GET /api/v1/user</code> - Info user saat ini</li>
+            <li><code>GET /api/v1/tenants/{tenantId}/products</code> - List produk</li>
+            <li><code>POST /api/v1/tenants/{tenantId}/orders</code> - Buat transaksi</li>
+        </ul>
+        <p>Untuk detail lengkap, lihat <code>openapi.yaml</code> atau gunakan tools seperti Swagger UI.</p>
+    </div>
+
+    <div class="section">
+        <h2>Arsitektur Proyek</h2>
+        <p>Menggunakan Hexagonal Architecture:</p>
+        <ul>
+            <li><strong>Domain Layer:</strong> <code>src/Pms/Core/</code> - Business logic murni</li>
+            <li><strong>Application Layer:</strong> <code>src/Pms/Core/Application/</code> - Services</li>
+            <li><strong>Infrastructure Layer:</strong> <code>src/Pms/Infrastructure/</code> - Models dan Repositories</li>
+            <li><strong>API Layer:</strong> <code>app/Http/</code> - Controllers Laravel</li>
+            <li><strong>Frontend:</strong> <code>frontend/</code> - React app</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li>Jika error database, pastikan PostgreSQL running dan credentials benar</li>
+            <li>Jika port konflik, ubah port di <code>.env</code> atau command serve</li>
+            <li>Jika dependencies error, hapus <code>vendor/</code> dan <code>node_modules/</code>, lalu install ulang</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Deployment</h2>
+        <p>Untuk production:</p>
+        <pre><code>php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+npm run build  # di frontend</code></pre>
+        <p>Deploy backend dan frontend secara terpisah, atau gunakan Docker jika tersedia.</p>
+    </div>
+
+    <p><strong>Catatan:</strong> Dokumentasi ini dapat diakses langsung via browser dengan membuka file <code>docs/index.html</code> di proyek lokal Anda.</p>
+</body>
+</html>
