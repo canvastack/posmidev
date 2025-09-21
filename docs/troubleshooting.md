@@ -361,6 +361,64 @@ lsof -i :5173
    console.log('Token:', localStorage.getItem('token'));
    ```
 
+### CSS/Styling Issues
+
+#### Tailwind CSS Not Loading
+
+**Symptoms:**
+- Design appears broken or unstyled
+- Tailwind utility classes not working
+- PostCSS errors in Vite dev server
+- Error: "It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin"
+
+**Solutions:**
+
+1. **Install Missing Tailwind Dependencies:**
+   ```bash
+   cd frontend
+   npm install -D tailwindcss postcss autoprefixer @tailwindcss/postcss
+   ```
+
+2. **Create PostCSS Configuration:**
+   Create or update `frontend/postcss.config.js`:
+   ```javascript
+   export default {
+     plugins: {
+       '@tailwindcss/postcss': {},
+       autoprefixer: {},
+     },
+   }
+   ```
+
+3. **Verify Tailwind Configuration:**
+   Check that `frontend/tailwind.config.js` exists and has proper content paths:
+   ```javascript
+   /** @type {import('tailwindcss').Config} */
+   export default {
+     content: [
+       "./index.html",
+       "./src/**/*.{js,ts,jsx,tsx}",
+     ],
+     theme: {
+       extend: {
+         // Your custom theme extensions
+       },
+     },
+     plugins: [],
+   }
+   ```
+
+4. **Clear and Restart:**
+   ```bash
+   # Clear Vite cache
+   rm -rf node_modules/.vite
+
+   # Restart dev server
+   npm run dev
+   ```
+
+**Note:** Tailwind CSS v4 requires the `@tailwindcss/postcss` plugin instead of the direct `tailwindcss` plugin in PostCSS configuration.
+
 ## Performance Issues
 
 ### Slow Page Loads

@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../hooks/useAuth';
 import { authApi } from '../api/authApi';
-import { RegisterForm } from '../types';
+import type { RegisterForm } from '../types';
 
 export const RegisterPage: React.FC = () => {
   const [form, setForm] = useState<RegisterForm>({

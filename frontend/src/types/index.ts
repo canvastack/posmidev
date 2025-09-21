@@ -68,12 +68,12 @@ export interface DashboardData {
   today_revenue: number;
   today_transactions: number;
   low_stock_products: number;
-  low_stock_alerts: Array<{
+  low_stock_alerts: {
     id: string;
     name: string;
     stock: number;
     sku: string;
-  }>;
+  }[];
 }
 
 // Form Types
@@ -100,10 +100,10 @@ export interface ProductForm {
 }
 
 export interface OrderForm {
-  items: Array<{
+  items: {
     product_id: string;
     quantity: number;
-  }>;
+  }[];
   payment_method: string;
   amount_paid: number;
   customer_id?: string;

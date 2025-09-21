@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { CartItem, Product } from '../types';
+import type { CartItem, Product } from '../types';
 
 interface CartState {
   items: CartItem[];

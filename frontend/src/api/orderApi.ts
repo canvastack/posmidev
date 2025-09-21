@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Order, OrderForm } from '../types';
+import type { Order, OrderForm } from '../types';
 
 export const orderApi = {
   createOrder: async (tenantId: string, data: OrderForm): Promise<Order> => {

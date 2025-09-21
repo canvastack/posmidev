@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { useAuth } from '../hooks/useAuth';
 import { roleApi } from '../api/roleApi';
-import { Role, Permission, RoleForm } from '../types';
+import type { Role, Permission, RoleForm } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export const RolesPage: React.FC = () => {

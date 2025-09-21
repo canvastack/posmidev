@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCartStore } from '../stores/cartStore';
 import { productApi } from '../api/productApi';
 import { orderApi } from '../api/orderApi';
-import { Product } from '../types';
+import type { Product } from '../types';
 import { PlusIcon, MinusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export const PosPage: React.FC = () => {

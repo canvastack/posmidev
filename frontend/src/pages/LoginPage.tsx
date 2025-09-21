@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useAuth } from '../hooks/useAuth';
 import { authApi } from '../api/authApi';
-import { LoginForm } from '../types';
+import type { LoginForm } from '../types';
 
 export const LoginPage: React.FC = () => {
   const [form, setForm] = useState<LoginForm>({ email: '', password: '' });

@@ -6,7 +6,7 @@ import { Input } from '../components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
 import { useAuth } from '../hooks/useAuth';
 import { productApi } from '../api/productApi';
-import { Product, ProductForm } from '../types';
+import type { Product, ProductForm } from '../types';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export const ProductsPage: React.FC = () => {

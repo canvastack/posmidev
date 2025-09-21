@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Product, ProductForm } from '../types';
+import type { Product, ProductForm } from '../types';
 
 export const productApi = {
   getProducts: async (tenantId: string): Promise<Product[]> => {

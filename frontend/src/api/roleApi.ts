@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import { Role, RoleForm, Permission } from '../types';
+import type { Role, RoleForm, Permission } from '../types';
 
 export const roleApi = {
   getRoles: async (tenantId: string): Promise<Role[]> => {

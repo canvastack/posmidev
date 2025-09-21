@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '../components/ui/Card';
 import { useAuth } from '../hooks/useAuth';
 import { dashboardApi } from '../api/dashboardApi';
-import { DashboardData } from '../types';
+import type { DashboardData } from '../types';
 import {
   CurrencyDollarIcon,
   ShoppingCartIcon,
