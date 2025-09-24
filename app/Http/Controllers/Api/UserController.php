@@ -126,16 +126,94 @@ class UserController extends Controller
         ]);
 
         $file = $validated['file'];
-        $path = $file->storeAs(
-            "public/tenants/{$tenantId}/user-photos",
-            uniqid('user_') . '.' . $file->getClientOriginalExtension()
-        );
+        $dir = "public/tenants/{$tenantId}/user-photos";
+        $ext = strtolower($file->getClientOriginalExtension());
+        $filename = uniqid('user_') . '.' . $ext;
+        $path = $file->storeAs($dir, $filename);
+
+        // Build thumbnail as WebP 128x128 (center-crop square then resize)
+        try {
+            $imageData = file_get_contents($file->getRealPath());
+            if ($imageData !== false) {
+                $src = imagecreatefromstring($imageData);
+                if ($src !== false) {
+                    $width = imagesx($src);
+                    $height = imagesy($src);
+                    $side = min($width, $height);
+                    $srcX = (int) max(0, ($width - $side) / 2);
+                    $srcY = (int) max(0, ($height - $side) / 2);
+
+                    $crop = imagecreatetruecolor($side, $side);
+                    imagealphablending($crop, true);
+                    imagesavealpha($crop, true);
+                    imagecopyresampled($crop, $src, 0, 0, $srcX, $srcY, $side, $side, $side, $side);
+
+                    $thumbSize = 128;
+                    $thumb = imagecreatetruecolor($thumbSize, $thumbSize);
+                    imagealphablending($thumb, true);
+                    imagesavealpha($thumb, true);
+                    imagecopyresampled($thumb, $crop, 0, 0, 0, 0, $thumbSize, $thumbSize, $side, $side);
+
+                    $thumbRelative = $dir . '/' . pathinfo($filename, PATHINFO_FILENAME) . '-thumb.webp';
+                    $thumbAbsolute = storage_path('app/' . $thumbRelative);
+                    // Ensure directory exists
+                    @mkdir(dirname($thumbAbsolute), 0775, true);
+                    // Save as WebP (quality ~80)
+                    if (function_exists('imagewebp')) {
+                        imagewebp($thumb, $thumbAbsolute, 80);
+                    } else {
+                        // Fallback: save as PNG if webp not available
+                        $thumbRelative = $dir . '/' . pathinfo($filename, PATHINFO_FILENAME) . '-thumb.png';
+                        $thumbAbsolute = storage_path('app/' . $thumbRelative);
+                        imagepng($thumb, $thumbAbsolute, 6);
+                    }
+
+                    imagedestroy($thumb);
+                    imagedestroy($crop);
+                    imagedestroy($src);
+
+                    $thumbUrl = Storage::url($thumbRelative);
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore thumbnail generation failures
+            $thumbUrl = null;
+        }
 
         $url = Storage::url($path); // requires `php artisan storage:link`
 
         return response()->json([
             'url' => $url,
+            'thumb_url' => $thumbUrl ?? null,
             'path' => $path,
         ], 201);
+    }
+
+    public function updateRoles(Request $request, string $tenantId, string $userId): JsonResponse
+    {
+        $this->authorize('update', [User::class, $tenantId]);
+        $user = User::findOrFail($userId);
+        if ($user->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $data = $request->validate([
+            'roles' => ['array'],
+            'roles.*' => ['string'],
+        ]);
+
+        // Only allow roles from current tenant or global (null tenant)
+        $roles = $data['roles'] ?? [];
+
+        // Scope Spatie team to current tenant for assignments
+        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+        try {
+            $user->syncRoles($roles);
+        } finally {
+            // reset team scope
+            app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId(null);
+        }
+
+        return response()->json(['message' => 'Roles updated']);
     }
 }

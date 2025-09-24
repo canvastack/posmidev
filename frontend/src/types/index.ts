@@ -8,6 +8,7 @@ export interface User {
   roles: string[];
   display_name?: string | null;
   photo?: string | null;
+  photo_thumb?: string | null;
   phone_number?: string | null;
   created_at?: string;
 }

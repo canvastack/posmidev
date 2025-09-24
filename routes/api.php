@@ -85,6 +85,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('roles', RoleController::class);
             Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
             Route::post('uploads/user-photo', [UserController::class, 'uploadPhoto']); // upload user photo to storage
+            Route::post('users/{userId}/roles', [UserController::class, 'updateRoles']); // assign roles per tenant (team-scoped)
             Route::get('permissions', [PermissionController::class, 'index']);
 
             // Orders

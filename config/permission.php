@@ -22,7 +22,7 @@ return [
         'team_foreign_key' => 'team_id',
     ],
 
-    'teams' => false,
+    'teams' => true,
 
     'display_permission_in_exception' => false,
 

@@ -60,12 +60,30 @@ export const userApi = {
     await apiClient.delete(`/tenants/${tenantId}/users/${userId}`);
   },
 
-  uploadUserPhoto: async (tenantId: string, file: File): Promise<{ url: string; path: string }> => {
+  uploadUserPhoto: async (
+    tenantId: string,
+    file: File,
+    onUploadProgress?: (progress: number) => void
+  ): Promise<{ url: string; thumb_url?: string | null; path: string }> => {
     const formData = new FormData();
     formData.append('file', file);
     const response = await apiClient.post(`/tenants/${tenantId}/uploads/user-photo`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (e) => {
+        if (onUploadProgress && e.total) {
+          const pct = Math.round((e.loaded * 100) / e.total);
+          onUploadProgress(pct);
+        }
+      },
     });
     return response.data;
+  },
+
+  updateUserRoles: async (
+    tenantId: string,
+    userId: string,
+    roles: string[]
+  ): Promise<void> => {
+    await apiClient.post(`/tenants/${tenantId}/users/${userId}/roles`, { roles });
   },
 };
