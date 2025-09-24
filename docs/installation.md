@@ -145,6 +145,16 @@ This creates all necessary tables including:
 - Products, categories, customers, orders tables
 - Permission tables (via spatie/laravel-permission)
 
+#### Storage Symlink (for media uploads)
+
+Create the public storage symlink to serve uploaded files (e.g., user photos):
+
+```bash
+php artisan storage:link
+```
+
+Ensure `APP_URL` is correctly set in your `.env` so generated URLs (e.g., `Storage::url(...)`) resolve properly in the browser.
+
 #### Seed Database (Optional)
 
 ```bash

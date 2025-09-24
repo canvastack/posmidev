@@ -6,6 +6,10 @@ export interface User {
   tenant_id: string;
   status?: 'active' | 'inactive' | 'pending' | 'banned';
   roles: string[];
+  display_name?: string | null;
+  photo?: string | null;
+  phone_number?: string | null;
+  created_at?: string;
 }
 
 export interface AuthResponse {

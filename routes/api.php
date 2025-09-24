@@ -83,7 +83,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('products', ProductController::class);
             Route::apiResource('categories', CategoryController::class);
             Route::apiResource('roles', RoleController::class);
-            Route::apiResource('users', UserController::class)->only(['index','show']);
+            Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
+            Route::post('uploads/user-photo', [UserController::class, 'uploadPhoto']); // upload user photo to storage
             Route::get('permissions', [PermissionController::class, 'index']);
 
             // Orders

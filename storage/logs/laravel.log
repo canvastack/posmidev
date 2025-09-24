@@ -580,3 +580,7 @@ LINE 1: ...elect * from \"roles\" where \"guard_name\" = $1 and (\"tenant_id...
 "} 
 [2025-09-24 14:14:37] local.INFO: Dashboard#index start {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605","userId":"dd6e5d39-9592-4416-bd52-2174930720fd"} 
 [2025-09-24 14:14:38] local.INFO: Dashboard#index success {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605"} 
+[2025-09-24 17:20:33] local.INFO: Dashboard#index start {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605","userId":"dd6e5d39-9592-4416-bd52-2174930720fd"} 
+[2025-09-24 17:20:34] local.INFO: Dashboard#index success {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605"} 
+[2025-09-24 19:05:26] local.INFO: Dashboard#index start {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605","userId":"dd6e5d39-9592-4416-bd52-2174930720fd"} 
+[2025-09-24 19:05:27] local.INFO: Dashboard#index success {"tenantId":"80f62207-c9a0-4e2f-af7f-755aee0c9605"} 

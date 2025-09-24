@@ -26,6 +26,10 @@ class UserResource extends JsonResource
             'tenant_id' => $this->tenant_id,
             'status' => $this->status ?? 'pending',
             'roles' => $roles,
+            'display_name' => $this->display_name,
+            'photo' => $this->photo,
+            'phone_number' => $this->phone_number,
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
 }
