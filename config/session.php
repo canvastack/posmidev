@@ -50,12 +50,69 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session Path
+    | File Session Driver Configuration
     |--------------------------------------------------------------------------
     |
-    | The session path determines the directory where session data will be
-    | stored when using the "file" driver. This option is only used when
-    | the "file" driver is selected.
+    | When using the "file" session driver, you may specify a location where
+    | session files may be stored. A sensible default is provided for you,
+    | but you are free to change this path if necessary.
+    |
+    */
+
+    'files' => storage_path('framework/sessions'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Database / Cache Store
+    |--------------------------------------------------------------------------
+    |
+    | When using the "database" or "redis" session drivers, you may list a
+    | connection that should be used to manage these sessions. This should
+    | correspond to a connection in your database or cache configuration.
+    |
+    */
+
+    'connection' => env('SESSION_CONNECTION', null),
+
+    'store' => env('SESSION_STORE', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Sweeping Lottery
+    |--------------------------------------------------------------------------
+    |
+    | Some session drivers must manually sweep their storage location to get
+    | rid of old sessions from storage. Here are the chances that it will
+    | happen on a given request. By default, the odds are 2 out of 100.
+    |
+    */
+
+    'lottery' => [2, 100],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Cookie Name
+    |--------------------------------------------------------------------------
+    |
+    | Here you may change the name of the cookie used to identify a session
+    | instance by ID. The name specified here will get used every time a
+    | new session cookie is created by the framework for every driver.
+    |
+    */
+
+    'cookie' => env(
+        'SESSION_COOKIE',
+        Str::slug(env('APP_NAME', 'laravel'), '_').'_session'
+    ),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cookie Path
+    |--------------------------------------------------------------------------
+    |
+    | The cookie path determines the path for which the cookie will be
+    | regarded as available. Typically, this will be the root path of
+    | your application but you are free to change this when necessary.
     |
     */
 
@@ -63,7 +120,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session Domain
+    | Cookie Domain
     |--------------------------------------------------------------------------
     |
     | Here you may change the domain of the cookie used to identify a session

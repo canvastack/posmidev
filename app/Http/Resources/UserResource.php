@@ -9,12 +9,23 @@ class UserResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        // Default to empty roles if Spatie HasRoles trait is not present during minimal model testing
+        $roles = [];
+        if (is_object($this->resource) && method_exists($this->resource, 'getRoleNames')) {
+            try {
+                $roles = $this->resource->getRoleNames();
+            } catch (\Throwable $e) {
+                $roles = [];
+            }
+        }
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'tenant_id' => $this->tenant_id,
-            'roles' => $this->getRoleNames(),
+            'status' => $this->status ?? 'pending',
+            'roles' => $roles,
         ];
     }
 }

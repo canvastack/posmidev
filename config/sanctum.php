@@ -33,7 +33,9 @@ return [
     |
     */
 
-    'guard' => ['api'],
+    // Do not check the 'api' guard (which uses Sanctum) to avoid recursive guard resolution
+    // For API token auth, leave this empty so Sanctum uses bearer tokens directly
+    'guard' => [],
 
     /*
     |--------------------------------------------------------------------------

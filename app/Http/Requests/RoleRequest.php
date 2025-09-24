@@ -17,6 +17,8 @@ class RoleRequest extends FormRequest
             'name' => 'required|string|max:255',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string|exists:permissions,name',
+            // allow creating/updating global roles
+            'global' => 'sometimes|boolean',
         ];
     }
 }

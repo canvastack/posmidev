@@ -1,37 +1,48 @@
-Project Generation Request: canvastack/posmid - A Decoupled, API-First P.O.S. Core
-Primary Objective:
+## Project Generation Request: canvastack/posmid - A Decoupled, API-First P.O.S. Core
+
+### Primary Objective:
 Generate a new, clean Laravel 10 project that serves as the backend implementation for the canvastack/posmid P.O.S. system. The entire project MUST be built around the attached OpenAPI 3.0 specification file (openapi.yaml) and follow the principles of Hexagonal Architecture (Ports and Adapters).
-Core Architectural Mandates:
-API-First Implementation:
-Use the provided openapi.yaml as the single source of truth.
-Integrate a tool (like laravel-openapi) to automatically validate all incoming API requests against the OpenAPI schema. Any request that does not match the schema should be rejected with a 4xx error automatically.
-Hexagonal Architecture:
-Create a distinct src/Pms/Core directory. This is the "core" of the application and MUST NOT contain any Laravel-specific code (use Illuminate...).
-Inside the core, define Interfaces (Ports) for repositories (e.g., ProductRepositoryInterface, UserRepositoryInterface).
-Inside the core, create Services that contain pure business logic and depend only on the repository interfaces.
-Create an src/Pms/Infrastructure directory. This is the "adapter" layer.
-Inside infrastructure, create Eloquent Repositories that implement the core interfaces (e.g., EloquentProductRepository implements ProductRepositoryInterface).
-The standard Laravel app/Http/Controllers will act as the primary Input Adapters. They will receive HTTP requests, call the core services, and format HTTP responses.
-Technology Stack:
-Backend: Laravel 10
-Database: PostgreSQL
-Authentication: Pure stateless Bearer Token authentication via Laravel Sanctum. Configure it strictly for stateless mode (empty SANCTUM_STATEFUL_DOMAINS, guard set to ['api']).
-Authorization: spatie/laravel-permission.
-Initial Task:
-Based on the openapi.yaml (which defines Tenancy, Auth, Products, and Roles), generate the following:
-The complete directory structure for the Hexagonal Architecture.
-The core interfaces and services.
-The infrastructure layer with Eloquent repository implementations.
-The Laravel Controllers, Policies, and API Resources.
-All necessary database migrations based on the schemas in the OpenAPI file.
-A README.md explaining this architecture.
+
+### Core Architectural Mandates:
+
+1. API-First Implementation:
+    Use the provided openapi.yaml as the single source of truth.
+    Integrate a tool (like laravel-openapi) to automatically validate all incoming API requests against the OpenAPI schema. Any request that does not match the schema should be rejected with a 4xx error automatically.
+
+2. Hexagonal Architecture:
+   - Create a distinct src/Pms/Core directory. This is the "core" of the application and MUST NOT contain any Laravel-specific code (use Illuminate...).
+   - Inside the core, define Interfaces (Ports) for repositories (e.g., ProductRepositoryInterface, UserRepositoryInterface).
+   - Inside the core, create Services that contain pure business logic and depend only on the repository interfaces.
+   - Create an src/Pms/Infrastructure directory. This is the "adapter" layer.
+   - Inside infrastructure, create Eloquent Repositories that implement the core interfaces (e.g., EloquentProductRepository implements ProductRepositoryInterface).
+   - The standard Laravel app/Http/Controllers will act as the primary Input Adapters. They will receive HTTP requests, call the core services, and format HTTP responses.
+
+3. Technology Stack:
+   - Backend: Laravel 10
+   - Database: PostgreSQL
+   - Authentication: Pure stateless Bearer Token authentication via Laravel Sanctum. Configure it strictly for stateless mode (empty SANCTUM_STATEFUL_DOMAINS, guard set to ['api']).
+   - Authorization: spatie/laravel-permission.
+
+4. Initial Task:
+   - Based on the openapi.yaml (which defines Tenancy, Auth, Products, and Roles), generate the following:
+   - The complete directory structure for the Hexagonal Architecture.
+   - The core interfaces and services.
+   - The infrastructure layer with Eloquent repository implementations.
+   - The Laravel Controllers, Policies, and API Resources.
+   - All necessary database migrations based on the schemas in the OpenAPI file.
+   - A README.md explaining this architecture.
 
 
 Jadi peta minimalnya nanti untuk Menu Aplikasi P.O.S. "canvastack/posmid"
 Mari kita bayangkan aplikasi ini sudah jadi. Saat user login, inilah menu-menu yang akan mereka lihat (tergantung rolenya):
 
-Dashboard Tujuan: Memberikan gambaran cepat kondisi bisnis hari ini. Isi: Total Pendapatan Hari Ini. Jumlah Transaksi Hari Ini. Produk Terlaris Hari Ini. Notifikasi "Smart Assistant" (Stok menipis, Dead stock).
-Kasir (The P.O.S. Screen) Tujuan: Halaman utama untuk melakukan transaksi penjualan. Isi: Grid/daftar produk yang bisa dipilih. Keranjang belanja (cart). Tombol bayar, pilihan metode pembayaran (Tunai, Kartu, QRIS). Fungsi untuk cetak struk.
+### Dashboard
+Tujuan:Memberikan gambaran cepat kondisi bisnis hari ini. 
+Isi: Total Pendapatan Hari Ini. Jumlah Transaksi Hari Ini. Produk Terlaris Hari Ini. Notifikasi "Smart Assistant" (Stok menipis, Dead stock).
+
+### Kasir (The P.O.S. Screen)
+Tujuan: Halaman utama untuk melakukan transaksi penjualan.
+Isi: Grid/daftar produk yang bisa dipilih. Keranjang belanja (cart). Tombol bayar, pilihan metode pembayaran (Tunai, Kartu, QRIS). Fungsi untuk cetak struk.
 Manajemen Penjualan Tujuan: Mengelola semua transaksi yang sudah terjadi. Sub-Menu: Riwayat Transaksi: Daftar semua invoice/penjualan. Bisa difilter, dicari, dan dilihat detailnya. Ada fungsi cetak ulang struk. Manajemen Refund/Retur: Proses untuk mengembalikan barang dari pelanggan.
 Manajemen Inventaris Tujuan: Mengelola semua hal yang berkaitan dengan barang. Sub-Menu: Daftar Produk: (Ini yang sudah kita definisikan) CRUD untuk produk. Kategori Produk: CRUD untuk mengelompokkan produk. Manajemen Stok (Stock Opname): Fitur untuk penyesuaian stok. Misalnya, +10 untuk barang masuk, -2 untuk barang rusak. Harus ada log/histori untuk setiap penyesuaian. Manajemen Supplier: (Fitur lanjutan) CRUD untuk data supplier.
 Manajemen Pelanggan (CRM) Tujuan: Mengelola data pelanggan setia. Isi: CRUD untuk data pelanggan (nama, no. telp). Melihat riwayat belanja per pelanggan.

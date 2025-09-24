@@ -14,7 +14,11 @@ class PermissionController extends Controller
     {
         $this->authorize('viewAny', [Permission::class, $tenantId]);
 
-        $permissions = Permission::all();
+        // Limit to API guard permissions; order for stable UI rendering
+        $permissions = Permission::query()
+            ->where('guard_name', 'api')
+            ->orderBy('name')
+            ->get();
         
         return response()->json(
             PermissionResource::collection($permissions)

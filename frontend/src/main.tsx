@@ -3,8 +3,15 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+const rootEl = document.getElementById('root')!
+
+// Disable StrictMode in development to avoid double-invoking effects (duplicate API calls)
+createRoot(rootEl).render(
+  import.meta.env.DEV ? (
     <App />
-  </StrictMode>,
+  ) : (
+    <StrictMode>
+      <App />
+    </StrictMode>
+  )
 )

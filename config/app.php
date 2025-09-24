@@ -125,6 +125,8 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'cipher' => 'AES-256-CBC',
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
@@ -175,6 +177,7 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
 
     ],
 

@@ -7,8 +7,9 @@ use App\Http\Requests\RoleRequest;
 use App\Http\Resources\RoleResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use App\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Src\Pms\Infrastructure\Models\User; // for tenant scoping via assignments
 
 class RoleController extends Controller
 {
@@ -16,7 +17,14 @@ class RoleController extends Controller
     {
         $this->authorize('viewAny', [Role::class, $tenantId]);
 
-        $roles = Role::with('permissions')->get();
+        // Scope roles to API guard and tenant if provided (null = global)
+        $roles = Role::query()
+            ->where('guard_name', 'api')
+            ->where(function ($q) use ($tenantId) {
+                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
+            })
+            ->with('permissions')
+            ->get();
         
         return response()->json(
             RoleResource::collection($roles)
@@ -29,11 +37,14 @@ class RoleController extends Controller
 
         $role = Role::create([
             'name' => $request->name,
-            'guard_name' => 'api'
+            'guard_name' => 'api',
+            'tenant_id' => $request->boolean('global', false) ? null : $tenantId,
         ]);
 
         if ($request->permissions) {
-            $permissions = Permission::whereIn('name', $request->permissions)->get();
+            $permissions = Permission::where('guard_name', 'api')
+                ->whereIn('name', $request->permissions)
+                ->get();
             $role->syncPermissions($permissions);
         }
 
@@ -55,10 +66,16 @@ class RoleController extends Controller
         
         $this->authorize('update', [Role::class, $tenantId]);
 
-        $role->update(['name' => $request->name]);
+        $payload = ['name' => $request->name];
+        if ($request->has('global')) {
+            $payload['tenant_id'] = $request->boolean('global') ? null : $tenantId;
+        }
+        $role->update($payload);
 
         if ($request->permissions) {
-            $permissions = Permission::whereIn('name', $request->permissions)->get();
+            $permissions = Permission::where('guard_name', 'api')
+                ->whereIn('name', $request->permissions)
+                ->get();
             $role->syncPermissions($permissions);
         }
 

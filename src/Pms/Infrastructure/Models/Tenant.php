@@ -19,10 +19,17 @@ class Tenant extends Model
         'address',
         'phone',
         'logo',
+        'status',
+        'can_auto_activate_users',
+        'auto_activate_request_pending',
+        'auto_activate_requested_at',
     ];
 
     protected $casts = [
         'id' => 'string',
+        'can_auto_activate_users' => 'boolean',
+        'auto_activate_request_pending' => 'boolean',
+        'auto_activate_requested_at' => 'datetime',
     ];
 
     public function users(): HasMany

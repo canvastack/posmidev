@@ -2,16 +2,19 @@
 
 namespace Src\Pms\Infrastructure\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Concerns\HasUuids; // re-enabled for UUID support
+use Src\Pms\Core\Domain\Traits\BelongsToTenant;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    // Keep Laravel + Sanctum essentials only to isolate crashes in auth middleware
+    use Notifiable, HasApiTokens;
+    use HasUuids, BelongsToTenant;
+    use HasRoles;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -21,7 +24,10 @@ class User extends Authenticatable
         'tenant_id',
         'name',
         'email',
+        'username',
+        'display_name',
         'password',
+        'status',
     ];
 
     protected $hidden = [
@@ -36,8 +42,17 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function tenant(): BelongsTo
+    // Ensure Spatie permissions guard aligns with API usage
+    public function getDefaultGuardName(): string
+    {
+        return 'api';
+    }
+
+    /*
+    // Temporarily disabled to fully isolate model boot issues under auth middleware
+    public function tenant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Tenant::class);
     }
+    */
 }

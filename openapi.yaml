@@ -373,6 +373,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/StockAdjustment'
 
+  /tenants/{tenantId}/dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard summary for a tenant
+      operationId: getDashboard
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  today_revenue:
+                    type: number
+                    format: double
+                  today_transactions:
+                    type: integer
+                  low_stock_products:
+                    type: integer
+                  low_stock_alerts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        stock:
+                          type: integer
+                        sku:
+                          type: string
+
 components:
   securitySchemes:
     bearerAuth:

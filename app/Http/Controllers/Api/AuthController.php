@@ -32,8 +32,10 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign default admin role
-        $user->assignRole('admin');
+        // Assign default admin role if roles feature is available (Spatie HasRoles)
+        if (method_exists($user, 'assignRole')) {
+            $user->assignRole('admin');
+        }
 
         // Create token
         $token = $user->createToken('auth_token')->plainTextToken;

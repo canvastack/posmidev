@@ -4,6 +4,7 @@ export interface User {
   name: string;
   email: string;
   tenant_id: string;
+  status?: 'active' | 'inactive' | 'pending' | 'banned';
   roles: string[];
 }
 
