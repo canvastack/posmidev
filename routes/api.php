@@ -78,7 +78,7 @@ Route::prefix('v1')->group(function () {
         Route::post('tenants/{tenantId}/users/{userId}/status', [TenantController::class, 'setUserStatus']);
 
         // Tenant-specific routes
-        Route::prefix('tenants/{tenantId}')->group(function () {
+        Route::prefix('tenants/{tenantId}')->middleware('team.tenant')->group(function () {
             Route::get('dashboard', [DashboardController::class, 'index']);
             Route::apiResource('products', ProductController::class);
             Route::apiResource('categories', CategoryController::class);
@@ -87,6 +87,13 @@ Route::prefix('v1')->group(function () {
             Route::post('uploads/user-photo', [UserController::class, 'uploadPhoto']); // upload user photo to storage
             Route::post('users/{userId}/roles', [UserController::class, 'updateRoles']); // assign roles per tenant (team-scoped)
             Route::get('permissions', [PermissionController::class, 'index']);
+
+            // Customers
+            Route::apiResource('customers', \App\Http\Controllers\Api\CustomerController::class);
+
+            // Settings
+            Route::get('settings', [\App\Http\Controllers\Api\SettingsController::class, 'show']);
+            Route::patch('settings', [\App\Http\Controllers\Api\SettingsController::class, 'update']);
 
             // Orders
             Route::get('orders', [OrderQueryController::class, 'index']);

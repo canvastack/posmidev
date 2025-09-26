@@ -1,24 +1,45 @@
-import React from 'react'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Sidebar } from '@/components/Sidebar'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
+import { Outlet } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import { authApi } from '@/api/authApi'
 
-// Admin/POS shell with collapsible sidebar and glass header
-export function BackendShell({ children }: { children: React.ReactNode }) {
-  // In further iterations, persist collapse with localStorage
+// Admin/POS shell with collapsible sidebar, glass header, and breadcrumbs
+export function BackendShell() {
+  const { logout } = useAuth()
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+    } catch (_) {
+      // ignore network errors for logout
+    } finally {
+      logout()
+      window.location.href = '/login'
+    }
+  }
+
   return (
-    <div className="min-h-dvh grid grid-cols-[auto,1fr] grid-rows-[auto,1fr]">
-      <aside className="row-span-2 bg-white/10 dark:bg-slate-900/30 backdrop-blur-md border-r border-white/10 w-64 data-[collapsed=true]:w-16 transition-[width]">
-        <nav className="p-3 space-y-2 text-sm">
-          {/* Sidebar items with icons */}
-          <a className="block px-2 py-1 rounded hover:bg-white/20">Dashboard</a>
-          <a className="block px-2 py-1 rounded hover:bg-white/20">POS</a>
-          <a className="block px-2 py-1 rounded hover:bg-white/20">Products</a>
-          <a className="block px-2 py-1 rounded hover:bg-white/20">Orders</a>
-        </nav>
-      </aside>
-      <header className="sticky top-0 z-30 bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border-b border-white/10 h-12 flex items-center px-4 justify-between">
-        <div className="text-sm opacity-80">{/* Breadcrumbs */}Home / Dashboard</div>
-        <ThemeToggle />
+    <div className="min-h-dvh grid grid-rows-[auto,1fr] grid-cols-[auto,1fr]">
+      <header className="sticky top-0 z-header glass-header h-12 flex items-center px-4 justify-between col-span-2">
+        <div className="text-sm opacity-80 max-w-[60%] truncate">
+          <Breadcrumbs />
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={handleLogout} className="px-2 py-1 text-sm rounded-md hover:bg-white/20">Logout</button>
+          <ThemeToggle />
+        </div>
       </header>
-      <main className="p-4">{children}</main>
+      <div className="row-start-2 col-start-1">
+        <Sidebar />
+      </div>
+      <main className="p-4 row-start-2 col-start-2">
+        {/* Content card wrapper for modern look */}
+        <div className="glass-card p-4 min-h-[calc(100dvh-4rem)]">
+          <Outlet />
+        </div>
+      </main>
     </div>
-  )}
+  )
+}

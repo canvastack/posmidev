@@ -4,7 +4,12 @@ POSMID supports multi-tenant architecture, allowing multiple independent instanc
 
 ## Overview
 
-POSMID uses a **database-per-tenant** approach where each tenant has its own separate database schema, providing complete data isolation.
+POSMID uses a single-database model with tenant scoping via Spatie Permission Teams (team = `tenant_id`). This is the active and immutable architecture for authorization and tenant context.
+
+IMPORTANT enforcement updates:
+- Global email uniqueness: `users.email` is globally unique across all tenants. Registration validates `unique:users,email` and DB enforces a unique index on `email`.
+- HQ visibility rule: Users in the HQ tenant (ID from `config('tenancy.hq_tenant_id')`) may view all tenants only if their role grants `tenants.view`. Non-HQ users can only view their own tenant.
+- No blanket HQ bypass: There is no global Gate bypass for HQ users. All access is governed by policies and permissions. You can exclude specific HQ roles (e.g., Super Admin) from `tenants.view` via role management if needed.
 
 ### Key Features
 

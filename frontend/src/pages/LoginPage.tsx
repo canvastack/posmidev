@@ -27,8 +27,9 @@ export const LoginPage: React.FC = () => {
       const response = await authApi.login(form);
       login(response.user, response.token);
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(message || 'Login failed');
     } finally {
       setLoading(false);
     }

@@ -8,7 +8,7 @@ import { EyeIcon } from '@heroicons/react/24/outline';
 
 export const OrdersPage: React.FC = () => {
   const { tenantId } = useAuth();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);

@@ -8,6 +8,7 @@ class StockAdjustmentPolicy
 {
     public function create(User $user, string $tenantId): bool
     {
-        return $user->tenant_id === $tenantId && $user->can('products.update');
+        // inventory.adjust is the canonical permission for manual stock changes
+        return $user->tenant_id === $tenantId && $user->can('inventory.adjust');
     }
 }

@@ -22,13 +22,8 @@ export const RolesPage: React.FC = () => {
     permissions: [],
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [tenantId]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     if (!tenantId) return;
-    
     try {
       const [rolesData, permissionsData] = await Promise.all([
         roleApi.getRoles(tenantId),
@@ -41,7 +36,13 @@ export const RolesPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+
 
   const handleOpenModal = (role?: Role) => {
     if (role) {

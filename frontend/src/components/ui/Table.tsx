@@ -21,10 +21,7 @@ interface TableRowProps {
   className?: string;
 }
 
-interface TableCellProps {
-  children: React.ReactNode;
-  className?: string;
-}
+type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>;
 
 interface TableHeadProps {
   children: React.ReactNode;
@@ -63,8 +60,8 @@ export const TableHead: React.FC<TableHeadProps> = ({ children, className }) => 
   </th>
 );
 
-export const TableCell: React.FC<TableCellProps> = ({ children, className }) => (
-  <td className={cn('px-6 py-4 whitespace-nowrap text-sm text-gray-900', className)}>
+export const TableCell: React.FC<TableCellProps> = ({ children, className, ...props }) => (
+  <td {...props} className={cn('px-6 py-4 whitespace-nowrap text-sm text-gray-900', className)}>
     {children}
   </td>
 );

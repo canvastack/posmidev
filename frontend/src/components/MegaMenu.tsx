@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 // Glass mega menu placeholder. Populate categories via API later.
 export function MegaMenu() {
@@ -12,7 +12,7 @@ export function MegaMenu() {
         Browse
       </button>
       {open && (
-        <div className="absolute left-0 mt-2 w-[640px] rounded-xl bg-white/20 dark:bg-slate-900/50 backdrop-blur-lg ring-1 ring-white/15 p-4 shadow-glass">
+        <div className="absolute left-0 mt-2 w-[640px] rounded-xl glass-menu p-4 z-overlay">
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
               <div className="font-semibold mb-2">Featured</div>

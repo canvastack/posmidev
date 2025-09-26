@@ -14,8 +14,29 @@ class TenantController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('viewAny', [Tenant::class]);
-        $tenants = Tenant::query()->latest()->paginate($request->query('per_page', 20));
+        $user = $request->user();
+        $perPage = (int) $request->query('per_page', 20);
+
+        // Visibility rules:
+        // - Users from HQ tenant (except those with role "Super Admin" if restricted later via role management)
+        //   can view all tenants when they have tenants.view
+        // - Non-HQ users must only see their own tenant, regardless of permission
+        $hqTenantId = config('tenancy.hq_tenant_id');
+        $query = Tenant::query();
+
+        if ((string) $user->tenant_id !== (string) $hqTenantId) {
+            // Non-HQ users strictly limited to their own tenant
+            $query->where('id', (string) $user->tenant_id);
+        } else {
+            // HQ users:
+            // - Super Admin can view all tenants
+            // - Otherwise require tenants.view permission
+            if (!$user->hasRole('Super Admin') && !$user->can('tenants.view')) {
+                $query->where('id', (string) $user->tenant_id);
+            }
+        }
+
+        $tenants = $query->latest()->paginate($perPage);
         return response()->json($tenants->through(fn($t) => new TenantResource($t)));
     }
 

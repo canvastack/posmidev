@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -31,13 +31,15 @@ export const UsersByTenant: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [activeTenantId, setActiveTenantId] = useState<string | null>(null);
-  const [form, setForm] = useState<Partial<CreateUserPayload & UpdateUserPayload>>({
+  type FormState = Partial<CreateUserPayload & UpdateUserPayload> & { photo_thumb?: string | null };
+  const [form, setForm] = useState<FormState>({
     name: '',
     email: '',
     password: '',
     display_name: '',
     status: 'pending',
     photo: '',
+    photo_thumb: '',
     phone_number: '',
   });
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +47,6 @@ export const UsersByTenant: React.FC = () => {
   // Modal tabs and image cropping state
   const [activeTab, setActiveTab] = useState<'details' | 'access'>('details');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -54,7 +55,7 @@ export const UsersByTenant: React.FC = () => {
 
   useEffect(() => {
     fetchTenants({ page: 1, perPage: tenantPages.perPage });
-  }, []);
+  }, [tenantPages.perPage]);
 
   const fetchTenants = async ({ page, perPage }: { page: number; perPage: number }) => {
     try {
@@ -96,9 +97,8 @@ export const UsersByTenant: React.FC = () => {
   const openCreateModal = (tenantId: string) => {
     setEditingUser(null);
     setActiveTenantId(tenantId);
-    setForm({ name: '', email: '', password: '', display_name: '', status: 'pending', photo: '', phone_number: '' });
+    setForm({ name: '', email: '', password: '', display_name: '', status: 'pending', photo: '', photo_thumb: '', phone_number: '' });
     setSelectedFile(null);
-    setCroppedBlob(null);
     setUploadProgress(0);
     setUploading(false);
     setActiveTab('details');
@@ -108,9 +108,8 @@ export const UsersByTenant: React.FC = () => {
   const openEditModal = (tenantId: string, user: User) => {
     setEditingUser(user);
     setActiveTenantId(tenantId);
-    setForm({ name: user.name, email: user.email, display_name: user.display_name ?? '', status: user.status, photo: user.photo ?? '', phone_number: user.phone_number ?? '' });
+    setForm({ name: user.name, email: user.email, display_name: user.display_name ?? '', status: user.status, photo: user.photo ?? '', photo_thumb: user.photo_thumb ?? '', phone_number: user.phone_number ?? '' });
     setSelectedFile(null);
-    setCroppedBlob(null);
     setUploadProgress(0);
     setUploading(false);
     setActiveTab('details');
@@ -144,7 +143,7 @@ export const UsersByTenant: React.FC = () => {
       }
     };
     loadRoles();
-  }, [modalOpen, activeTenantId, editingUser?.id]);
+  }, [modalOpen, activeTenantId, editingUser?.id, editingUser?.roles]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -177,7 +176,7 @@ export const UsersByTenant: React.FC = () => {
         });
         // If roles selected pre-save, try to assign (optional)
         if ((selectedRoles?.length || 0) > 0) {
-          await userApi.updateUserRoles(activeTenantId, (newUser as any).id, selectedRoles);
+          await userApi.updateUserRoles(activeTenantId, newUser.id, selectedRoles);
         }
       }
       setModalOpen(false);
@@ -204,7 +203,7 @@ export const UsersByTenant: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead></TableHead>
+                <TableHead>&nbsp;</TableHead>
                 <TableHead>Tenant</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
@@ -219,7 +218,7 @@ export const UsersByTenant: React.FC = () => {
                 tenants.map((tenant) => {
                   const state = ensureRowState(tenant.id);
                   return (
-                    <React.Fragment key={tenant.id}>
+                    <Fragment key={tenant.id}>
                       <TableRow>
                         <TableCell className="w-10">
                           <button onClick={() => toggleExpand(tenant)} className="text-gray-600 hover:text-gray-900">
@@ -282,7 +281,7 @@ export const UsersByTenant: React.FC = () => {
                                           <TableCell>
                                             {u.photo ? (
                                               <img
-                                                src={(u as any).photo_thumb || u.photo}
+                                                src={u.photo_thumb || u.photo}
                                                 onError={(e) => { (e.currentTarget as HTMLImageElement).src = u.photo || ''; }}
                                                 alt={u.name}
                                                 className="h-8 w-8 rounded-full object-cover"
@@ -359,7 +358,7 @@ export const UsersByTenant: React.FC = () => {
                           </td>
                         </tr>
                       )}
-                    </React.Fragment>
+                    </Fragment>
                   );
                 })
               )}
@@ -414,7 +413,7 @@ export const UsersByTenant: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
               <div className="flex items-center gap-3">
                 {form.photo ? (
-                  <img src={(form as any).photo_thumb || form.photo} onError={(e) => { (e.currentTarget as HTMLImageElement).src = form.photo || ''; }} className="h-10 w-10 rounded-full object-cover" />
+                  <img src={form.photo_thumb || form.photo} onError={(e) => { (e.currentTarget as HTMLImageElement).src = form.photo || ''; }} className="h-10 w-10 rounded-full object-cover" />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gray-200" />
                 )}
@@ -458,7 +457,6 @@ export const UsersByTenant: React.FC = () => {
                       variant="secondary"
                       onClick={() => {
                         setSelectedFile(null);
-                        setCroppedBlob(null);
                       }}
                     >Cancel</Button>
                     <Button
@@ -480,14 +478,13 @@ export const UsersByTenant: React.FC = () => {
                           if (!ctx) throw new Error('no ctx');
                           ctx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
                           const blob: Blob = await new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), 'image/jpeg', 0.92));
-                          setCroppedBlob(blob);
 
                           // Upload cropped blob
                           setUploadProgress(0);
                           setUploading(true);
                           const fileForUpload = new File([blob], selectedFile.name, { type: blob.type });
                           const { url, thumb_url } = await userApi.uploadUserPhoto(activeTenantId, fileForUpload, (p) => setUploadProgress(p));
-                          setForm(prev => ({ ...prev, photo: url, ...(thumb_url ? { photo_thumb: thumb_url as any } : {}) }));
+                          setForm(prev => ({ ...prev, photo: url, ...(thumb_url ? { photo_thumb: thumb_url } : {}) }));
                           setSelectedFile(null);
                         } catch (err) {
                           console.error('Upload failed', err);

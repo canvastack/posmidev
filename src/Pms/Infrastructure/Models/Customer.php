@@ -21,11 +21,13 @@ class Customer extends Model
         'email',
         'phone',
         'address',
+        'tags',
     ];
 
     protected $casts = [
         'id' => 'string',
         'tenant_id' => 'string',
+        'tags' => 'array',
     ];
 
     public function tenant(): BelongsTo

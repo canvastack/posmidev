@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, User, Tenant};
-use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, UserPolicy, TenantPolicy};
+use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, User, Tenant, Customer};
+use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, UserPolicy, TenantPolicy, CustomerPolicy};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         StockAdjustment::class => StockAdjustmentPolicy::class,
         User::class => UserPolicy::class,
         Tenant::class => TenantPolicy::class,
+        Customer::class => CustomerPolicy::class,
     ];
 
     /**
@@ -30,12 +31,19 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // Allow admin-level roles to bypass all policy checks
+        // HQ Super Admin bypass: full access across tenants (ignore current team context)
         Gate::before(function ($user, string $ability) {
-            if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['Super Admin', 'admin'])) {
-                return true;
+            $hqTenantId = (string) config('tenancy.hq_tenant_id');
+            if ((string) $user->tenant_id !== $hqTenantId) {
+                return null;
             }
-            return null;
+            // Check SA role explicitly within HQ team to avoid team-context false negatives
+            $isHqSuperAdmin = $user->roles()
+                ->where('guard_name', 'api')
+                ->where('name', 'Super Admin')
+                ->where('tenant_id', $hqTenantId)
+                ->exists();
+            return $isHqSuperAdmin ? true : null;
         });
     }
 }

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Card, CardContent } from '../components/ui/Card'; // CardHeader removed if unused
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
@@ -25,13 +25,8 @@ export const ProductsPage: React.FC = () => {
     cost_price: 0,
   });
 
-  useEffect(() => {
-    fetchProducts();
-  }, [tenantId]);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     if (!tenantId) return;
-    
     try {
       const productsData = await productApi.getProducts(tenantId);
       setProducts(productsData);
@@ -40,7 +35,13 @@ export const ProductsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+
 
   const handleOpenModal = (product?: Product) => {
     if (product) {

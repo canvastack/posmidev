@@ -23,6 +23,9 @@ class PermissionSeeder extends Seeder
             'products.update',
             'products.delete',
             
+            // Inventory permissions
+            'inventory.adjust',
+            
             // Order permissions
             'orders.view',
             'orders.create',
@@ -81,6 +84,7 @@ class PermissionSeeder extends Seeder
         $managerRole = Role::findOrCreate('manager', $guard);
         $managerRole->givePermissionTo([
             'products.view', 'products.create', 'products.update',
+            'inventory.adjust',
             'orders.view', 'orders.create',
             'customers.view', 'customers.create', 'customers.update',
             'categories.view', 'categories.create', 'categories.update',

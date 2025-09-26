@@ -4,7 +4,20 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>POSMID</title>
+    <script>
+      // Prevent theme flash: set dark class before React mounts
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme') || 'system';
+          var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = theme === 'dark' || (theme === 'system' && systemDark);
+          var root = document.documentElement;
+          if (isDark) root.classList.add('dark'); else root.classList.remove('dark');
+          root.style.colorScheme = isDark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

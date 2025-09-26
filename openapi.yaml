@@ -306,6 +306,24 @@ paths:
                   $ref: '#/components/schemas/Permission'
 
   /tenants/{tenantId}/orders:
+    get:
+      tags:
+        - Sales
+      summary: List orders
+      operationId: listOrders
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: A paginated list of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
     post:
       tags:
         - Sales
@@ -324,6 +342,25 @@ paths:
       responses:
         '201':
           description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+  /tenants/{tenantId}/orders/{orderId}:
+    get:
+      tags:
+        - Sales
+      summary: Get an order by ID
+      operationId: getOrderById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Successful operation
           content:
             application/json:
               schema:
@@ -348,6 +385,83 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
+    post:
+      tags:
+        - Products
+      summary: Create a new category
+      operationId: createCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+
+  /tenants/{tenantId}/categories/{categoryId}:
+    get:
+      tags:
+        - Products
+      summary: Get a single category by ID
+      operationId: getCategoryById
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+    put:
+      tags:
+        - Products
+      summary: Update an existing category
+      operationId: updateCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryRequest'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+    delete:
+      tags:
+        - Products
+      summary: Delete a category
+      operationId: deleteCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '204':
+          description: Category deleted successfully
 
   /tenants/{tenantId}/stock-adjustments:
     post:
@@ -413,6 +527,178 @@ paths:
                         sku:
                           type: string
 
+  /tenants/{tenantId}/customers:
+    get:
+      tags:
+        - Customers
+      summary: List customers for a tenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: q
+          schema:
+            type: string
+          description: Search by name, email, or phone
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: A paginated list of customers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Customer'
+                  current_page:
+                    type: integer
+                  last_page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  total:
+                    type: integer
+    post:
+      tags:
+        - Customers
+      summary: Create a customer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+
+  /tenants/{tenantId}/customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+    patch:
+      tags:
+        - Customers
+      summary: Update customer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+    delete:
+      tags:
+        - Customers
+      summary: Delete customer
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/settings:
+    get:
+      tags:
+        - Settings
+      summary: Get tenant settings
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantSettings'
+    patch:
+      tags:
+        - Settings
+      summary: Update tenant settings
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantSettingsUpdate'
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantSettings'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -442,6 +728,22 @@ components:
       in: path
       required: true
       description: ID of the role
+      schema:
+        type: string
+        format: uuid
+    CategoryId:
+      name: categoryId
+      in: path
+      required: true
+      description: ID of the category
+      schema:
+        type: string
+        format: uuid
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      description: ID of the order
       schema:
         type: string
         format: uuid
@@ -644,9 +946,22 @@ components:
           format: uuid
         name:
           type: string
+        description:
+          type: string
+          nullable: true
         tenant_id:
           type: string
           format: uuid
+    CategoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: "Elektronik"
+        description:
+          type: string
+          nullable: true
 
     StockAdjustment:
       type: object
@@ -679,3 +994,65 @@ components:
         reason:
           type: string
           example: "Barang Rusak"
+
+    Customer:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CustomerRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    TenantSettings:
+      type: object
+      properties:
+        payments:
+          type: object
+          properties:
+            default_method:
+              type: string
+              enum: [ewallet, card, cash]
+
+    TenantSettingsUpdate:
+      type: object
+      properties:
+        payments:
+          type: object
+          properties:
+            default_method:
+              type: string
+              enum: [ewallet, card, cash]

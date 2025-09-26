@@ -9,11 +9,13 @@ use Src\Pms\Core\Domain\Repositories\OrderRepositoryInterface;
 use Src\Pms\Core\Domain\Repositories\TenantRepositoryInterface;
 use Src\Pms\Core\Domain\Repositories\CategoryRepositoryInterface;
 use Src\Pms\Core\Domain\Repositories\StockAdjustmentRepositoryInterface;
+use Src\Pms\Core\Domain\Contracts\TransactionManagerInterface;
 use Src\Pms\Infrastructure\Repositories\EloquentProductRepository;
 use Src\Pms\Infrastructure\Repositories\EloquentOrderRepository;
 use Src\Pms\Infrastructure\Repositories\EloquentTenantRepository;
 use Src\Pms\Infrastructure\Repositories\EloquentCategoryRepository;
 use Src\Pms\Infrastructure\Repositories\EloquentStockAdjustmentRepository;
+use Src\Pms\Infrastructure\Support\EloquentTransactionManager;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TenantRepositoryInterface::class, EloquentTenantRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, EloquentCategoryRepository::class);
         $this->app->bind(StockAdjustmentRepositoryInterface::class, EloquentStockAdjustmentRepository::class);
+
+        // Transactions
+        $this->app->bind(TransactionManagerInterface::class, EloquentTransactionManager::class);
     }
 
     /**

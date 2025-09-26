@@ -1,15 +1,13 @@
-# Per-Tenant Roles (Global + Tenant-Specific)
+# Roles and Permissions — Teams (Tenant) Scoped
 
-This document explains the new role catalog architecture that supports both global and tenant-specific roles without enabling Spatie "teams".
+This document aligns with the core rule: Spatie Permission with Teams enabled. All roles and permissions are tenant-scoped by team = `tenant_id`. Any prior guidance about disabling Teams or using global roles is legacy and deprecated.
 
 ## Summary
-- A nullable `tenant_id` column is added to the `roles` table.
-  - `tenant_id = null` → Global role (visible/usable in all tenants)
-  - `tenant_id = <tenant UUID>` → Role scoped to that tenant
-- A local `App\Models\Role` model extends `Spatie\Permission\Models\Role` and carries `tenant_id`.
-- `config/permission.php` is updated to use `App\Models\Role`.
-- Role listing returns global + tenant-scoped roles for the current tenant.
-- Create/Update supports a `global: boolean` flag to toggle role scope.
+- Teams enabled; `team_foreign_key = tenant_id`; guard `api`; `model_morph_key = model_uuid`.
+- Roles and permissions are tenant-scoped only; do not use `NULL tenant_id` roles.
+- Use `App\Models\Role` extending Spatie Role; ensure uniqueness includes `tenant_id, name, guard_name`.
+- Listing returns roles for the current tenant context; creation binds to current tenant via team context.
+- HQ bypass is via `Gate::before` and does not introduce global roles.
 
 ## Backend Details
 - Guard remains `api` throughout.

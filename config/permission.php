@@ -4,7 +4,7 @@ return [
 
     'models' => [
         'permission' => Spatie\Permission\Models\Permission::class,
-        // Swap to our extended Role model that supports tenant_id
+        // Use our extended Role model that supports tenant_id
         'role' => App\Models\Role::class,
     ],
 
@@ -17,11 +17,13 @@ return [
     ],
 
     'column_names' => [
-        // Use UUID for morph key to match User's string id
+        // Use UUID for morph key to match User's UUID id
         'model_morph_key' => 'model_uuid',
-        'team_foreign_key' => 'team_id',
+        // Map Spatie team key to our tenant_id
+        'team_foreign_key' => 'tenant_id',
     ],
 
+    // Enable Spatie Teams and scope by tenant_id
     'teams' => true,
 
     'display_permission_in_exception' => false,

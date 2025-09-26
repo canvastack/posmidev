@@ -1,0 +1,192 @@
+# OpenAPI patch proposal for Phase 0
+# This file documents the minimal additions to be merged into openapi.yaml
+# to support Customers CRUD/Search and per-tenant Settings for payments.default_method
+
+openapi: 3.0.3
+info:
+  title: Canvastack POSMID API — Phase 0 Patch
+  version: 1.0.0-patch-0
+
+paths:
+  /api/v1/tenants/{tenantId}/customers:
+    get:
+      tags: [Customers]
+      summary: List customers for a tenant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Search by name, email, or phone
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: A paginated list of customers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Customer' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+    post:
+      tags: [Customers]
+      summary: Create a customer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerRequest' }
+      responses:
+        '201':
+          description: Customer created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+
+  /api/v1/tenants/{tenantId}/customers/{id}:
+    get:
+      tags: [Customers]
+      summary: Get customer by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+    patch:
+      tags: [Customers]
+      summary: Update customer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+    delete:
+      tags: [Customers]
+      summary: Delete customer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204': { description: Deleted }
+
+  /api/v1/tenants/{tenantId}/settings:
+    get:
+      tags: [Settings]
+      summary: Get tenant settings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Settings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TenantSettings' }
+    patch:
+      tags: [Settings]
+      summary: Update tenant settings
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TenantSettingsUpdate' }
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TenantSettings' }
+
+components:
+  parameters:
+    TenantId:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    Customer:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        tags:
+          type: array
+          items: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    CustomerRequest:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        tags:
+          type: array
+          items: { type: string }
+    TenantSettings:
+      type: object
+      properties:
+        payments:
+          type: object
+          properties:
+            default_method:
+              type: string
+              enum: [ewallet, card, cash]
+    TenantSettingsUpdate:
+      type: object
+      properties:
+        payments:
+          type: object
+          properties:
+            default_method:
+              type: string
+              enum: [ewallet, card, cash]

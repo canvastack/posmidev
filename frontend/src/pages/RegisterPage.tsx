@@ -29,8 +29,9 @@ export const RegisterPage: React.FC = () => {
       const response = await authApi.register(form);
       login(response.user, response.token);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err) {
+      const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setError(message || 'Registration failed');
     } finally {
       setLoading(false);
     }

@@ -16,7 +16,8 @@ class RegisterRequest extends FormRequest
         return [
             'tenant_name' => 'required|string|max:255',
             'user_name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            // Enforce global email uniqueness across all tenants
+            'email' => 'required|string|email|max:255|unique:users,email',
             'password' => 'required|string|min:8',
         ];
     }

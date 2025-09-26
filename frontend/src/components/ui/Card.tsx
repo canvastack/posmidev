@@ -16,14 +16,15 @@ interface CardContentProps {
   className?: string;
 }
 
+// Updated to use glass utilities and tokens
 export const Card: React.FC<CardProps> = ({ children, className }) => (
-  <div className={cn('bg-white rounded-lg shadow-sm border border-gray-200', className)}>
+  <div className={cn('glass-card', className)}>
     {children}
   </div>
 );
 
 export const CardHeader: React.FC<CardHeaderProps> = ({ children, className }) => (
-  <div className={cn('px-6 py-4 border-b border-gray-200', className)}>
+  <div className={cn('px-6 py-4 border-b border-white/10', className)}>
     {children}
   </div>
 );

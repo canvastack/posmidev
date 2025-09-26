@@ -1,6 +1,13 @@
 # Authorization
 
-POSMID implements role-based access control (RBAC) using Spatie Laravel Permission package, providing granular permission management for users, roles, and resources. This guide covers authorization setup, configuration, and usage patterns.
+POSMID uses Spatie Laravel Permission with Teams enabled as a core, immutable rule. Authorization is tenant-scoped via team context mapped to `tenant_id`, using the `api` guard and `model_morph_key = model_uuid`. This document is aligned with that standard; any non-Teams guidance is considered legacy.
+
+## Core System Rules (Immutable)
+- Spatie Permission with Teams is required and cannot be disabled.
+- Team foreign key: `tenant_id`. Guard: `api`. Morph key: `model_uuid`.
+- Team context must be set per-request (from route `tenants/{tenantId}` or from authenticated user).
+- Roles and permissions are tenant-scoped only. No global roles; HQ bypass is via `Gate::before` using configured HQ tenant.
+
 
 ## Overview
 

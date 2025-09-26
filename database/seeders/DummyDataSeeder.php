@@ -109,14 +109,14 @@ class DummyDataSeeder extends Seeder
             $superAdmin = User::firstOrCreate(
                 [
                     'tenant_id' => $tenant->id,
-                    'email' => 'canvastacks@gmail.com',
+                    'email' => 'admin+demo@demo.local',
                 ],
                 [
                     'id' => (string) Str::uuid(),
-                    'name' => 'CanvaStack',
-                    'username' => 'canvastack',
-                    'display_name' => 'CanvaStack',
-                    'password' => Hash::make('@password123'),
+                    'name' => 'Demo Tenant Admin',
+                    'username' => 'demo_admin',
+                    'display_name' => 'Demo Admin',
+                    'password' => Hash::make('password'),
                 ]
             );
             if (!empty($roles) && isset($roles['Super Admin'])) {

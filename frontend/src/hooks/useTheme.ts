@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-// Controls dark/light mode, synced with localStorage and prefers-color-scheme
+// Prevent initial flash: we also inject a tiny script in index.html.
+// This hook still reacts to changes and persists user choice.
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() =>
     (localStorage.getItem('theme') as Theme) || 'system'

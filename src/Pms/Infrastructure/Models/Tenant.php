@@ -20,6 +20,7 @@ class Tenant extends Model
         'phone',
         'logo',
         'status',
+        'settings',
         'can_auto_activate_users',
         'auto_activate_request_pending',
         'auto_activate_requested_at',
@@ -27,6 +28,7 @@ class Tenant extends Model
 
     protected $casts = [
         'id' => 'string',
+        'settings' => 'array',
         'can_auto_activate_users' => 'boolean',
         'auto_activate_request_pending' => 'boolean',
         'auto_activate_requested_at' => 'datetime',

@@ -66,5 +66,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        // Team scoping for Spatie Permissions (Teams -> tenant_id)
+        'team.tenant' => \App\Http\Middleware\SetPermissionsTeamFromTenant::class,
     ];
 }

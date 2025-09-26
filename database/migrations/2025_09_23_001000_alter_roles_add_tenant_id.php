@@ -20,8 +20,9 @@ return new class extends Migration
     {
         Schema::table('roles', function (Blueprint $table) {
             if (Schema::hasColumn('roles', 'tenant_id')) {
-                $table->dropIndex(['tenant_id']);
-                $table->dropColumn('tenant_id');
+                // Postgres-safe: drop index only if exists
+                try { \Illuminate\Support\Facades\DB::statement('DROP INDEX IF EXISTS roles_tenant_id_index'); } catch (\Throwable $e) {}
+                try { $table->dropColumn('tenant_id'); } catch (\Throwable $e) {}
             }
         });
     }

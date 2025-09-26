@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PermissionSeeder::class,
-            RoleTenantBootstrapper::class,
+            SystemTenantSeeder::class, // creates Canvastack HQ + Super Admin in HQ scope
             DummyDataSeeder::class,
         ]);
     }

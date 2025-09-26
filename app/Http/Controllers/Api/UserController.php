@@ -205,14 +205,16 @@ class UserController extends Controller
         // Only allow roles from current tenant or global (null tenant)
         $roles = $data['roles'] ?? [];
 
-        // Scope Spatie team to current tenant for assignments
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
-        try {
-            $user->syncRoles($roles);
-        } finally {
-            // reset team scope
-            app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId(null);
-        }
+        // Sync roles without Spatie teams; scope by tenant_id manually (allow global)
+        $roleModels = \App\Models\Role::query()
+            ->where('guard_name', 'api')
+            ->where(function ($q) use ($tenantId) {
+                $q->whereNull('tenant_id')->orWhere('tenant_id', $tenantId);
+            })
+            ->whereIn('name', $roles)
+            ->get();
+
+        $user->syncRoles($roleModels);
 
         return response()->json(['message' => 'Roles updated']);
     }

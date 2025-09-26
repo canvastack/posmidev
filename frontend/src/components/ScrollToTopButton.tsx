@@ -1,4 +1,3 @@
-import React from 'react'
 import { useScrollTop } from '@/hooks/useScrollTop'
 
 // Floating button to quickly scroll to top

@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTheme, type Theme } from '@/hooks/useTheme'
 
 const options: { value: Theme; label: string }[] = [
