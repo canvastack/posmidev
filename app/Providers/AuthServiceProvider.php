@@ -34,15 +34,22 @@ class AuthServiceProvider extends ServiceProvider
         // HQ Super Admin bypass: full access across tenants (ignore current team context)
         Gate::before(function ($user, string $ability) {
             $hqTenantId = (string) config('tenancy.hq_tenant_id');
+            
             if ((string) $user->tenant_id !== $hqTenantId) {
                 return null;
             }
-            // Check SA role explicitly within HQ team to avoid team-context false negatives
-            $isHqSuperAdmin = $user->roles()
-                ->where('guard_name', 'api')
-                ->where('name', 'Super Admin')
-                ->where('tenant_id', $hqTenantId)
+
+            /// Explicit role check to avoid ambiguous columns and team-context interference
+            $isHqSuperAdmin = \Spatie\Permission\Models\Role::query()
+                ->join('model_has_roles as mhr', 'roles.id', '=', 'mhr.role_id')
+                ->where('mhr.model_uuid', $user->getKey())               // UUID PK
+                ->where('mhr.model_type', $user->getMorphClass())        // Polymorphic type
+                ->where('mhr.tenant_id', $hqTenantId)                    // Pivot team = HQ
+                ->where('roles.tenant_id', $hqTenantId)                  // Role scoped to HQ
+                ->where('roles.guard_name', 'api')
+                ->where('roles.name', 'Super Admin')
                 ->exists();
+
             return $isHqSuperAdmin ? true : null;
         });
     }

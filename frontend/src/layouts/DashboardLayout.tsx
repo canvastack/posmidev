@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -12,6 +12,8 @@ import {
   XMarkIcon,
   ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline';
+import { tenantApi, type Tenant } from '@/api/tenantApi';
+import { useTenantScopeStore } from '@/stores/tenantScopeStore';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
@@ -27,6 +29,19 @@ export const DashboardLayout: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Tenant picker state
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const { selectedTenantId, setSelectedTenantId } = useTenantScopeStore();
+  const isHq = user?.tenant_id === import.meta.env.VITE_HQ_TENANT_ID;
+
+  useEffect(() => {
+    if (!isHq) return;
+    tenantApi
+      .getTenants({ page: 1, per_page: 100 })
+      .then((p) => setTenants(p.data))
+      .catch(() => {});
+  }, [isHq]);
 
   const handleLogout = async () => {
     try {
@@ -146,6 +161,31 @@ export const DashboardLayout: React.FC = () => {
               </div>
             </div>
             <div className="ml-4 flex items-center md:ml-6">
+              {isHq && (
+                <div className="flex items-center gap-2 mr-4">
+                  <label className="text-sm text-gray-700">Tenant:</label>
+                  <select
+                    className="px-2 py-1 text-sm rounded-md border border-border bg-white"
+                    value={selectedTenantId || ''}
+                    onChange={(e) => setSelectedTenantId(e.target.value || null)}
+                  >
+                    <option value="">HQ (no override)</option>
+                    {tenants.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                  {selectedTenantId && (
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-xs rounded-md border border-border hover:bg-gray-50"
+                      onClick={() => setSelectedTenantId(null)}
+                      title="Clear tenant override"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-700">Welcome, {user?.name}</span>
                 <button

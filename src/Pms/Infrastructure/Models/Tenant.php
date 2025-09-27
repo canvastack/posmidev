@@ -53,4 +53,9 @@ class Tenant extends Model
     {
         return $this->hasMany(Category::class);
     }
+
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
 }

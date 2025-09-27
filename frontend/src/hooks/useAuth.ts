@@ -1,7 +1,12 @@
 import { useAuthStore } from '../stores/authStore';
+import { useTenantScopeStore } from '../stores/tenantScopeStore';
 
 export const useAuth = () => {
   const { user, token, isAuthenticated, login, logout, updateUser } = useAuthStore();
+  const selectedTenantId = useTenantScopeStore((s) => s.selectedTenantId);
+
+  const isHq = user?.tenant_id === import.meta.env.VITE_HQ_TENANT_ID;
+  const effectiveTenantId = isHq && selectedTenantId ? selectedTenantId : user?.tenant_id;
 
   return {
     user,
@@ -10,6 +15,7 @@ export const useAuth = () => {
     login,
     logout,
     updateUser,
-    tenantId: user?.tenant_id,
+    // Prefer globally selected tenant only for HQ Super Admin; otherwise use user's own tenant
+    tenantId: effectiveTenantId,
   };
 };

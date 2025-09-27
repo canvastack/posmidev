@@ -19,6 +19,7 @@ class TenantResource extends JsonResource
             'can_auto_activate_users' => (bool)($this->can_auto_activate_users ?? false),
             'auto_activate_request_pending' => (bool)($this->auto_activate_request_pending ?? false),
             'auto_activate_requested_at' => optional($this->auto_activate_requested_at)->format('Y-m-d H:i:s'),
+            'customers_count' => $this->when(isset($this->customers_count), (int) $this->customers_count),
             'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
             'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
         ];

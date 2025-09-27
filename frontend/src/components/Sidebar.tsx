@@ -1,15 +1,28 @@
 import { useEffect, useId, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Tooltip } from '@/components/ui/Tooltip'
+import { useAuth } from '@/hooks/useAuth'
 
 // Collapsible sidebar with persistence and keyboard accessibility
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('sidebar:collapsed') === '1')
   const toggleId = useId()
+  const { tenantId } = useAuth()
 
   useEffect(() => {
     localStorage.setItem('sidebar:collapsed', collapsed ? '1' : '0')
   }, [collapsed])
+
+  // Build menu links; add Customers only if tenantId is resolved
+  const baseLinks = [
+    { to: '/dashboard', label: 'Dashboard' },
+    { to: '/pos', label: 'POS' },
+    { to: '/products', label: 'Products' },
+    { to: '/orders', label: 'Orders' },
+    { to: '/users', label: 'Users' },
+    { to: '/roles', label: 'Roles' },
+  ] as const
+  const links = [...baseLinks, { to: `/customers`, label: 'Customers' }]
 
   return (
     <aside className={`glass-card h-full ${collapsed ? 'w-16' : 'w-64'} transition-[width] duration-200 ease-in-out`} data-collapsed={collapsed}>
@@ -33,16 +46,6 @@ export function Sidebar() {
     </aside>
   )
 }
-
-const links = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/pos', label: 'POS' },
-  { to: '/products', label: 'Products' },
-  { to: '/orders', label: 'Orders' },
-  { to: '/users', label: 'Users' },
-  { to: '/roles', label: 'Roles' },
-  { to: '/tenants/00000000-0000-0000-0000-000000000000/customers', label: 'Customers' },
-]
 
 function NavItem({ to, label, collapsed }: { to: string; label: string; collapsed: boolean }) {
   const content = (

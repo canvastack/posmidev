@@ -90,6 +90,7 @@ Route::prefix('v1')->group(function () {
 
             // Customers
             Route::apiResource('customers', \App\Http\Controllers\Api\CustomerController::class);
+            Route::post('customers/search', [\App\Http\Controllers\Api\CustomerController::class, 'search']);
 
             // Settings
             Route::get('settings', [\App\Http\Controllers\Api\SettingsController::class, 'show']);

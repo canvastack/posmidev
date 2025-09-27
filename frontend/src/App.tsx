@@ -37,8 +37,8 @@ function App() {
           <Route path="/users" element={<UsersPage />} />
           <Route path="/roles" element={<RolesPage />} />
 
-          {/* Tenant-aware example */}
-          <Route path="/tenants/:tenantId/customers" element={<CustomersPage />} />
+          {/* Customers centralized route (no tenantId in URL) */}
+          <Route path="/customers" element={<CustomersPage />} />
         </Route>
 
         {/* Catch all */}

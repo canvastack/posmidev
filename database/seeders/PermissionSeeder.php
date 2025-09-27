@@ -78,8 +78,23 @@ class PermissionSeeder extends Seeder
         }
 
         // Create roles and assign permissions (guard-aware)
-        $adminRole = Role::findOrCreate('admin', $guard);
-        $adminRole->givePermissionTo(Permission::where('guard_name', $guard)->get());
+        // Assign permissions to 'admin' per tenant with HQ-specific exclusion for tenants.view
+        $allPerms = Permission::where('guard_name', $guard)->pluck('name')->all();
+        $allButTenantsView = array_values(array_diff($allPerms, ['tenants.view']));
+        $hqTenantId = (string) config('tenancy.hq_tenant_id');
+
+        // Ensure an 'admin' role exists (guard-aware); do not assume global role
+        Role::findOrCreate('admin', $guard);
+
+        // Apply per-tenant assignment: exclude tenants.view for HQ's admin, allow for others
+        $adminRoles = Role::where('guard_name', $guard)->where('name', 'admin')->get();
+        foreach ($adminRoles as $role) {
+            if ((string) $role->tenant_id === $hqTenantId) {
+                $role->syncPermissions($allButTenantsView);
+            } else {
+                $role->syncPermissions($allPerms);
+            }
+        }
 
         $managerRole = Role::findOrCreate('manager', $guard);
         $managerRole->givePermissionTo([

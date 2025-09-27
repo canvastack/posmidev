@@ -1,41 +1,70 @@
-import { useEffect, useMemo, useState } from 'react'
-import { customersApi, type Customer } from '@/api/customersApi'
-import { useTenantId } from '@/hooks/useTenantId'
+import { Fragment, useEffect, useMemo, useState } from 'react'
+import { customersApi, type Customer, type Paginated as PaginatedCustomers } from '@/api/customersApi'
+import { tenantApi, type Tenant, type Paginated as PaginatedTenants } from '@/api/tenantApi'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/Table'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useAuth } from '@/hooks/useAuth'
 
+// Customers page behavior:
+// - HQ user with tenants.view: list tenants (top table), expandable to show that tenant's customers (AJAX) with pagination
+// - Non-HQ: show own-tenant customers only (no tenantId in URL)
 export function CustomersPage() {
-  const tenantId = useTenantId()
-  const [q, setQ] = useState('')
-  const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
-  const [loading, setLoading] = useState(false)
-  const [rows, setRows] = useState<Customer[]>([])
-  const [total, setTotal] = useState(0)
+  const { user, tenantId } = useAuth()
 
+  // Detect HQ user (by tenant match) and permission tenants.view from roles array
+  const hqTenantId = (import.meta as any).env?.VITE_HQ_TENANT_ID || ''
+  const isHqUser = Boolean(user?.tenant_id && hqTenantId && user?.tenant_id === hqTenantId)
+  const canViewTenants = (user?.roles || []).includes('tenants.view') || false
+
+  // Shared search debounce for customers
+  const [q, setQ] = useState('')
   const debouncedQ = useDebounce(q, 300)
 
+  // State for non-HQ customers table
+  const [custLoading, setCustLoading] = useState(false)
+  const [custRows, setCustRows] = useState<Customer[]>([])
+  const [custTotal, setCustTotal] = useState(0)
+  const [custPage, setCustPage] = useState(1)
+  const [custPerPage, setCustPerPage] = useState(10)
+
+  // State for HQ tenants table
+  const [tenantsLoading, setTenantsLoading] = useState(false)
+  const [tenants, setTenants] = useState<Tenant[]>([])
+  const [tenantsPage, setTenantsPage] = useState(1)
+  const [tenantsPerPage, setTenantsPerPage] = useState(10)
+  const [tenantsTotal, setTenantsTotal] = useState(0)
+
+  // Expandable rows state for HQ: cache per-tenant customers
+  type TenantRowState = { expanded: boolean; page: number; perPage: number; q: string; loading: boolean; data?: PaginatedCustomers<Customer> }
+  const [rowState, setRowState] = useState<Record<string, TenantRowState>>({})
+
+  // Fetch non-HQ customers
   useEffect(() => {
+    if (isHqUser && canViewTenants) return // HQ path handled separately
     if (!tenantId) return
     let cancelled = false
-    setLoading(true)
+    setCustLoading(true)
     customersApi
-      .list(tenantId, { q: debouncedQ || undefined, page, per_page: perPage })
-      .then((res) => {
-        if (cancelled) return
-        setRows(res.data)
-        setTotal(res.total)
-      })
-      .finally(() => setLoading(false))
+      .list(tenantId, { q: debouncedQ || undefined, page: custPage, per_page: custPerPage })
+      .then((res) => { if (!cancelled) { setCustRows(res.data); setCustTotal(res.total) } })
+      .finally(() => setCustLoading(false))
+    return () => { cancelled = true }
+  }, [isHqUser, canViewTenants, tenantId, debouncedQ, custPage, custPerPage])
 
-    return () => {
-      cancelled = true
-    }
-  }, [tenantId, debouncedQ, page, perPage])
+  // Fetch tenants for HQ view
+  useEffect(() => {
+    if (!(isHqUser && canViewTenants)) return
+    let cancelled = false
+    setTenantsLoading(true)
+    tenantApi.getTenants({ page: tenantsPage, per_page: tenantsPerPage })
+      .then((res: PaginatedTenants<Tenant>) => { if (!cancelled) { setTenants(res.data); setTenantsTotal(res.total) } })
+      .finally(() => setTenantsLoading(false))
+    return () => { cancelled = true }
+  }, [isHqUser, canViewTenants, tenantsPage, tenantsPerPage])
 
-  const columns = useMemo(
+  const custColumns = useMemo(
     () => [
       { key: 'name', header: 'Name' },
       { key: 'email', header: 'Email' },
@@ -45,45 +74,157 @@ export function CustomersPage() {
     []
   )
 
-  const lastPage = Math.max(1, Math.ceil(total / perPage))
+  const custLastPage = Math.max(1, Math.ceil(custTotal / custPerPage))
+  const tenantsLastPage = Math.max(1, Math.ceil(tenantsTotal / tenantsPerPage))
 
+  // HQ interactions
+  const ensureRowState = (id: string): TenantRowState => rowState[id] || { expanded: false, page: 1, perPage: 10, q: '', loading: false }
+  const toggleExpand = async (t: Tenant) => {
+    const cur = ensureRowState(t.id)
+    const next = { ...cur, expanded: !cur.expanded }
+    setRowState(prev => ({ ...prev, [t.id]: next }))
+    if (!cur.expanded) await fetchTenantCustomers(t.id, cur.page, cur.perPage, cur.q)
+  }
+  const fetchTenantCustomers = async (tenant: string, page: number, perPage: number, q?: string) => {
+    try {
+      setRowState(prev => ({ ...prev, [tenant]: { ...ensureRowState(tenant), loading: true } }))
+      const res = await customersApi.list(tenant, { page, per_page: perPage, q })
+      setRowState(prev => ({ ...prev, [tenant]: { ...ensureRowState(tenant), expanded: true, loading: false, data: res, page: res.current_page, perPage: res.per_page } }))
+    } catch (e) {
+      setRowState(prev => ({ ...prev, [tenant]: { ...ensureRowState(tenant), loading: false } }))
+      console.error('Failed loading customers', e)
+    }
+  }
+
+  if (isHqUser && canViewTenants) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold">Customers</h1>
+          <p className="text-sm text-gray-500">Select a tenant to view its customers</p>
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>&nbsp;</TableHead>
+              <TableHead>Tenant</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Customers</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tenantsLoading ? (
+              <TableRow><TableCell colSpan={4} className="py-8">Loading tenants...</TableCell></TableRow>
+            ) : tenants.length === 0 ? (
+              <TableRow><TableCell colSpan={4} className="py-8">No tenants</TableCell></TableRow>
+            ) : (
+              tenants.map((t) => {
+                const state = ensureRowState(t.id)
+                const customersCount = (state.data?.total ?? undefined) // will be filled after expand; could be enhanced with backend count
+                return (
+                  <Fragment key={t.id}>
+                    <TableRow>
+                      <TableCell className="w-10">
+                        <button onClick={() => toggleExpand(t)} className="text-gray-600 hover:text-gray-900">{state.expanded ? '▾' : '▸'}</button>
+                      </TableCell>
+                      <TableCell className="font-medium">{t.name}</TableCell>
+                      <TableCell><span className="inline-flex px-2 py-1 text-xs rounded-full bg-primary-100 text-primary-800">{t.status ?? 'pending'}</span></TableCell>
+                      <TableCell>{(t as any).customers_count ?? customersCount ?? '-'}</TableCell>
+                    </TableRow>
+                    {state.expanded && (
+                      <tr>
+                        <td colSpan={4} className="bg-gray-50">
+                          <div className="p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Input
+                                value={state.q}
+                                onChange={(e) => setRowState(prev => ({ ...prev, [t.id]: { ...ensureRowState(t.id), q: e.target.value, expanded: true } }))}
+                                onKeyDown={(e) => { if (e.key === 'Enter') fetchTenantCustomers(t.id, 1, state.perPage, state.q) }}
+                                placeholder="Search customers..."
+                                className="w-64"
+                              />
+                              <div className="text-sm text-gray-600">Page {state.data?.current_page || 1} of {state.data?.last_page || 1} — {state.data?.total || 0} customers</div>
+                            </div>
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  {custColumns.map(c => <TableHead key={c.key}>{c.header}</TableHead>)}
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {state.loading ? (
+                                  <TableRow><TableCell colSpan={custColumns.length}>Loading...</TableCell></TableRow>
+                                ) : !state.data || state.data.data.length === 0 ? (
+                                  <TableRow><TableCell colSpan={custColumns.length}>No results</TableCell></TableRow>
+                                ) : (
+                                  state.data.data.map((r) => (
+                                    <TableRow key={r.id}>
+                                      {custColumns.map((c) => (
+                                        <TableCell key={c.key}>{c.render ? c.render(r) : (r as any)[c.key]}</TableCell>
+                                      ))}
+                                    </TableRow>
+                                  ))
+                                )}
+                              </TableBody>
+                            </Table>
+                            <div className="flex items-center justify-between text-sm">
+                              <div></div>
+                              <div className="flex items-center gap-2">
+                                <Button variant="secondary" disabled={(state.data?.current_page || 1) <= 1} onClick={() => fetchTenantCustomers(t.id, Math.max(1, (state.data?.current_page || 1) - 1), state.perPage, state.q)}>Prev</Button>
+                                <Button variant="secondary" disabled={(state.data?.current_page || 1) >= (state.data?.last_page || 1)} onClick={() => fetchTenantCustomers(t.id, Math.min((state.data?.last_page || 1), (state.data?.current_page || 1) + 1), state.perPage, state.q)}>Next</Button>
+                                <select className="border rounded p-1" value={state.perPage} onChange={(e) => fetchTenantCustomers(t.id, 1, Number(e.target.value), state.q)}>
+                                  {[10, 20, 50].map(n => <option key={n} value={n}>{n} / page</option>)}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                )
+              })
+            )}
+          </TableBody>
+        </Table>
+
+        <div className="flex items-center justify-end text-sm">
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" disabled={tenantsPage <= 1} onClick={() => setTenantsPage(p => Math.max(1, p - 1))}>Prev</Button>
+            <Button variant="secondary" disabled={tenantsPage >= tenantsLastPage} onClick={() => setTenantsPage(p => Math.min(tenantsLastPage, p + 1))}>Next</Button>
+            <select className="border rounded p-1" value={tenantsPerPage} onChange={(e) => { setTenantsPage(1); setTenantsPerPage(Number(e.target.value)); }}>
+              {[10, 20, 50].map(n => <option key={n} value={n}>{n} / page</option>)}
+            </select>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Non-HQ table
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search customers..."
-          className="w-64"
-        />
-        <Button onClick={() => setPage(1)}>Search</Button>
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers..." className="w-64" />
+        <Button onClick={() => setCustPage(1)}>Search</Button>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
-            {columns.map((c) => (
-              <TableHead key={c.key}>{c.header}</TableHead>
-            ))}
+            {custColumns.map((c) => (<TableHead key={c.key}>{c.header}</TableHead>))}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length}>Loading...</TableCell>
-            </TableRow>
-          ) : rows.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length}>No results</TableCell>
-            </TableRow>
+          {custLoading ? (
+            <TableRow><TableCell colSpan={custColumns.length}>Loading...</TableCell></TableRow>
+          ) : custRows.length === 0 ? (
+            <TableRow><TableCell colSpan={custColumns.length}>No results</TableCell></TableRow>
           ) : (
-            rows.map((r) => (
+            custRows.map((r) => (
               <TableRow key={r.id}>
-                {columns.map((c) => (
-                  <TableCell key={c.key}>
-                    {c.render ? c.render(r) : (r as any)[c.key]}
-                  </TableCell>
-                ))}
+                {custColumns.map((c) => (<TableCell key={c.key}>{c.render ? c.render(r) : (r as any)[c.key]}</TableCell>))}
               </TableRow>
             ))
           )}
@@ -91,32 +232,12 @@ export function CustomersPage() {
       </Table>
 
       <div className="flex items-center justify-between text-sm">
-        <div>
-          Page {page} of {lastPage} — {total} total
-        </div>
+        <div>Page {custPage} of {custLastPage} — {custTotal} total</div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Prev
-          </Button>
-          <Button
-            variant="secondary"
-            disabled={page >= lastPage}
-            onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
-          >
-            Next
-          </Button>
-          <select
-            className="border rounded p-1"
-            value={perPage}
-            onChange={(e) => { setPage(1); setPerPage(Number(e.target.value)); }}
-          >
-            {[10, 20, 50].map((n) => (
-              <option key={n} value={n}>{n} / page</option>
-            ))}
+          <Button variant="secondary" disabled={custPage <= 1} onClick={() => setCustPage((p) => Math.max(1, p - 1))}>Prev</Button>
+          <Button variant="secondary" disabled={custPage >= custLastPage} onClick={() => setCustPage((p) => Math.min(custLastPage, p + 1))}>Next</Button>
+          <select className="border rounded p-1" value={custPerPage} onChange={(e) => { setCustPage(1); setCustPerPage(Number(e.target.value)); }}>
+            {[10, 20, 50].map((n) => (<option key={n} value={n}>{n} / page</option>))}
           </select>
         </div>
       </div>

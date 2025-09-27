@@ -52,9 +52,8 @@ class SystemTenantSeeder extends Seeder
 
             // 4) Create Super Admin role within HQ tenant and give all permissions
             $superAdminRole = Role::findOrCreate('Super Admin', $guard);
+            // Super Admin should have all permissions, including tenants.view
             $superAdminRole->givePermissionTo(Permission::where('guard_name', $guard)->get());
-            // Requirement: Super Admin must NOT be allowed to view all tenants
-            try { $superAdminRole->revokePermissionTo('tenants.view'); } catch (\Throwable $e) { /* ignore if not present */ }
 
             // 5) Ensure Super Admin user in HQ tenant
             $superAdmin = User::firstOrCreate(

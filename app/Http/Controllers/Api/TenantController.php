@@ -21,19 +21,28 @@ class TenantController extends Controller
         // - Users from HQ tenant (except those with role "Super Admin" if restricted later via role management)
         //   can view all tenants when they have tenants.view
         // - Non-HQ users must only see their own tenant, regardless of permission
-        $hqTenantId = config('tenancy.hq_tenant_id');
-        $query = Tenant::query();
+        $hqTenantId = (string) config('tenancy.hq_tenant_id');
+        $query = Tenant::query()->withCount('customers');
 
-        if ((string) $user->tenant_id !== (string) $hqTenantId) {
-            // Non-HQ users strictly limited to their own tenant
+        // Final visibility rule:
+        // - Super Admin (within HQ tenant) always can view all tenants
+        // - Users with 'tenants.view' can view all tenants
+        // - Everyone else sees only their own tenant
+        // Use explicit join to avoid ambiguous tenant_id between roles and model_has_roles
+        $isHqSuperAdmin = \Spatie\Permission\Models\Role::query()
+            ->join('model_has_roles as mhr', 'roles.id', '=', 'mhr.role_id')
+            ->where('mhr.model_uuid', $user->getKey())
+            ->where('mhr.model_type', $user->getMorphClass())
+            ->where('mhr.tenant_id', $hqTenantId)
+            ->where('roles.tenant_id', $hqTenantId)
+            ->where('roles.guard_name', 'api')
+            ->where('roles.name', 'Super Admin')
+            ->exists();
+
+        $canViewAll = $isHqSuperAdmin || $user->can('tenants.view');
+
+        if (!$canViewAll) {
             $query->where('id', (string) $user->tenant_id);
-        } else {
-            // HQ users:
-            // - Super Admin can view all tenants
-            // - Otherwise require tenants.view permission
-            if (!$user->hasRole('Super Admin') && !$user->can('tenants.view')) {
-                $query->where('id', (string) $user->tenant_id);
-            }
         }
 
         $tenants = $query->latest()->paginate($perPage);
@@ -149,8 +158,35 @@ class TenantController extends Controller
         $tenant = Tenant::findOrFail($tenantId);
         $acting = $request->user();
 
-        // Super Admin/Admin via policy; Manager Tenant allowed if same tenant and permitted
-        if (!($acting->hasAnyRole(['Super Admin','admin']) || ($acting->tenant_id === $tenantId && $acting->can('users.update')))) {
+        // Super Admin/Admin via explicit role checks; Manager Tenant allowed if same tenant and permitted
+        $hqTenantId = (string) config('tenancy.hq_tenant_id');
+
+        // Explicit check for HQ Super Admin (cross-tenant)
+        $isHqSuperAdmin = \Spatie\Permission\Models\Role::query()
+            ->join('model_has_roles as mhr', 'roles.id', '=', 'mhr.role_id')
+            ->where('mhr.model_uuid', $acting->getKey())
+            ->where('mhr.model_type', $acting->getMorphClass())
+            ->where('mhr.tenant_id', $hqTenantId)
+            ->where('roles.tenant_id', $hqTenantId)
+            ->where('roles.guard_name', 'api')
+            ->where('roles.name', 'Super Admin')
+            ->exists();
+
+        // Explicit check for Admin within the same target tenant
+        $isTenantAdmin = false;
+        if ((string) $acting->tenant_id === (string) $tenantId) {
+            $isTenantAdmin = \Spatie\Permission\Models\Role::query()
+                ->join('model_has_roles as mhr', 'roles.id', '=', 'mhr.role_id')
+                ->where('mhr.model_uuid', $acting->getKey())
+                ->where('mhr.model_type', $acting->getMorphClass())
+                ->where('mhr.tenant_id', (string) $tenantId)
+                ->where('roles.tenant_id', (string) $tenantId)
+                ->where('roles.guard_name', 'api')
+                ->where('roles.name', 'admin')
+                ->exists();
+        }
+
+        if (!($isHqSuperAdmin || $isTenantAdmin || ($acting->tenant_id === $tenantId && $acting->can('users.update')))) {
             abort(403);
         }
 
@@ -164,7 +200,7 @@ class TenantController extends Controller
         }
 
         // Auto-activation rule: if tenant cannot auto-activate and trying to set active, require admin-level
-        if ($data['status'] === 'active' && !$tenant->can_auto_activate_users && !$acting->hasAnyRole(['Super Admin','admin'])) {
+        if ($data['status'] === 'active' && !$tenant->can_auto_activate_users && !($isHqSuperAdmin || $isTenantAdmin)) {
             return response()->json(['message' => 'Activation requires Super Admin/Admin approval'], 403);
         }
 
