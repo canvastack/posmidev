@@ -11,6 +11,7 @@ import { OrdersPage } from './pages/OrdersPage'
 import { UsersPage } from './pages/UsersPage'
 import { RolesPage } from './pages/RolesPage'
 import { CustomersPage } from './pages/CustomersPage'
+import { SettingsPage } from './pages/SettingsPage'
 
 function App() {
   return (
@@ -39,6 +40,9 @@ function App() {
 
           {/* Customers centralized route (no tenantId in URL) */}
           <Route path="/customers" element={<CustomersPage />} />
+
+          {/* Settings */}
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
 
         {/* Catch all */}

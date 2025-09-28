@@ -69,6 +69,22 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
 
+        // Pillar 1: Authentication test (Sanctum)
+        Route::get('/test/auth', function (\Illuminate\Http\Request $request) {
+            return response()->json(['userId' => $request->user()->id]);
+        });
+
+        // Pillar 2: Tenant Context via route-model-binding
+        Route::middleware('team.tenant')->get('/tenants/{tenant}/test/context', function (\Src\Pms\Infrastructure\Models\Tenant $tenant) {
+            return response()->json(['tenantName' => $tenant->name]);
+        });
+
+        // Pillar 3: Authorization via TestPolicy
+        Route::middleware('team.tenant')->get('/tenants/{tenant}/test/policy', function (\Illuminate\Http\Request $request, \Src\Pms\Infrastructure\Models\Tenant $tenant) {
+            \Illuminate\Support\Facades\Gate::authorize('access', [\App\Models\TestSubject::class, (string) $tenant->id]);
+            return response()->json(['ok' => true]);
+        });
+
         // Management for tenants (Super Admin/Admin + policy controlled)
         Route::apiResource('tenants', TenantController::class);
         Route::post('tenants/{tenantId}/status', [TenantController::class, 'setStatus']);
@@ -91,6 +107,17 @@ Route::prefix('v1')->group(function () {
             // Customers
             Route::apiResource('customers', \App\Http\Controllers\Api\CustomerController::class);
             Route::post('customers/search', [\App\Http\Controllers\Api\CustomerController::class, 'search']);
+
+            // EAV Blueprints
+            Route::get('blueprints', [\App\Http\Controllers\Api\BlueprintsController::class, 'index']);
+            Route::post('blueprints', [\App\Http\Controllers\Api\BlueprintsController::class, 'store']);
+            Route::get('blueprints/{id}', [\App\Http\Controllers\Api\BlueprintsController::class, 'show']);
+            Route::patch('blueprints/{id}', [\App\Http\Controllers\Api\BlueprintsController::class, 'update']);
+            Route::post('blueprints/{id}/fields', [\App\Http\Controllers\Api\BlueprintsController::class, 'addField']);
+
+            // Customer Attributes
+            Route::get('customers/{customerId}/attributes', [\App\Http\Controllers\Api\CustomerAttributesController::class, 'show']);
+            Route::put('customers/{customerId}/attributes', [\App\Http\Controllers\Api\CustomerAttributesController::class, 'put']);
 
             // Settings
             Route::get('settings', [\App\Http\Controllers\Api\SettingsController::class, 'show']);

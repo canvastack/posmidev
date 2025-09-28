@@ -26,7 +26,14 @@ class AssignRolesToUserSeeder extends Seeder
             throw new \RuntimeException("User with email {$email} not found. Please create the user first.");
         }
 
-        // Ensure roles exist (idempotent)
+        // Resolve tenant context for team-scoped roles/pivots
+        $tenantId = (string) $user->tenant_id;
+        if (empty($tenantId)) {
+            throw new \RuntimeException("User {$email} has no tenant_id; cannot set team context.");
+        }
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+        // Ensure roles exist for this tenant (idempotent)
         $roles = [
             'Super Admin',
             'admin',
@@ -35,17 +42,30 @@ class AssignRolesToUserSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName) {
-            Role::findOrCreate($roleName, $guard);
+            Role::firstOrCreate([
+                'name' => $roleName,
+                'guard_name' => $guard,
+                'tenant_id' => $tenantId,
+            ]);
         }
 
-        // Ensure Super Admin has all permissions
-        $superAdminRole = Role::findByName('Super Admin', $guard);
+        // Ensure Super Admin has all permissions in this guard
+        $superAdminRole = Role::where('name', 'Super Admin')
+            ->where('guard_name', $guard)
+            ->where('tenant_id', $tenantId)
+            ->first();
+
         $allPermissions = Permission::where('guard_name', $guard)->get();
-        if ($allPermissions->isNotEmpty()) {
+        if ($superAdminRole && $allPermissions->isNotEmpty()) {
             $superAdminRole->syncPermissions($allPermissions);
         }
 
-        // Assign all requested roles to the user (idempotent)
-        $user->assignRole(['Super Admin', 'admin', 'manager', 'cashier']);
+        // Assign all tenant-scoped roles to the user
+        $roleModels = Role::where('guard_name', $guard)
+            ->where('tenant_id', $tenantId)
+            ->whereIn('name', $roles)
+            ->get();
+
+        $user->syncRoles($roleModels);
     }
 }

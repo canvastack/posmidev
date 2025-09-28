@@ -109,7 +109,7 @@ class DummyDataSeeder extends Seeder
             $superAdmin = User::firstOrCreate(
                 [
                     'tenant_id' => $tenant->id,
-                    'email' => 'admin+demo@demo.local',
+                    'email' => 'admin@demo.local',
                 ],
                 [
                     'id' => (string) Str::uuid(),

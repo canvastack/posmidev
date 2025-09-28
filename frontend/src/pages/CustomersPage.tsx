@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/Table'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useAuth } from '@/hooks/useAuth'
+import { CustomerEavPanel } from '@/components/Customers/CustomerEavPanel'
 
 // Customers page behavior:
 // - HQ user with tenants.view: list tenants (top table), expandable to show that tenant's customers (AJAX) with pagination
@@ -70,6 +71,12 @@ export function CustomersPage() {
       { key: 'email', header: 'Email' },
       { key: 'phone', header: 'Phone' },
       { key: 'tags', header: 'Tags', render: (r: Customer) => (r.tags || []).join(', ') },
+      { key: '__actions', header: 'Actions', render: (r: Customer) => (
+        <button
+          className="text-primary-700 hover:underline"
+          onClick={() => openEav(r)}
+        >EAV</button>
+      ) },
     ],
     []
   )
@@ -202,6 +209,15 @@ export function CustomersPage() {
     )
   }
 
+  // Local state for EAV panel
+  const [eavOpen, setEavOpen] = useState(false)
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
+
+  const openEav = (c: Customer) => {
+    setSelectedCustomerId(c.id)
+    setEavOpen(true)
+  }
+
   // Non-HQ table
   return (
     <div className="space-y-4">
@@ -241,6 +257,15 @@ export function CustomersPage() {
           </select>
         </div>
       </div>
+
+      {tenantId && selectedCustomerId && (
+        <CustomerEavPanel
+          tenantId={tenantId}
+          customerId={selectedCustomerId}
+          open={eavOpen}
+          onClose={() => setEavOpen(false)}
+        />
+      )}
     </div>
   )
 }

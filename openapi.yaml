@@ -13,9 +13,9 @@ servers:
 paths:
   /register:
     post:
-      tags:
-        - Authentication
+      tags: [Authentication]
       summary: Register a new Tenant and User
+      description: "Public endpoint - no authentication required. Creates new tenant and admin user."
       operationId: registerUser
       requestBody:
         required: true
@@ -35,9 +35,9 @@ paths:
 
   /login:
     post:
-      tags:
-        - Authentication
+      tags: [Authentication]
       summary: Log in a user
+      description: "Public endpoint - no authentication required. Returns Bearer token for authenticated requests."
       operationId: loginUser
       requestBody:
         required: true
@@ -57,12 +57,10 @@ paths:
 
   /logout:
     post:
-      tags:
-        - Authentication
+      tags: [Authentication]
       summary: Log out the current user
       operationId: logoutUser
-      security:
-        - bearerAuth: []
+      security: [{ bearerAuth: [] }]
       responses:
         '200':
           description: Logout successful
@@ -77,12 +75,11 @@ paths:
 
   /user:
     get:
-      tags:
-        - Authentication
+      tags: [Authentication]
       summary: Get current authenticated user's information
+      description: "Requires valid Bearer token authentication."
       operationId: getCurrentUser
-      security:
-        - bearerAuth: []
+      security: [{ bearerAuth: [] }]
       responses:
         '200':
           description: Successful operation
@@ -91,129 +88,111 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
-  /tenants/{tenantId}/products:
+  # Tenants management (HQ/Admin scope)
+  /tenants:
     get:
-      tags:
-        - Products
-      summary: List all products for a tenant
-      operationId: listProducts
-      security:
-        - bearerAuth: []
+      tags: [Tenants]
+      summary: List tenants (visibility per policy)
+      description: "Requires authentication. Visibility: Super Admin/HQ users with 'tenants.view' can see all tenants, others see only their own tenant."
+      operationId: listTenants
+      security: [{ bearerAuth: [] }]
       parameters:
-        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: per_page
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer }
       responses:
         '200':
-          description: A paginated list of products
+          description: Paginated tenants
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Tenant' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
     post:
-      tags:
-        - Products
-      summary: Create a new product
-      operationId: createProduct
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+      tags: [Tenants]
+      summary: Create a tenant
+      operationId: createTenant
+      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductRequest'
+              $ref: '#/components/schemas/TenantCreateRequest'
       responses:
         '201':
-          description: Product created
+          description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/Tenant'
 
-  /tenants/{tenantId}/products/{productId}:
+  /tenants/{tenantId}:
     get:
-      tags:
-        - Products
-      summary: Get a single product by ID
-      operationId: getProductById
-      security:
-        - bearerAuth: []
+      tags: [Tenants]
+      summary: Get tenant by ID
+      operationId: getTenant
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/ProductId'
       responses:
         '200':
-          description: Successful operation
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-    put:
-      tags:
-        - Products
-      summary: Update an existing product
-      operationId: updateProduct
-      security:
-        - bearerAuth: []
+              schema: { $ref: '#/components/schemas/Tenant' }
+    patch:
+      tags: [Tenants]
+      summary: Update tenant
+      operationId: updateTenant
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/ProductId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProductRequest'
+              $ref: '#/components/schemas/TenantUpdateRequest'
       responses:
         '200':
-          description: Product updated
+          description: Updated
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
+              schema: { $ref: '#/components/schemas/Tenant' }
     delete:
-      tags:
-        - Products
-      summary: Delete a product
-      operationId: deleteProduct
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/ProductId'
-      responses:
-        '204':
-          description: Product deleted successfully
-
-  /tenants/{tenantId}/roles:
-    get:
-      tags:
-        - Roles & Permissions
-      summary: List all roles for a tenant
-      operationId: listRoles
-      security:
-        - bearerAuth: []
+      tags: [Tenants]
+      summary: Delete tenant
+      operationId: deleteTenant
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
       responses:
         '200':
-          description: A list of roles
+          description: Deleted
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Role'
+                type: object
+                properties:
+                  message: { type: string }
+
+  /tenants/{tenantId}/status:
     post:
-      tags:
-        - Roles & Permissions
-      summary: Create a new role
-      operationId: createRole
-      security:
-        - bearerAuth: []
+      tags: [Tenants]
+      summary: Set tenant status
+      operationId: setTenantStatus
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
       requestBody:
@@ -221,282 +200,98 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RoleRequest'
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [active, inactive, pending, banned]
       responses:
-        '201':
-          description: Role created
+        '200':
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
+              schema: { $ref: '#/components/schemas/Tenant' }
 
-  /tenants/{tenantId}/roles/{roleId}:
-    get:
-      tags:
-        - Roles & Permissions
-      summary: Get a single role by ID
-      operationId: getRoleById
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/RoleId'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
-    put:
-      tags:
-        - Roles & Permissions
-      summary: Update an existing role
-      operationId: updateRole
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/RoleId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RoleRequest'
-      responses:
-        '200':
-          description: Role updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Role'
-    delete:
-      tags:
-        - Roles & Permissions
-      summary: Delete a role
-      operationId: deleteRole
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/RoleId'
-      responses:
-        '204':
-          description: Role deleted successfully
-
-  /tenants/{tenantId}/permissions:
-    get:
-      tags:
-        - Roles & Permissions
-      summary: List all available permissions
-      operationId: listPermissions
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      responses:
-        '200':
-          description: A list of available permissions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Permission'
-
-  /tenants/{tenantId}/orders:
-    get:
-      tags:
-        - Sales
-      summary: List orders
-      operationId: listOrders
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      responses:
-        '200':
-          description: A paginated list of orders
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
+  /tenants/{tenantId}/auto-activation/request:
     post:
-      tags:
-        - Sales
-      summary: Create a new sales transaction (order)
-      operationId: createOrder
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderRequest'
-      responses:
-        '201':
-          description: Order created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-
-  /tenants/{tenantId}/orders/{orderId}:
-    get:
-      tags:
-        - Sales
-      summary: Get an order by ID
-      operationId: getOrderById
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/OrderId'
+      tags: [Tenants]
+      summary: Request auto-activation for tenant users
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       responses:
         '200':
-          description: Successful operation
+          description: Submitted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                type: object
+                properties:
+                  message: { type: string }
 
-  /tenants/{tenantId}/categories:
-    get:
-      tags:
-        - Products
-      summary: List all product categories
-      operationId: listCategories
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      responses:
-        '200':
-          description: A list of categories
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Category'
+  /tenants/{tenantId}/auto-activation/approve:
     post:
-      tags:
-        - Products
-      summary: Create a new category
-      operationId: createCategory
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryRequest'
-      responses:
-        '201':
-          description: Category created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-
-  /tenants/{tenantId}/categories/{categoryId}:
-    get:
-      tags:
-        - Products
-      summary: Get a single category by ID
-      operationId: getCategoryById
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/CategoryId'
+      tags: [Tenants]
+      summary: Approve auto-activation
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       responses:
         '200':
-          description: Successful operation
+          description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-    put:
-      tags:
-        - Products
-      summary: Update an existing category
-      operationId: updateCategory
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/CategoryId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CategoryRequest'
-      responses:
-        '200':
-          description: Category updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Category'
-    delete:
-      tags:
-        - Products
-      summary: Delete a category
-      operationId: deleteCategory
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/CategoryId'
-      responses:
-        '204':
-          description: Category deleted successfully
+              schema: { $ref: '#/components/schemas/Tenant' }
 
-  /tenants/{tenantId}/stock-adjustments:
+  /tenants/{tenantId}/auto-activation/reject:
     post:
-      tags:
-        - Inventory
-      summary: Create a new stock adjustment
-      operationId: createStockAdjustment
-      security:
-        - bearerAuth: []
+      tags: [Tenants]
+      summary: Reject auto-activation
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tenant' }
+
+  /tenants/{tenantId}/users/{userId}/status:
+    post:
+      tags: [Tenants]
+      summary: Set status of a tenant user
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/UserId'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StockAdjustmentRequest'
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [active, inactive, pending, banned]
       responses:
-        '201':
-          description: Stock adjustment recorded
+        '200':
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StockAdjustment'
+                type: object
+                properties:
+                  message: { type: string }
 
+  # Tenant-scoped routes (team context)
   /tenants/{tenantId}/dashboard:
     get:
-      tags:
-        - Dashboard
+      tags: [Dashboard]
       summary: Get dashboard summary for a tenant
       operationId: getDashboard
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       responses:
         '200':
           description: Dashboard summary
@@ -505,53 +300,344 @@ paths:
               schema:
                 type: object
                 properties:
-                  today_revenue:
-                    type: number
-                    format: double
-                  today_transactions:
-                    type: integer
-                  low_stock_products:
-                    type: integer
+                  today_revenue: { type: number, format: double }
+                  today_transactions: { type: integer }
+                  low_stock_products: { type: integer }
                   low_stock_alerts:
                     type: array
                     items:
                       type: object
                       properties:
-                        id:
-                          type: string
-                          format: uuid
-                        name:
-                          type: string
-                        stock:
-                          type: integer
-                        sku:
-                          type: string
+                        id: { type: string, format: uuid }
+                        name: { type: string }
+                        stock: { type: integer }
+                        sku: { type: string }
+
+  /tenants/{tenantId}/products:
+    get:
+      tags: [Products]
+      summary: List all products for a tenant
+      description: "Requires authentication and 'products.view' permission within the tenant scope."
+      operationId: listProducts
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Product' }
+    post:
+      tags: [Products]
+      summary: Create a new product
+      description: "Requires authentication and 'products.create' permission within the tenant scope."
+      operationId: createProduct
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductRequest' }
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+
+  /tenants/{tenantId}/products/{productId}:
+    get:
+      tags: [Products]
+      summary: Get a single product by ID
+      operationId: getProductById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+    put:
+      tags: [Products]
+      summary: Update an existing product
+      operationId: updateProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Product' }
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      operationId: deleteProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/categories:
+    get:
+      tags: [Products]
+      summary: List all categories for a tenant
+      description: "Requires authentication and 'products.view' permission within the tenant scope."
+      operationId: listCategories
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: A list of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+    post:
+      tags: [Products]
+      summary: Create a new category
+      operationId: createCategory
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoryRequest' }
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+
+  /tenants/{tenantId}/categories/{categoryId}:
+    get:
+      tags: [Products]
+      summary: Get a category by ID
+      operationId: getCategoryById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+    put:
+      tags: [Products]
+      summary: Update a category
+      operationId: updateCategory
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CategoryRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Category' }
+    delete:
+      tags: [Products]
+      summary: Delete a category
+      operationId: deleteCategory
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/CategoryId'
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/roles:
+    get:
+      tags: [Roles & Permissions]
+      summary: List roles for a tenant (including global)
+      operationId: listRoles
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: A list of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Role' }
+    post:
+      tags: [Roles & Permissions]
+      summary: Create a role
+      operationId: createRole
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleRequest' }
+      responses:
+        '201':
+          description: Role created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Role' }
+
+  /tenants/{tenantId}/roles/{roleId}:
+    get:
+      tags: [Roles & Permissions]
+      summary: Get role by ID
+      operationId: getRoleById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RoleId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Role' }
+    put:
+      tags: [Roles & Permissions]
+      summary: Update role
+      operationId: updateRole
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RoleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoleRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Role' }
+    delete:
+      tags: [Roles & Permissions]
+      summary: Delete role
+      operationId: deleteRole
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/RoleId'
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/permissions:
+    get:
+      tags: [Roles & Permissions]
+      summary: List available permissions (API guard)
+      operationId: listPermissions
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: A list of permissions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Permission' }
+
+  /tenants/{tenantId}/orders:
+    get:
+      tags: [Sales]
+      summary: List orders for a tenant
+      description: "Requires authentication and 'orders.view' permission within the tenant scope."
+      operationId: listOrders
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: A list of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Order' }
+    post:
+      tags: [Sales]
+      summary: Create an order
+      description: "Requires authentication and 'orders.create' permission within the tenant scope. Validates stock availability before order creation."
+      operationId: createOrder
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OrderRequest' }
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+
+  /tenants/{tenantId}/orders/{orderId}:
+    get:
+      tags: [Sales]
+      summary: Get order by ID
+      operationId: getOrderById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
 
   /tenants/{tenantId}/customers:
     get:
-      tags:
-        - Customers
+      tags: [Customers]
       summary: List customers for a tenant
-      security:
-        - bearerAuth: []
+      description: "Requires authentication and 'customers.view' permission within the tenant scope. Supports search with 'q' parameter."
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - in: query
           name: q
-          schema:
-            type: string
+          schema: { type: string }
           description: Search by name, email, or phone
         - in: query
           name: page
-          schema:
-            type: integer
-            minimum: 1
+          schema: { type: integer, minimum: 1 }
         - in: query
           name: per_page
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
+          schema: { type: integer, minimum: 1, maximum: 100 }
       responses:
         '200':
           description: A paginated list of customers
@@ -562,142 +648,330 @@ paths:
                 properties:
                   data:
                     type: array
-                    items:
-                      $ref: '#/components/schemas/Customer'
-                  current_page:
-                    type: integer
-                  last_page:
-                    type: integer
-                  per_page:
-                    type: integer
-                  total:
-                    type: integer
+                    items: { $ref: '#/components/schemas/Customer' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
     post:
-      tags:
-        - Customers
+      tags: [Customers]
       summary: Create a customer
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/CustomerRequest'
+            schema: { $ref: '#/components/schemas/CustomerRequest' }
       responses:
         '201':
           description: Customer created
           content:
             application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+
+  /tenants/{tenantId}/customers/search:
+    post:
+      tags: [Customers]
+      summary: Search customers with POST (avoids URL query exposure)
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q: { type: string }
+                page: { type: integer, minimum: 1 }
+                per_page: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: A paginated list of customers
+          content:
+            application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Customer' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
 
   /tenants/{tenantId}/customers/{id}:
     get:
-      tags:
-        - Customers
+      tags: [Customers]
       summary: Get customer by ID
-      security:
-        - bearerAuth: []
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - in: path
           name: id
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
       responses:
         '200':
           description: OK
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
+              schema: { $ref: '#/components/schemas/Customer' }
     patch:
-      tags:
-        - Customers
+      tags: [Customers]
       summary: Update customer
-      security:
-        - bearerAuth: []
+      security: [{ bearerAuth: [] }]
       parameters:
         - $ref: '#/components/parameters/TenantId'
         - in: path
           name: id
           required: true
-          schema:
-            type: string
-            format: uuid
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CustomerRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+    delete:
+      tags: [Customers]
+      summary: Delete customer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/users:
+    get:
+      tags: [Users]
+      summary: List users within a tenant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Search by name or email
+        - in: query
+          name: per_page
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Paginated users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+    post:
+      tags: [Users]
+      summary: Create a user in tenant
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CustomerRequest'
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                display_name: { type: string, nullable: true }
+                status: { type: string, enum: [active, inactive, pending, banned], nullable: true }
+                photo: { type: string, nullable: true }
+                phone_number: { type: string, nullable: true }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+
+  /tenants/{tenantId}/users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    patch:
+      tags: [Users]
+      summary: Update user
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                display_name: { type: string, nullable: true }
+                email: { type: string, format: email }
+                status: { type: string, enum: [active, inactive, pending, banned], nullable: true }
+                photo: { type: string, nullable: true }
+                phone_number: { type: string, nullable: true }
+                password: { type: string, format: password, nullable: true }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+    delete:
+      tags: [Users]
+      summary: Delete user
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+
+  /tenants/{tenantId}/uploads/user-photo:
+    post:
+      tags: [Users]
+      summary: Upload a user photo (creates a thumbnail)
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string }
+                  thumb_url: { type: string, nullable: true }
+                  path: { type: string }
+
+  /tenants/{tenantId}/users/{userId}/roles:
+    post:
+      tags: [Users]
+      summary: Update user roles within tenant scope
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items: { type: string }
       responses:
         '200':
           description: Updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
-    delete:
-      tags:
-        - Customers
-      summary: Delete customer
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '204':
-          description: Deleted
+                type: object
+                properties:
+                  message: { type: string }
 
   /tenants/{tenantId}/settings:
     get:
-      tags:
-        - Settings
+      tags: [Settings]
       summary: Get tenant settings
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       responses:
         '200':
           description: Settings
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TenantSettings'
+              schema: { $ref: '#/components/schemas/TenantSettings' }
     patch:
-      tags:
-        - Settings
+      tags: [Settings]
       summary: Update tenant settings
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/TenantSettingsUpdate'
+            schema: { $ref: '#/components/schemas/TenantSettingsUpdate' }
       responses:
         '200':
           description: Updated settings
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TenantSettings'
+              schema: { $ref: '#/components/schemas/TenantSettings' }
+
+  /tenants/{tenantId}/stock-adjustments:
+    post:
+      tags: [Inventory]
+      summary: Create a new stock adjustment
+      operationId: createStockAdjustment
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StockAdjustmentRequest' }
+      responses:
+        '201':
+          description: Stock adjustment recorded
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StockAdjustment' }
 
 components:
   securitySchemes:
@@ -712,205 +986,158 @@ components:
       in: path
       required: true
       description: ID of the tenant
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     ProductId:
       name: productId
       in: path
       required: true
       description: ID of the product
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     RoleId:
       name: roleId
       in: path
       required: true
       description: ID of the role
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     CategoryId:
       name: categoryId
       in: path
       required: true
       description: ID of the category
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     OrderId:
       name: orderId
       in: path
       required: true
       description: ID of the order
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: ID of the user
+      schema: { type: string, format: uuid }
 
   schemas:
-    # Authentication Schemas
+    # Authentication
     RegisterRequest:
       type: object
       required: [tenant_name, user_name, email, password]
       properties:
-        tenant_name:
-          type: string
-          example: "My Awesome Store"
-        user_name:
-          type: string
-          example: "John Doe"
-        email:
-          type: string
-          format: email
-          example: "john.doe@example.com"
-        password:
-          type: string
-          format: password
-          example: "password123"
+        tenant_name: { type: string, example: 'My Awesome Store' }
+        user_name: { type: string, example: 'John Doe' }
+        email: { type: string, format: email, example: 'john.doe@example.com' }
+        password: { type: string, format: password, example: 'password123' }
     LoginRequest:
       type: object
       required: [email, password]
       properties:
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
+        email: { type: string, format: email }
+        password: { type: string, format: password }
     AuthResponse:
       type: object
       properties:
-        message:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
-        token:
-          type: string
+        message: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+        token: { type: string }
 
-    # Core Schemas
+    # Core
     User:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        tenant_id:
-          type: string
-          format: uuid
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, format: email }
+        tenant_id: { type: string, format: uuid }
+        status: { type: string, enum: [active, inactive, pending, banned] }
         roles:
           type: array
-          items:
-            type: string
-            example: "admin"
+          items: { type: string }
+        display_name: { type: string, nullable: true }
+        photo: { type: string, nullable: true }
+        photo_thumb: { type: string, nullable: true }
+        phone_number: { type: string, nullable: true }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
 
     Product:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        sku:
-          type: string
-        price:
-          type: number
-          format: float
-        stock:
-          type: integer
-        tenant_id:
-          type: string
-          format: uuid
+        id: { type: string, format: uuid }
+        name: { type: string }
+        sku: { type: string }
+        price: { type: number, format: float }
+        stock: { type: integer }
+        tenant_id: { type: string, format: uuid }
+        category_id: { type: string, format: uuid, nullable: true }
+        description: { type: string, nullable: true }
+        cost_price: { type: number, format: float, nullable: true }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
+        updated_at: { type: string, example: '2025-01-01 12:00:00' }
 
     ProductRequest:
       type: object
       required: [name, sku, price, stock]
       properties:
-        name:
-          type: string
-          example: "Laptop Pro"
-        sku:
-          type: string
-          example: "LP-001"
-        price:
-          type: number
-          format: float
-          example: 1500.99
-        stock:
-          type: integer
-          example: 100
+        name: { type: string, example: 'Laptop Pro' }
+        sku: { type: string, example: 'LP-001' }
+        price: { type: number, format: float, example: 1500.99 }
+        stock: { type: integer, example: 100 }
+        category_id: { type: string, format: uuid, nullable: true }
+        description: { type: string, nullable: true }
+        cost_price: { type: number, format: float, nullable: true }
 
     Role:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
+        id: { type: string, format: uuid }
+        name: { type: string }
         permissions:
           type: array
-          items:
-            $ref: '#/components/schemas/Permission'
+          items: { $ref: '#/components/schemas/Permission' }
 
     RoleRequest:
       type: object
-      required: [name, permissions]
+      required: [name]
       properties:
-        name:
-          type: string
-          example: "Store Manager"
+        name: { type: string, example: 'Store Manager' }
         permissions:
           type: array
-          description: "Array of permission names"
-          items:
-            type: string
-            example: "products.view"
+          description: Array of permission names
+          items: { type: string, example: 'products.view' }
+        global:
+          type: boolean
+          description: Set to true to create/update as global (HQ) role
 
     Permission:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: "products.create"
-    # Sales Schemas
+        id: { type: string, format: uuid }
+        name: { type: string, example: 'products.create' }
+
+    # Sales
     Order:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        invoice_number:
-          type: string
-        total_amount:
-          type: number
-          format: float
+        id: { type: string, format: uuid }
+        invoice_number: { type: string }
+        total_amount: { type: number, format: float }
+        payment_method: { type: string, enum: [cash, card, qris] }
+        amount_paid: { type: number, format: float }
+        change_amount: { type: number, format: float }
         items:
           type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
+          items: { $ref: '#/components/schemas/OrderItem' }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
+
     OrderItem:
       type: object
       properties:
-        product_id:
-          type: string
-          format: uuid
-        product_name:
-          type: string
-        quantity:
-          type: integer
-        price:
-          type: number
-          format: float
+        product_id: { type: string, format: uuid }
+        product_name: { type: string }
+        quantity: { type: integer }
+        price: { type: number, format: float }
+        subtotal: { type: number, format: float }
+
     OrderRequest:
       type: object
       required: [items, payment_method, amount_paid]
@@ -921,122 +1148,118 @@ components:
             type: object
             required: [product_id, quantity]
             properties:
-              product_id:
-                type: string
-                format: uuid
-              quantity:
-                type: integer
+              product_id: { type: string, format: uuid }
+              quantity: { type: integer }
         payment_method:
           type: string
-          example: "Cash"
-        amount_paid:
-          type: number
-          format: float
-        customer_id:
-          type: string
-          format: uuid
-          nullable: true
+          enum: [cash, card, qris]
+          example: cash
+        amount_paid: { type: number, format: float }
+        customer_id: { type: string, format: uuid, nullable: true }
 
-    # Inventory Schemas
+    # Inventory
     Category:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-          nullable: true
-        tenant_id:
-          type: string
-          format: uuid
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        tenant_id: { type: string, format: uuid }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
+        updated_at: { type: string, example: '2025-01-01 12:00:00' }
+
     CategoryRequest:
       type: object
       required: [name]
       properties:
-        name:
-          type: string
-          example: "Elektronik"
-        description:
-          type: string
-          nullable: true
+        name: { type: string, example: 'Elektronik' }
+        description: { type: string, nullable: true }
 
     StockAdjustment:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        product_id:
-          type: string
-          format: uuid
-        quantity:
-          type: integer
-          description: "Positive for stock in, negative for stock out"
-        reason:
-          type: string
-        user_id:
-          type: string
-          format: uuid
+        id: { type: string, format: uuid }
+        product_id: { type: string, format: uuid }
+        quantity: { type: integer, description: 'Positive for stock in, negative for stock out' }
+        reason: { type: string }
+        notes: { type: string, nullable: true }
+        user_id: { type: string, format: uuid }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
 
     StockAdjustmentRequest:
       type: object
       required: [product_id, quantity, reason]
       properties:
-        product_id:
-          type: string
-          format: uuid
-        quantity:
-          type: integer
-          example: -2
-        reason:
-          type: string
-          example: "Barang Rusak"
+        product_id: { type: string, format: uuid }
+        quantity: { type: integer, example: -2 }
+        reason: { type: string, example: 'Barang Rusak' }
+        notes: { type: string, nullable: true }
 
+    # Customers
     Customer:
       type: object
       required: [id, name]
       properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        email:
-          type: string
-          nullable: true
-        phone:
-          type: string
-          nullable: true
+        id: { type: string, format: uuid }
+        name: { type: string }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        address: { type: string, nullable: true }
         tags:
           type: array
-          items:
-            type: string
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
+          items: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
 
     CustomerRequest:
       type: object
       properties:
-        name:
-          type: string
-        email:
-          type: string
-          nullable: true
-        phone:
-          type: string
-          nullable: true
+        name: { type: string }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        address: { type: string, nullable: true }
         tags:
           type: array
-          items:
-            type: string
+          items: { type: string }
 
+    # Tenants schemas
+    Tenant:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        address: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive, pending, banned] }
+        can_auto_activate_users: { type: boolean }
+        auto_activate_request_pending: { type: boolean }
+        auto_activate_requested_at: { type: string, nullable: true, example: '2025-01-01 12:00:00' }
+        customers_count: { type: integer, nullable: true }
+        created_at: { type: string, example: '2025-01-01 12:00:00' }
+        updated_at: { type: string, example: '2025-01-01 12:00:00' }
+
+    TenantCreateRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        address: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive, pending, banned] }
+
+    TenantUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        address: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        logo: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive, pending, banned] }
+        can_auto_activate_users: { type: boolean }
+
+    # Settings
     TenantSettings:
       type: object
       properties:
@@ -1045,7 +1268,8 @@ components:
           properties:
             default_method:
               type: string
-              enum: [ewallet, card, cash]
+              enum: [cash, card, ewallet]
+              description: Default payment method for POS
 
     TenantSettingsUpdate:
       type: object
@@ -1056,3 +1280,23 @@ components:
             default_method:
               type: string
               enum: [ewallet, card, cash]
+
+    # Error Response Schemas
+    ErrorResponse:
+      type: object
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          additionalProperties: true
+        error_code: { type: string }
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Validation failed" }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }

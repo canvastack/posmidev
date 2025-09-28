@@ -32,9 +32,16 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign default admin role if roles feature is available (Spatie HasRoles)
+        // Assign default admin role in the correct tenant team context (Spatie Teams)
         if (method_exists($user, 'assignRole')) {
-            $user->assignRole('admin');
+            app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId((string) $tenant->id);
+            $guard = 'api';
+            $role = \App\Models\Role::firstOrCreate([
+                'name' => 'admin',
+                'guard_name' => $guard,
+                'tenant_id' => (string) $tenant->id,
+            ]);
+            $user->assignRole($role);
         }
 
         // Create token

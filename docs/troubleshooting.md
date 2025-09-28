@@ -276,7 +276,7 @@ php artisan tinker
 config('sanctum.stateful')
 
 # Test CORS headers
-curl -I -H "Origin: http://localhost:5173" http://localhost:8000/api/user
+curl -I -H "Origin: http://localhost:5173" http://localhost:9000/api/v1/user
 ```
 
 ## Frontend Issues
@@ -727,7 +727,7 @@ Use Blackfire for performance profiling:
 # Follow: https://blackfire.io/docs/up-and-running/installation
 
 # Profile a request
-blackfire curl http://localhost:8000/api/products
+blackfire curl http://localhost:9000/api/v1/tenants/TENANT_UUID/products
 ```
 
 ## Getting Help

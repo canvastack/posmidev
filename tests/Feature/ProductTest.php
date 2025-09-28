@@ -30,9 +30,21 @@ class ProductTest extends TestCase
             'password' => 'password',
         ]);
 
-        $user->assignRole('admin');
+        // Set team context and ensure tenant-scoped admin role exists
+        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
+        $guard = 'api';
+        $role = \App\Models\Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => $guard,
+            'tenant_id' => (string) $tenant->id,
+        ]);
+        $user->assignRole($role);
+        // Ensure permission to view products for index
+        $user->givePermissionTo(['products.view']);
 
-        Sanctum::actingAs($user, ['*']);
+        // Authenticate subsequent requests using Bearer token (works with auth:api)
+        $token = $user->createToken('test')->plainTextToken;
+        $this->withHeaders(['Authorization' => 'Bearer ' . $token]);
         return [$tenant, $user];
     }
 

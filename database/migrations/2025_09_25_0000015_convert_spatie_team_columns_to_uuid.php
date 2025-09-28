@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
+        // Skip complex constraint/type alterations on SQLite (not supported)
+        if (DB::getDriverName() === 'sqlite') {
+            return; // Tables will work with TEXT uuid columns during tests
+        }
+
         // ROLES: convert tenant_id to uuid and normalize constraints
         try { DB::statement('ALTER TABLE "roles" DROP CONSTRAINT IF EXISTS "roles_name_guard_name_unique"'); } catch (\Throwable $e) {}
         try { DB::statement('ALTER TABLE "roles" DROP CONSTRAINT IF EXISTS "roles_tenant_id_name_guard_name_unique"'); } catch (\Throwable $e) {}
@@ -44,6 +49,9 @@ return new class extends Migration {
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return; // Nothing to revert for sqlite test env
+        }
         // Best-effort rollback: revert to BIGINT columns (all set to NULL), re-create indexes/PKs
         try { DB::statement('ALTER TABLE "roles" DROP CONSTRAINT IF EXISTS roles_name_guard_tenant_unique'); } catch (\Throwable $e) {}
         try { DB::statement('DROP INDEX IF EXISTS roles_tenant_id_index'); } catch (\Throwable $e) {}

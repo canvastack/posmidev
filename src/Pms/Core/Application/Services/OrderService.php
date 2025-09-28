@@ -39,13 +39,38 @@ class OrderService
             );
 
             foreach ($items as $itemData) {
-                $product = $this->productRepository->findById($itemData['product_id']);
+                \Illuminate\Support\Facades\Log::info('OrderService: Finding product', [
+                    'product_id' => $itemData['product_id'],
+                    'tenant_id' => $tenantId,
+                    'requested_quantity' => $itemData['quantity']
+                ]);
+
+                $product = $this->productRepository->findByIdAndTenant($itemData['product_id'], $tenantId);
                 if (!$product) {
+                    \Illuminate\Support\Facades\Log::error('OrderService: Product not found', [
+                        'product_id' => $itemData['product_id'],
+                        'tenant_id' => $tenantId
+                    ]);
                     throw new \InvalidArgumentException("Product not found: {$itemData['product_id']}");
                 }
 
+                \Illuminate\Support\Facades\Log::info('OrderService: Product found, checking stock', [
+                    'product_id' => $product->getId(),
+                    'product_name' => $product->getName(),
+                    'current_stock' => $product->getStock(),
+                    'requested_quantity' => $itemData['quantity'],
+                    'tenant_id' => $tenantId
+                ]);
+
                 // Check stock availability
                 if ($product->getStock() < $itemData['quantity']) {
+                    \Illuminate\Support\Facades\Log::error('OrderService: Insufficient stock detected', [
+                        'product_id' => $product->getId(),
+                        'product_name' => $product->getName(),
+                        'current_stock' => $product->getStock(),
+                        'requested_quantity' => $itemData['quantity'],
+                        'tenant_id' => $tenantId
+                    ]);
                     throw new \InvalidArgumentException("Insufficient stock for product: {$product->getName()}");
                 }
 

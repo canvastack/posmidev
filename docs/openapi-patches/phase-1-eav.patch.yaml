@@ -1,0 +1,215 @@
+# OpenAPI patch for Phase 1 EAV
+# Apply changes to openapi.yaml under /api/v1/tenants/{tenantId}
+
+paths:
+  /api/v1/tenants/{tenantId}/blueprints:
+    get:
+      summary: List blueprints
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: query
+          name: target
+          required: false
+          schema: { type: string, enum: [customer] }
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/EavBlueprint' }
+    post:
+      summary: Create blueprint
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EavBlueprintCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavBlueprint' }
+
+  /api/v1/tenants/{tenantId}/blueprints/{id}:
+    get:
+      summary: Get blueprint
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavBlueprint' }
+    patch:
+      summary: Update blueprint
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EavBlueprintUpdate' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavBlueprint' }
+
+  /api/v1/tenants/{tenantId}/blueprints/{id}/fields:
+    post:
+      summary: Add field to blueprint
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EavFieldCreate' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavBlueprint' }
+
+  /api/v1/tenants/{tenantId}/customers/{customerId}/attributes:
+    get:
+      summary: Get customer attributes
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavAttributesResponse' }
+    put:
+      summary: Put customer attributes
+      parameters:
+        - in: path
+          name: tenantId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: customerId
+          required: true
+          schema: { type: string, format: uuid }
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EavAttributesPut' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EavAttributesResponse' }
+
+components:
+  schemas:
+    EavField:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        key: { type: string }
+        label: { type: string }
+        type: { type: string, enum: [string, text, number, boolean, date, enum, json] }
+        required: { type: boolean }
+        options: { type: object, additionalProperties: true }
+        sort_order: { type: integer }
+    EavFieldCreate:
+      type: object
+      required: [key, label, type]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        type: { type: string, enum: [string, text, number, boolean, date, enum, json] }
+        required: { type: boolean }
+        options: { type: object, additionalProperties: true }
+        sort_order: { type: integer }
+    EavBlueprint:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        target: { type: string }
+        name: { type: string }
+        status: { type: string }
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/EavField' }
+    EavBlueprintCreate:
+      type: object
+      required: [target, name]
+      properties:
+        target: { type: string, enum: [customer] }
+        name: { type: string }
+        fields:
+          type: array
+          items: { $ref: '#/components/schemas/EavFieldCreate' }
+    EavBlueprintUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        status: { type: string }
+    EavAttributesResponse:
+      type: object
+      properties:
+        blueprintId: { type: string, format: uuid }
+        attributes:
+          type: object
+          additionalProperties: true
+    EavAttributesPut:
+      type: object
+      properties:
+        attributes:
+          type: object
+          additionalProperties: true

@@ -75,7 +75,7 @@ php artisan posmid:run --frontend=dev
 ```
 
 Your application will be available at:
-- **Backend API**: http://localhost:8000
+- **Backend API**: http://localhost:9000
 - **Frontend App**: http://localhost:5173
 
 ## 6. First Login
@@ -101,13 +101,13 @@ Use tools like Postman or curl to test the API:
 
 ```bash
 # Get products
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/api/products
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:9000/api/v1/tenants/TENANT_UUID/products
 
 # Create an order
 curl -X POST -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"customer_id": 1, "items": [{"product_id": 1, "quantity": 2}]}' \
-  http://localhost:8000/api/orders
+  http://localhost:9000/api/v1/tenants/TENANT_UUID/orders
 ```
 
 ## What's Next?

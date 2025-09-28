@@ -28,8 +28,10 @@ export const ProductsPage: React.FC = () => {
   const fetchProducts = useCallback(async () => {
     if (!tenantId) return;
     try {
-      const productsData = await productApi.getProducts(tenantId);
-      setProducts(productsData);
+      const response = await productApi.getProducts(tenantId);
+      // Handle pagination structure: extract data array from response
+      const productsArray = Array.isArray(response) ? response : (response as any)?.data || [];
+      setProducts(productsArray);
     } catch (error) {
       console.error('Failed to fetch products:', error);
     } finally {

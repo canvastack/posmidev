@@ -48,6 +48,7 @@ class ProductService
         string $productId,
         string $name,
         float $price,
+        ?int $stock = null,
         ?string $description = null
     ): Product {
         $product = $this->productRepository->findById($productId);
@@ -56,8 +57,13 @@ class ProductService
         }
 
         $product->updateDetails($name, $price, $description);
+
+        if ($stock !== null) {
+            $product->setStock($stock);
+        }
+
         $this->productRepository->save($product);
-        
+
         return $product;
     }
 

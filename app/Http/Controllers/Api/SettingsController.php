@@ -11,7 +11,8 @@ class SettingsController extends Controller
 {
     public function show(Request $request, string $tenantId): JsonResponse
     {
-        $this->authorize('view', [Tenant::class, $tenantId]);
+        // Use settings-specific policy to enforce per-tenant permission
+        $this->authorize('viewSettings', [Tenant::class, $tenantId]);
 
         // For Phase 0: store minimal settings in tenants table meta column (json) or return defaults
         $tenant = Tenant::query()->find($tenantId);
@@ -30,7 +31,8 @@ class SettingsController extends Controller
 
     public function update(Request $request, string $tenantId): JsonResponse
     {
-        $this->authorize('update', [Tenant::class, $tenantId]);
+        // Use settings-specific policy to enforce per-tenant permission
+        $this->authorize('updateSettings', [Tenant::class, $tenantId]);
 
         $validated = $request->validate([
             'payments' => ['nullable', 'array'],

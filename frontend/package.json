@@ -8,22 +8,23 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "vite"
+    "start": "vite",
+    "gen:types": "openapi-typescript ../openapi.yaml -o src/types/api.d.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.8",
     "@heroicons/react": "^2.2.0",
+    "@hookform/resolvers": "^3.9.0",
     "@tanstack/react-table": "^8.16.0",
     "@tanstack/react-virtual": "^3.10.8",
-    "@hookform/resolvers": "^3.9.0",
     "axios": "^1.12.2",
     "clsx": "^2.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.53.0",
     "react-router-dom": "^7.9.1",
-    "zustand": "^5.0.8",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
@@ -36,6 +37,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.4.0",
+    "openapi-typescript": "^7.9.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13",
     "typescript": "~5.8.3",

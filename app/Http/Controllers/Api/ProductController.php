@@ -20,75 +20,94 @@ class ProductController extends Controller
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
         $products = $this->productService->getProductsByTenant($tenantId);
-        
-        return response()->json(
-            ProductResource::collection($products)
-        );
+
+        // Convert to paginated structure for consistency
+        return response()->json([
+            'data' => ProductResource::collection($products)->toArray($request),
+            'current_page' => 1,
+            'last_page' => 1,
+            'per_page' => count($products),
+            'total' => count($products),
+        ]);
     }
 
     public function store(ProductRequest $request, string $tenantId): JsonResponse
     {
         $this->authorize('create', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        $product = $this->productService->createProduct(
-            tenantId: $tenantId,
-            name: $request->name,
-            sku: $request->sku,
-            price: $request->price,
-            stock: $request->stock,
-            categoryId: $request->category_id,
-            description: $request->description,
-            costPrice: $request->cost_price
-        );
+        try {
+            $product = $this->productService->createProduct(
+                tenantId: $tenantId,
+                name: $request->name,
+                sku: $request->sku,
+                price: $request->price,
+                stock: $request->stock,
+                categoryId: $request->category_id,
+                description: $request->description,
+                costPrice: $request->cost_price
+            );
 
-        return response()->json(new ProductResource($product), 201);
+            return response()->json(new ProductResource($product), 201);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => [
+                    'sku' => ['SKU already exists for this tenant']
+                ]
+            ], 422);
+        }
     }
 
-    public function show(Request $request, string $tenantId, string $productId): JsonResponse
+    public function show(Request $request, string $tenantId, \Src\Pms\Infrastructure\Models\Product $product): JsonResponse
     {
-        $product = $this->productService->getProduct($productId);
-        
-        if (!$product || $product->getTenantId() !== $tenantId) {
+        // Product model sudah diinject dengan route model binding
+        // Pastikan product belongs to correct tenant
+        if ($product->tenant_id !== $tenantId) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
         $this->authorize('view', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        return response()->json(new ProductResource($product));
+        return response()->json([
+            'data' => (new ProductResource($product))->toArray($request)
+        ]);
     }
 
-    public function update(ProductRequest $request, string $tenantId, string $productId): JsonResponse
+    public function update(ProductRequest $request, string $tenantId, \Src\Pms\Infrastructure\Models\Product $product): JsonResponse
     {
-        $product = $this->productService->getProduct($productId);
-        
-        if (!$product || $product->getTenantId() !== $tenantId) {
+        // Product model sudah diinject dengan route model binding
+        // Pastikan product belongs to correct tenant
+        if ($product->tenant_id !== $tenantId) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
         $this->authorize('update', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
         $updatedProduct = $this->productService->updateProduct(
-            productId: $productId,
+            productId: $product->id,
             name: $request->name,
             price: $request->price,
+            stock: $request->stock,
             description: $request->description
         );
 
-        return response()->json(new ProductResource($updatedProduct));
+        return response()->json([
+            'data' => (new ProductResource($updatedProduct))->toArray($request)
+        ]);
     }
 
-    public function destroy(Request $request, string $tenantId, string $productId): JsonResponse
+    public function destroy(Request $request, string $tenantId, \Src\Pms\Infrastructure\Models\Product $product): JsonResponse
     {
-        $product = $this->productService->getProduct($productId);
-        
-        if (!$product || $product->getTenantId() !== $tenantId) {
+        // Product model sudah diinject dengan route model binding
+        // Pastikan product belongs to correct tenant
+        if ($product->tenant_id !== $tenantId) {
             return response()->json(['message' => 'Product not found'], 404);
         }
 
         $this->authorize('delete', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        $this->productService->deleteProduct($productId);
+        $this->productService->deleteProduct($product->id);
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Product deleted successfully'], 200);
     }
 }

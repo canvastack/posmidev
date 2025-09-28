@@ -111,7 +111,7 @@ PERMISSION_CACHE_MODEL=1
 OPENAPI_SPEC_PATH=openapi.yaml
 OPENAPI_VALIDATE_REQUEST=true
 OPENAPI_VALIDATE_RESPONSE=true
-OPENAPI_BASE_URL=http://localhost:8000
+OPENAPI_BASE_URL=http://localhost:9000
 OPENAPI_VERSION=3.0.0
 ```
 
@@ -122,7 +122,7 @@ OPENAPI_VERSION=3.0.0
 | `OPENAPI_SPEC_PATH` | string | openapi.yaml | Path to OpenAPI specification file |
 | `OPENAPI_VALIDATE_REQUEST` | boolean | true | Validate incoming requests against spec |
 | `OPENAPI_VALIDATE_RESPONSE` | boolean | true | Validate outgoing responses against spec |
-| `OPENAPI_BASE_URL` | string | http://localhost:8000 | Base URL for OpenAPI server |
+| `OPENAPI_BASE_URL` | string | http://localhost:9000 | Base URL for OpenAPI server |
 | `OPENAPI_VERSION` | string | 3.0.0 | OpenAPI specification version |
 
 ### Email Configuration
@@ -179,7 +179,7 @@ return [
     'spec_path' => env('OPENAPI_SPEC_PATH', 'openapi.yaml'),
     'validate_request' => env('OPENAPI_VALIDATE_REQUEST', true),
     'validate_response' => env('OPENAPI_VALIDATE_RESPONSE', true),
-    'base_url' => env('OPENAPI_BASE_URL', 'http://localhost:8000'),
+    'base_url' => env('OPENAPI_BASE_URL', 'http://localhost:9000'),
     'version' => env('OPENAPI_VERSION', '3.0.0'),
 
     // Middleware configuration

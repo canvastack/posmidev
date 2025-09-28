@@ -22,7 +22,7 @@ export function Sidebar() {
     { to: '/users', label: 'Users' },
     { to: '/roles', label: 'Roles' },
   ] as const
-  const links = [...baseLinks, { to: `/customers`, label: 'Customers' }]
+  const links = [...baseLinks, { to: `/customers`, label: 'Customers' }, { to: '/settings', label: 'Settings' }]
 
   return (
     <aside className={`glass-card h-full ${collapsed ? 'w-16' : 'w-64'} transition-[width] duration-200 ease-in-out`} data-collapsed={collapsed}>

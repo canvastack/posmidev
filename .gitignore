@@ -3,5 +3,5 @@ node_modules/
 vendor/
 composer.lock
 .gitignores/
-devs/.zencoder/
-.zencoder/
+devs/
+.zenc*/

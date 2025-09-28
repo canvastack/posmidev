@@ -40,4 +40,15 @@ class TenantPolicy
     {
         return $user->can('tenants.manage-auto-activation');
     }
+
+    // Settings-specific abilities (tenant-scoped)
+    public function viewSettings(User $user, string $tenantId): bool
+    {
+        return ((string) $user->tenant_id === (string) $tenantId) && $user->can('settings.view');
+    }
+
+    public function updateSettings(User $user, string $tenantId): bool
+    {
+        return ((string) $user->tenant_id === (string) $tenantId) && $user->can('settings.update');
+    }
 }

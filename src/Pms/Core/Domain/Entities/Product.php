@@ -74,10 +74,19 @@ class Product
         $this->description = $description;
     }
 
+    public function setStock(int $stock): void
+    {
+        $this->stock = $stock;
+
+        if ($this->stock < 0) {
+            throw new \InvalidArgumentException('Stock cannot be negative');
+        }
+    }
+
     public function adjustStock(int $quantity): void
     {
         $this->stock += $quantity;
-        
+
         if ($this->stock < 0) {
             throw new \InvalidArgumentException('Stock cannot be negative');
         }

@@ -169,12 +169,18 @@ POST /api/v1/tenants/{tenantId}/products
   "description": "string",
   "price": "number (required)",
   "cost_price": "number",
-  "sku": "string",
-  "category_id": "integer",
-  "stock_quantity": "integer (default: 0)",
+  "sku": "string (required, unique per tenant)",
+  "category_id": "string (UUID)",
+  "stock": "integer (required, default: 0)",
   "is_active": "boolean (default: true)"
 }
 ```
+
+**Validation Rules:**
+- SKU must be unique within the tenant
+- Category ID must exist and belong to the same tenant
+- Stock cannot be negative
+- Price must be positive
 
 **Response (201):**
 ```json
@@ -494,10 +500,28 @@ POST /api/v1/tenants/{tenantId}/stock-adjustments
 **Request Body:**
 ```json
 {
-  "product_id": "integer (required)",
+  "product_id": "string (required, UUID format)",
   "type": "string (required: addition, subtraction)",
-  "quantity": "integer (required)",
-  "reason": "string (required)"
+  "quantity": "integer (required, positive for addition, negative for subtraction)",
+  "reason": "string (required)",
+  "notes": "string (optional)"
+}
+```
+
+**Response (201):**
+```json
+{
+  "id": "uuid",
+  "product_id": "uuid",
+  "quantity": 10,
+  "reason": "Restock from supplier",
+  "previous_stock": 50,
+  "new_stock": 60,
+  "user": {
+    "id": "uuid",
+    "name": "Admin User"
+  },
+  "created_at": "2024-01-01T10:00:00Z"
 }
 ```
 
@@ -713,6 +737,35 @@ All API errors follow a consistent format:
 - **429**: Too Many Requests (rate limited)
 - **500**: Internal Server Error
 
+### Error Response Format
+
+All API errors follow a consistent format:
+
+```json
+{
+  "message": "Validation failed",
+  "errors": {
+    "email": ["The email field is required."],
+    "password": ["The password must be at least 8 characters."]
+  },
+  "error_code": "VALIDATION_ERROR"
+}
+```
+
+### Rate Limiting
+
+API endpoints are rate limited to ensure system stability:
+
+- **Authenticated Users**: 60 requests per minute
+- **Unauthenticated Users**: 30 requests per minute
+
+Rate limit headers are included in responses:
+```
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+X-RateLimit-Reset: 1640995200
+```
+
 ### Rate Limiting
 
 API endpoints are rate limited:
@@ -875,6 +928,44 @@ class ProductApiTest extends TestCase
                 ->assertJsonCount(3, 'data');
     }
 }
+```
+
+## Advanced Features
+
+### EAV (Entity-Attribute-Value) System
+
+POSMID implements a flexible EAV system for dynamic attributes:
+
+#### Blueprints API
+```http
+GET    /api/v1/tenants/{tenantId}/blueprints
+POST   /api/v1/tenants/{tenantId}/blueprints
+GET    /api/v1/tenants/{tenantId}/blueprints/{id}
+PATCH  /api/v1/tenants/{tenantId}/blueprints/{id}
+POST   /api/v1/tenants/{tenantId}/blueprints/{id}/fields
+```
+
+#### Customer Attributes API
+```http
+GET    /api/v1/tenants/{tenantId}/customers/{customerId}/attributes
+PUT    /api/v1/tenants/{tenantId}/customers/{customerId}/attributes
+```
+
+### Settings Management
+
+Tenant-specific settings for customization:
+
+```http
+GET    /api/v1/tenants/{tenantId}/settings
+PATCH  /api/v1/tenants/{tenantId}/settings
+```
+
+### File Upload
+
+Upload user photos and other assets:
+
+```http
+POST   /api/v1/tenants/{tenantId}/uploads/user-photo
 ```
 
 ## Next Steps

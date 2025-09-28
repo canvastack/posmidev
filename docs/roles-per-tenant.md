@@ -1,4 +1,4 @@
-# Roles and Permissions — Teams (Tenant) Scoped
+# Roles and Permissions — Teams (Tenant) Scoped -- DEPRECATED
 
 This document aligns with the core rule: Spatie Permission with Teams enabled. All roles and permissions are tenant-scoped by team = `tenant_id`. Any prior guidance about disabling Teams or using global roles is legacy and deprecated.
 

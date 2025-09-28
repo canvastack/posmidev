@@ -79,7 +79,7 @@ php artisan posmid:run --host=0.0.0.0 --frontend=build
 ```
 🚀 Starting Canvastack POSMID...
 🌐 Starting Laravel backend server...
-Laravel development server started: http://127.0.0.1:8000
+Laravel development server started: http://127.0.0.1:9000
 ```
 
 #### Backend + Frontend Dev
@@ -88,7 +88,7 @@ Laravel development server started: http://127.0.0.1:8000
 📦 Starting frontend dev server in new window...
 ✅ Frontend dev server started in background.
 🌐 Starting Laravel backend server...
-Laravel development server started: http://127.0.0.1:8000
+Laravel development server started: http://127.0.0.1:9000
 ```
 
 #### Build Process
@@ -97,7 +97,7 @@ Laravel development server started: http://127.0.0.1:8000
 🔨 Building frontend for production...
 ✅ Frontend built successfully.
 🌐 Starting Laravel backend server...
-Laravel development server started: http://127.0.0.1:8000
+Laravel development server started: http://127.0.0.1:9000
 ```
 
 ### Error Handling

@@ -71,6 +71,16 @@ class PermissionSeeder extends Seeder
             // Settings permissions
             'settings.view',
             'settings.update',
+
+            // EAV permissions
+            'blueprints.view',
+            'blueprints.create',
+            'blueprints.update',
+            'customers.attributes.view',
+            'customers.attributes.update',
+
+            // Testing/Diagnostics
+            'testing.access',
         ];
 
         foreach ($permissions as $permission) {

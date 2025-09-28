@@ -196,7 +196,7 @@ See [Commands](commands.md) for detailed usage.
 
 After installation, verify everything is working:
 
-1. **Backend**: Visit `http://localhost:8000/api/health` (should return JSON status)
+1. **Backend**: Visit `http://localhost:9000/api/v1/ping` (should return JSON status)
 2. **Frontend**: If using `--frontend=dev`, visit `http://localhost:5173`
 3. **Tests**: Run `php artisan test` (should pass all tests)
 

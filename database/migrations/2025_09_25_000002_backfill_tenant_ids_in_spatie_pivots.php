@@ -6,7 +6,36 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        // Backfill tenant_id in model_has_roles and model_has_permissions from users table
+        // Skip when running on sqlite: constraint drops/types are not supported
+        if (DB::getDriverName() === 'sqlite') {
+            // Best-effort backfill without DDL changes: use SQLite-compatible correlated subqueries (no table alias in UPDATE)
+            DB::statement(<<<SQL
+                UPDATE model_has_roles
+                   SET tenant_id = (
+                       SELECT u.tenant_id
+                         FROM users u
+                        WHERE (model_has_roles.model_type = 'Src\\Pms\\Infrastructure\\Models\\User' OR model_has_roles.model_type = 'App\\Models\\User')
+                          AND model_has_roles.model_uuid = u.id
+                        LIMIT 1
+                   )
+                 WHERE tenant_id IS NULL
+            SQL);
+
+            DB::statement(<<<SQL
+                UPDATE model_has_permissions
+                   SET tenant_id = (
+                       SELECT u.tenant_id
+                         FROM users u
+                        WHERE (model_has_permissions.model_type = 'Src\\Pms\\Infrastructure\\Models\\User' OR model_has_permissions.model_type = 'App\\Models\\User')
+                          AND model_has_permissions.model_uuid = u.id
+                        LIMIT 1
+                   )
+                 WHERE tenant_id IS NULL
+            SQL);
+            return;
+        }
+
+        // Backfill tenant_id in model_has_roles and model_has_permissions from users table (Postgres-safe)
         // model_has_roles
         // Ensure model_has_roles.tenant_id is UUID before backfill (drop PK/unique if needed)
         DB::statement('ALTER TABLE "model_has_roles" DROP CONSTRAINT IF EXISTS model_has_roles_role_model_type_primary');

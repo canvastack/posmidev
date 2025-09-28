@@ -14,6 +14,11 @@ class Category extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
+
     protected $fillable = [
         'id',
         'tenant_id',

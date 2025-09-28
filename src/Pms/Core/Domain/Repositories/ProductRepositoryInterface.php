@@ -7,6 +7,7 @@ use Src\Pms\Core\Domain\Entities\Product;
 interface ProductRepositoryInterface
 {
     public function findById(string $id): ?Product;
+    public function findByIdAndTenant(string $id, string $tenantId): ?Product;
     public function findByTenant(string $tenantId): array;
     public function findBySku(string $sku, string $tenantId): ?Product;
     public function save(Product $product): void;

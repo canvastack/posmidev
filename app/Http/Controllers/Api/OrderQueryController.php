@@ -16,7 +16,15 @@ class OrderQueryController extends Controller
     {
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Order::class, $tenantId]);
         $orders = $this->orderService->getOrdersByTenant($tenantId);
-        return response()->json(collect($orders)->map(fn($o) => new OrderResource($o)));
+
+        // Convert to paginated structure for consistency
+        return response()->json([
+            'data' => collect($orders)->map(fn($o) => new OrderResource($o))->toArray(),
+            'current_page' => 1,
+            'last_page' => 1,
+            'per_page' => count($orders),
+            'total' => count($orders),
+        ]);
     }
 
     public function show(Request $request, string $tenantId, string $orderId): JsonResponse

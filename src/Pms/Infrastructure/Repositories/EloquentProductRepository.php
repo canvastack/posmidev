@@ -14,6 +14,14 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $model ? $this->toDomainEntity($model) : null;
     }
 
+    public function findByIdAndTenant(string $id, string $tenantId): ?ProductEntity
+    {
+        $model = ProductModel::where('id', $id)
+            ->where('tenant_id', $tenantId)
+            ->first();
+        return $model ? $this->toDomainEntity($model) : null;
+    }
+
     public function findByTenant(string $tenantId): array
     {
         $models = ProductModel::where('tenant_id', $tenantId)->get();

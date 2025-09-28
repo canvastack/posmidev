@@ -22,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         Tenant::class => TenantPolicy::class,
         Customer::class => CustomerPolicy::class,
+        \App\Models\TestSubject::class => \App\Policies\TestPolicy::class,
     ];
 
     /**

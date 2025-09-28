@@ -17,7 +17,8 @@ class OrderRequest extends FormRequest
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|uuid|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
-            'payment_method' => 'required|string|in:Cash,Card,QRIS',
+            // Accept lowercase variants to align with seeders/tests
+            'payment_method' => 'required|string|in:cash,card,qris',
             'amount_paid' => 'required|numeric|min:0',
             'customer_id' => 'nullable|uuid|exists:customers,id',
         ];

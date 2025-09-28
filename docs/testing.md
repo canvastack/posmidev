@@ -982,7 +982,7 @@ jobs:
 **tests/performance/products.yml:**
 ```yaml
 config:
-  target: 'http://localhost:8000'
+  target: 'http://localhost:9000'
   phases:
     - duration: 60
       arrivalRate: 10
