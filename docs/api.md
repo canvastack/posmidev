@@ -4,7 +4,7 @@ POSMID provides a comprehensive REST API built with Laravel, following OpenAPI 3
 
 ## Overview
 
-- **Base URL**: `http://localhost:8000/api/v1`
+- **Base URL**: `http://localhost:9000/api/v1`
 - **Authentication**: Bearer Token (Laravel Sanctum)
 - **Format**: JSON
 - **OpenAPI Spec**: Available at `/api/documentation`
@@ -25,7 +25,7 @@ Accept: application/json
 
 #### Register User
 ```http
-POST /api/register
+POST /api/v1/register
 ```
 
 **Request Body:**
@@ -53,7 +53,7 @@ POST /api/register
 
 #### Login
 ```http
-POST /api/login
+POST /api/v1/login
 ```
 
 **Request Body:**
@@ -80,7 +80,7 @@ POST /api/login
 
 #### Get Current User
 ```http
-GET /api/user
+GET /api/v1/user
 ```
 
 **Response (200):**
@@ -97,7 +97,7 @@ GET /api/user
 
 #### Logout
 ```http
-POST /api/logout
+POST /api/v1/logout
 ```
 
 **Response (200):**
@@ -111,7 +111,7 @@ POST /api/logout
 
 ### List Products
 ```http
-GET /api/products
+GET /api/v1/tenants/{tenantId}/products
 ```
 
 **Query Parameters:**
@@ -157,7 +157,7 @@ GET /api/products
 
 ### Create Product
 ```http
-POST /api/products
+POST /api/v1/tenants/{tenantId}/products
 ```
 
 **Permissions Required:** `products.create`
@@ -188,7 +188,7 @@ POST /api/products
 
 ### Get Product
 ```http
-GET /api/products/{id}
+GET /api/v1/tenants/{tenantId}/products/{id}
 ```
 
 **Permissions Required:** `products.view`
@@ -215,8 +215,8 @@ GET /api/products/{id}
 
 ### Update Product
 ```http
-PUT /api/products/{id}
-PATCH /api/products/{id}
+PUT /api/v1/tenants/{tenantId}/products/{id}
+PATCH /api/v1/tenants/{tenantId}/products/{id}
 ```
 
 **Permissions Required:** `products.update`
@@ -227,7 +227,7 @@ PATCH /api/products/{id}
 
 ### Delete Product
 ```http
-DELETE /api/products/{id}
+DELETE /api/v1/tenants/{tenantId}/products/{id}
 ```
 
 **Permissions Required:** `products.delete`
@@ -238,7 +238,7 @@ DELETE /api/products/{id}
 
 ### List Categories
 ```http
-GET /api/categories
+GET /api/v1/tenants/{tenantId}/categories
 ```
 
 **Permissions Required:** `products.view`
@@ -260,7 +260,7 @@ GET /api/categories
 
 ### Create Category
 ```http
-POST /api/categories
+POST /api/v1/tenants/{tenantId}/categories
 ```
 
 **Permissions Required:** `products.create`
@@ -276,14 +276,14 @@ POST /api/categories
 
 ### Update Category
 ```http
-PUT /api/categories/{id}
+PUT /api/v1/tenants/{tenantId}/categories/{id}
 ```
 
 **Permissions Required:** `products.update`
 
 ### Delete Category
 ```http
-DELETE /api/categories/{id}
+DELETE /api/v1/tenants/{tenantId}/categories/{id}
 ```
 
 **Permissions Required:** `products.delete`
@@ -292,7 +292,7 @@ DELETE /api/categories/{id}
 
 ### List Orders
 ```http
-GET /api/orders
+GET /api/v1/tenants/{tenantId}/orders
 ```
 
 **Query Parameters:**
@@ -340,7 +340,7 @@ GET /api/orders
 
 ### Create Order
 ```http
-POST /api/orders
+POST /api/v1/tenants/{tenantId}/orders
 ```
 
 **Permissions Required:** `orders.create`
@@ -372,7 +372,7 @@ POST /api/orders
 
 ### Update Order
 ```http
-PUT /api/orders/{id}
+PUT /api/v1/tenants/{tenantId}/orders/{id}
 ```
 
 **Permissions Required:** `orders.update`
@@ -387,7 +387,7 @@ PUT /api/orders/{id}
 
 ### Delete Order
 ```http
-DELETE /api/orders/{id}
+DELETE /api/v1/tenants/{tenantId}/orders/{id}
 ```
 
 **Permissions Required:** `orders.delete`
@@ -396,7 +396,7 @@ DELETE /api/orders/{id}
 
 ### List Customers
 ```http
-GET /api/customers
+GET /api/v1/tenants/{tenantId}/customers
 ```
 
 **Permissions Required:** `customers.view`
@@ -421,7 +421,7 @@ GET /api/customers
 
 ### Create Customer
 ```http
-POST /api/customers
+POST /api/v1/tenants/{tenantId}/customers
 ```
 
 **Permissions Required:** `customers.create`
@@ -438,14 +438,14 @@ POST /api/customers
 
 ### Update Customer
 ```http
-PUT /api/customers/{id}
+PUT /api/v1/tenants/{tenantId}/customers/{id}
 ```
 
 **Permissions Required:** `customers.update`
 
 ### Delete Customer
 ```http
-DELETE /api/customers/{id}
+DELETE /api/v1/tenants/{tenantId}/customers/{id}
 ```
 
 **Permissions Required:** `customers.delete`
@@ -454,7 +454,7 @@ DELETE /api/customers/{id}
 
 ### List Stock Adjustments
 ```http
-GET /api/stock-adjustments
+GET /api/v1/tenants/{tenantId}/stock-adjustments
 ```
 
 **Permissions Required:** `products.update`
@@ -486,7 +486,7 @@ GET /api/stock-adjustments
 
 ### Create Stock Adjustment
 ```http
-POST /api/stock-adjustments
+POST /api/v1/tenants/{tenantId}/stock-adjustments
 ```
 
 **Permissions Required:** `products.update`
@@ -505,7 +505,7 @@ POST /api/stock-adjustments
 
 ### Sales Report
 ```http
-GET /api/reports/sales
+GET /api/v1/tenants/{tenantId}/reports/sales
 ```
 
 **Query Parameters:**
@@ -535,7 +535,7 @@ GET /api/reports/sales
 
 ### Inventory Report
 ```http
-GET /api/reports/inventory
+GET /api/v1/tenants/{tenantId}/reports/inventory
 ```
 
 **Permissions Required:** `system.reports`

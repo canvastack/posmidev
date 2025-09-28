@@ -4,3 +4,4 @@ vendor/
 composer.lock
 .gitignores/
 devs/.zencoder/
+.zencoder/
