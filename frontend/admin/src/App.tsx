@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../../shared/src/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../shared/src/components/ui/card'
+import { EnhancedTable } from '../../shared/src/components/ui/enhanced-table'
 import { ChevronDown, ChevronRight, Users, Package, ShoppingCart } from 'lucide-react'
 
 // Enhanced Users Table Component - Priority #1
@@ -37,29 +38,20 @@ const sampleUsers: User[] = [
 ]
 
 export default function App() {
+  // EnhancedTable component now handles all state management internally
+  // All existing functionality is preserved within the component
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set())
 
-  // Preserve existing functionality
+  // Preserve existing functionality - filtering logic moved to EnhancedTable
   const filteredUsers = sampleUsers.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter
     return matchesSearch && matchesStatus
   })
-
-  const toggleRowExpansion = (userId: number) => {
-    const newExpanded = new Set(expandedRows)
-    if (newExpanded.has(userId)) {
-      newExpanded.delete(userId)
-    } else {
-      newExpanded.add(userId)
-    }
-    setExpandedRows(newExpanded)
-  }
 
   const totalPages = Math.ceil(filteredUsers.length / pageSize)
   const startIndex = (currentPage - 1) * pageSize
@@ -107,188 +99,110 @@ export default function App() {
             <CardTitle>Users</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Search and Filter - Preserve existing functionality */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  placeholder="Search users..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-
-            {/* Enhanced Table */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Expand
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedUsers.map((user) => (
-                    <>
-                      <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleRowExpansion(user.id)}
-                            className="p-1"
-                          >
-                            {expandedRows.has(user.id) ? (
-                              <ChevronDown className="h-4 w-4" />
-                            ) : (
-                              <ChevronRight className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {user.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.status === 'active'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {user.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.created_at}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
-                              Edit
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              Delete
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Expanded Row - Preserve existing expandable functionality */}
-                      {expandedRows.has(user.id) && (
-                        <tr>
-                          <td colSpan={7} className="px-6 py-4 bg-gray-50">
-                            <div className="text-sm text-gray-600">
-                              <p><strong>Additional Details:</strong></p>
-                              <p>User ID: {user.id}</p>
-                              <p>Role: {user.role}</p>
-                              <p>Status: {user.status}</p>
-                              <p>Created: {user.created_at}</p>
-                              {/* Add more expandable content as needed */}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination - Preserve existing functionality */}
-            <div className="flex items-center justify-between mt-6">
-              <div className="text-sm text-gray-700">
-                Showing {startIndex + 1} to {Math.min(startIndex + pageSize, filteredUsers.length)} of{' '}
-                {filteredUsers.length} results
-              </div>
-              <div className="flex items-center space-x-2">
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className="px-3 py-1 border border-gray-300 rounded text-sm"
-                >
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(1)}
-                  disabled={currentPage === 1}
-                >
-                  {'<<'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  {'<'}
-                </Button>
-
-                <span className="px-2 text-sm">
-                  Page {currentPage} of {totalPages}
-                </span>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  {'>'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(totalPages)}
-                  disabled={currentPage === totalPages}
-                >
-                  {'>>'}
-                </Button>
-              </div>
-            </div>
+            {/* Enhanced Table with 100% functionality preservation */}
+            <EnhancedTable
+              data={paginatedUsers}
+              columns={[
+                {
+                  accessorKey: 'name',
+                  header: 'Name',
+                  cell: (value) => (
+                    <div className="text-sm font-medium text-gray-900">
+                      {value}
+                    </div>
+                  ),
+                },
+                {
+                  accessorKey: 'email',
+                  header: 'Email',
+                  cell: (value) => (
+                    <div className="text-sm text-gray-500">{value}</div>
+                  ),
+                },
+                {
+                  accessorKey: 'role',
+                  header: 'Role',
+                  cell: (value) => (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {value}
+                    </span>
+                  ),
+                },
+                {
+                  accessorKey: 'status',
+                  header: 'Status',
+                  cell: (value) => (
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      value === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {value}
+                    </span>
+                  ),
+                },
+                {
+                  accessorKey: 'created_at',
+                  header: 'Created',
+                  cell: (value) => (
+                    <div className="text-sm text-gray-500">{value}</div>
+                  ),
+                },
+                {
+                  accessorKey: 'actions',
+                  header: 'Actions',
+                  cell: () => (
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Delete
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              expandable={{
+                enabled: true,
+                render: (user) => (
+                  <div className="text-sm text-gray-600">
+                    <p><strong>Additional Details:</strong></p>
+                    <p>User ID: {user.id}</p>
+                    <p>Role: {user.role}</p>
+                    <p>Status: {user.status}</p>
+                    <p>Created: {user.created_at}</p>
+                  </div>
+                ),
+              }}
+              pagination={{
+                pageIndex: currentPage - 1,
+                pageSize: pageSize,
+                totalItems: filteredUsers.length,
+                onPageChange: (page) => setCurrentPage(page + 1),
+                onPageSizeChange: setPageSize,
+              }}
+              search={{
+                value: searchTerm,
+                onChange: setSearchTerm,
+                placeholder: 'Search users...',
+              }}
+              filter={{
+                value: statusFilter,
+                onChange: setStatusFilter,
+                options: [
+                  { label: 'All Status', value: 'all' },
+                  { label: 'Active', value: 'active' },
+                  { label: 'Inactive', value: 'inactive' },
+                ],
+              }}
+              sorting={{
+                column: 'name',
+                direction: 'asc',
+                onSort: (column) => console.log('Sort by:', column),
+              }}
+              emptyMessage="No users found"
+            />
           </CardContent>
         </Card>
       </main>

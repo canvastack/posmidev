@@ -13,11 +13,12 @@
   },
   "dependencies": {
     "@posmid/shared": "file:../shared",
+    "axios": "^1.6.0",
+    "lucide-react": "^0.544.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.20.0",
-    "zustand": "^4.4.0",
-    "axios": "^1.6.0"
+    "zustand": "^4.4.0"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
