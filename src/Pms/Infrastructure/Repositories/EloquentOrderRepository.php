@@ -25,6 +25,14 @@ class EloquentOrderRepository implements OrderRepositoryInterface
         return $models->map(fn($model) => $this->toDomainEntity($model))->toArray();
     }
 
+    public function findByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return OrderModel::with('items')
+            ->where('tenant_id', $tenantId)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
     public function save(OrderEntity $order): void
     {
         $orderModel = OrderModel::updateOrCreate(

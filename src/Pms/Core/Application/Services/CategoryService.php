@@ -49,6 +49,11 @@ class CategoryService
         return $this->categoryRepository->findByTenant($tenantId);
     }
 
+    public function getCategoriesByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return $this->categoryRepository->findByTenantPaginated($tenantId, $perPage);
+    }
+
     public function getCategory(string $categoryId): ?Category
     {
         return $this->categoryRepository->findById($categoryId);

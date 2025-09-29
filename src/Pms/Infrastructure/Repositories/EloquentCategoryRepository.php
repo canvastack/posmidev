@@ -20,6 +20,11 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
         return $models->map(fn($model) => $this->toDomainEntity($model))->toArray();
     }
 
+    public function findByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return CategoryModel::where('tenant_id', $tenantId)->paginate($perPage);
+    }
+
     public function save(CategoryEntity $category): void
     {
         CategoryModel::updateOrCreate(

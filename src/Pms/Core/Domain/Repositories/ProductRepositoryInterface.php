@@ -9,6 +9,7 @@ interface ProductRepositoryInterface
     public function findById(string $id): ?Product;
     public function findByIdAndTenant(string $id, string $tenantId): ?Product;
     public function findByTenant(string $tenantId): array;
+    public function findByTenantPaginated(string $tenantId, int $perPage = 15);
     public function findBySku(string $sku, string $tenantId): ?Product;
     public function save(Product $product): void;
     public function delete(string $id): void;

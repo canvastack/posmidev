@@ -19,15 +19,15 @@ class ProductController extends Controller
     {
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        $products = $this->productService->getProductsByTenant($tenantId);
+        $perPage = $request->get('per_page', 15);
+        $products = $this->productService->getProductsByTenantPaginated($tenantId, $perPage);
 
-        // Convert to paginated structure for consistency
         return response()->json([
-            'data' => ProductResource::collection($products)->toArray($request),
-            'current_page' => 1,
-            'last_page' => 1,
-            'per_page' => count($products),
-            'total' => count($products),
+            'data' => ProductResource::collection($products->items())->toArray($request),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'per_page' => $products->perPage(),
+            'total' => $products->total(),
         ]);
     }
 

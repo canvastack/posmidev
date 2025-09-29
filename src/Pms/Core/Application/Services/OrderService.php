@@ -104,6 +104,11 @@ class OrderService
         return $this->orderRepository->findByTenant($tenantId);
     }
 
+    public function getOrdersByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return $this->orderRepository->findByTenantPaginated($tenantId, $perPage);
+    }
+
     public function getOrder(string $orderId): ?Order
     {
         return $this->orderRepository->findById($orderId);

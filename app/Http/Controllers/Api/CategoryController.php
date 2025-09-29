@@ -19,15 +19,15 @@ class CategoryController extends Controller
     {
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Category::class, $tenantId]);
 
-        $categories = $this->categoryService->getCategoriesByTenant($tenantId);
+        $perPage = $request->get('per_page', 15);
+        $categories = $this->categoryService->getCategoriesByTenantPaginated($tenantId, $perPage);
 
-        // Convert to paginated structure for consistency
         return response()->json([
-            'data' => CategoryResource::collection($categories)->toArray($request),
-            'current_page' => 1,
-            'last_page' => 1,
-            'per_page' => count($categories),
-            'total' => count($categories),
+            'data' => CategoryResource::collection($categories->items())->toArray($request),
+            'current_page' => $categories->currentPage(),
+            'last_page' => $categories->lastPage(),
+            'per_page' => $categories->perPage(),
+            'total' => $categories->total(),
         ]);
     }
 

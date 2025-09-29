@@ -1,8 +1,7 @@
-@reference "tailwindcss";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* Tell Tailwind v4 where to scan for class usage */
+@source "../index.html";
+@source "./**/*.{js,ts,jsx,tsx}";
 
 /* Phase 1: Design tokens and scales */
 @theme {
@@ -97,6 +96,11 @@
   --z-header: 30;
   --z-overlay: 50;
   --z-modal: 100;
+
+  /* Base surface tokens used by classes like bg-background, text-foreground, border-border */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a; /* slate-900-ish */
+  --color-border: #e5e7eb;     /* gray-200 */
 }
 
 @layer base {

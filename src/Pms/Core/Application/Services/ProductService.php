@@ -85,6 +85,11 @@ class ProductService
         return $this->productRepository->findByTenant($tenantId);
     }
 
+    public function getProductsByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return $this->productRepository->findByTenantPaginated($tenantId, $perPage);
+    }
+
     public function getProduct(string $productId): ?Product
     {
         return $this->productRepository->findById($productId);

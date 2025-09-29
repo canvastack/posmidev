@@ -15,15 +15,22 @@ class OrderQueryController extends Controller
     public function index(Request $request, string $tenantId): JsonResponse
     {
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Order::class, $tenantId]);
-        $orders = $this->orderService->getOrdersByTenant($tenantId);
 
-        // Convert to paginated structure for consistency
+        $perPage = $request->get('per_page', 15);
+        $paginatedOrders = $this->orderService->getOrdersByTenantPaginated($tenantId, $perPage);
+
+        // Convert Eloquent models to domain entities for Resource
+        $domainEntities = [];
+        foreach ($paginatedOrders->items() as $model) {
+            $domainEntities[] = $this->orderService->getOrder($model->id);
+        }
+
         return response()->json([
-            'data' => collect($orders)->map(fn($o) => new OrderResource($o))->toArray(),
-            'current_page' => 1,
-            'last_page' => 1,
-            'per_page' => count($orders),
-            'total' => count($orders),
+            'data' => OrderResource::collection(collect($domainEntities))->toArray($request),
+            'current_page' => $paginatedOrders->currentPage(),
+            'last_page' => $paginatedOrders->lastPage(),
+            'per_page' => $paginatedOrders->perPage(),
+            'total' => $paginatedOrders->total(),
         ]);
     }
 

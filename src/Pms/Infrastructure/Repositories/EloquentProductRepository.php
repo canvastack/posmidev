@@ -28,6 +28,11 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $models->map(fn($model) => $this->toDomainEntity($model))->toArray();
     }
 
+    public function findByTenantPaginated(string $tenantId, int $perPage = 15)
+    {
+        return ProductModel::where('tenant_id', $tenantId)->paginate($perPage);
+    }
+
     public function findBySku(string $sku, string $tenantId): ?ProductEntity
     {
         $model = ProductModel::where('sku', $sku)

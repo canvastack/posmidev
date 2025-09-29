@@ -8,6 +8,7 @@ interface OrderRepositoryInterface
 {
     public function findById(string $id): ?Order;
     public function findByTenant(string $tenantId): array;
+    public function findByTenantPaginated(string $tenantId, int $perPage = 15);
     public function save(Order $order): void;
     public function generateInvoiceNumber(string $tenantId): string;
     public function getTodaysSales(string $tenantId): array;

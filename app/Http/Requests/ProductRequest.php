@@ -21,7 +21,7 @@ class ProductRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                'unique:products,sku' . ($this->route('product') ? ',' . $this->route('product')->id : '') . ',id,tenant_id,' . $tenantId
+                'unique:products,sku' . ($this->route('product') ? ',' . $this->route('product')->id . ',id' : '') . ',tenant_id,' . $tenantId
             ],
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',

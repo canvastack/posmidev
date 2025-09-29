@@ -5,3 +5,4 @@ composer.lock
 .gitignores/
 devs/
 .zenc*/
+web/*example/
