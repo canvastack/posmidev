@@ -14,6 +14,7 @@ export function useTheme() {
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const isDark = theme === 'dark' || (theme === 'system' && systemDark)
     root.classList.toggle('dark', isDark)
+    root.classList.toggle('light', !isDark)
     root.style.colorScheme = isDark ? 'dark' : 'light'
     localStorage.setItem('theme', theme)
   }, [theme])

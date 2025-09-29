@@ -16,7 +16,13 @@
           var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
           var isDark = theme === 'dark' || (theme === 'system' && systemDark);
           var root = document.documentElement;
-          if (isDark) root.classList.add('dark'); else root.classList.remove('dark');
+          if (isDark) {
+            root.classList.add('dark');
+            root.classList.remove('light');
+          } else {
+            root.classList.remove('dark');
+            root.classList.add('light');
+          }
           root.style.colorScheme = isDark ? 'dark' : 'light';
         } catch (e) {}
       })();

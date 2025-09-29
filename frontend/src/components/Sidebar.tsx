@@ -25,7 +25,7 @@ export function Sidebar() {
   const links = [...baseLinks, { to: `/customers`, label: 'Customers' }, { to: '/settings', label: 'Settings' }]
 
   return (
-    <aside className={`glass-card h-full ${collapsed ? 'w-16' : 'w-64'} transition-[width] duration-200 ease-in-out`} data-collapsed={collapsed}>
+    <aside className={`sidebar-panel h-full ${collapsed ? 'w-16' : 'w-64'} transition-[width] duration-200 ease-in-out`} data-collapsed={collapsed}>
       <div className="flex items-center justify-between p-2">
         <span className={`text-sm font-semibold truncate ${collapsed ? 'sr-only' : ''}`}>Console</span>
         <button

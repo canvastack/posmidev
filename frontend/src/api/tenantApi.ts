@@ -11,6 +11,7 @@ export interface Tenant {
 }
 
 export interface Paginated<T> {
+  meta: any;
   data: T[];
   current_page: number;
   last_page: number;

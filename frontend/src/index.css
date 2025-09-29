@@ -105,6 +105,19 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
+  /* Missing tokens used by example design buttons */
+  --color-ring: hsl(var(--ring));
+  --color-input: hsl(var(--input));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
 }
 
 @layer base {
@@ -159,7 +172,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
@@ -181,14 +194,37 @@
   .glass-card {
     @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-xl;
   }
-  .glass-header {
-    @apply bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border-b border-white/10 shadow-glass;
+  .header-glass {
+    /* Mode-aware via html.light / html.dark (no Tailwind dark: needed) */
+    @apply backdrop-blur-xl backdrop-saturate-150 border-b shadow-md;
+  }
+  html.light .header-glass {
+    /* More glassy in light mode */
+    @apply bg-white/70 text-gray-900 border-white/50;
+  }
+  html.dark .header-glass {
+    @apply bg-gray-900/70 text-gray-100 border-gray-700/40;
+  }
+  .sidebar-panel {
+    /* Sidebar panel parity: softened surface, clear border, elevated */
+    @apply bg-card text-card-foreground border border-border/60 shadow-md rounded-xl m-2 p-2;
+  }
+  .content-surface {
+    /* Main content surface card */
+    @apply bg-card text-card-foreground rounded-2xl shadow-xl border border-border p-4 md:p-6;
   }
   .glass-menu {
     @apply bg-white/10 dark:bg-gray-900/30 backdrop-blur-lg ring-1 ring-white/15 shadow-glass rounded-xl;
   }
   .input {
-    @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500;
+    /* Neutral base. Mode is applied via html.light/html.dark below */
+    @apply block w-full px-3 py-2 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500;
+  }
+  html.light .input {
+    @apply bg-white text-gray-900 placeholder:text-gray-500 border border-gray-300;
+  }
+  html.dark .input {
+    @apply bg-gray-900 text-gray-100 placeholder:text-gray-400 border border-gray-700;
   }
   .card {
     @apply bg-card text-card-foreground rounded-xl shadow-sm border border-border p-6;
@@ -202,6 +238,10 @@
   .gradient-bg { @apply bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900; }
   .animate-float { animation: float 6s ease-in-out infinite; }
   .animate-glow { animation: glow 2s ease-in-out infinite alternate; }
+  /* z-index utilities for layering */
+  .z-header { z-index: var(--z-header); }
+  .z-overlay { z-index: var(--z-overlay); }
+  .z-modal { z-index: var(--z-modal); }
 }
 
 @keyframes float {

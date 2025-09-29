@@ -26,7 +26,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-modal" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -36,7 +36,7 @@ export const Modal: React.FC<ModalProps> = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-background/60 backdrop-blur-sm transition-colors" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -50,15 +50,15 @@ export const Modal: React.FC<ModalProps> = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`}>
+              <Dialog.Panel className={`w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl p-6 text-left align-middle transition-all glass-card`}>
                 {title && (
                   <div className="flex items-center justify-between mb-4">
-                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                    <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-card-foreground">
                       {title}
                     </Dialog.Title>
                     <button
                       type="button"
-                      className="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      className="rounded-md cursor-pointer text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
                       onClick={onClose}
                     >
                       <XMarkIcon className="h-6 w-6" />
