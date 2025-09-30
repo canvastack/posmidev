@@ -2,13 +2,15 @@
 
 namespace Src\Pms\Core\Application\Services;
 
+use Src\Pms\Core\Domain\Contracts\TransactionManagerInterface;
 use Src\Pms\Core\Domain\Entities\Product;
 use Src\Pms\Core\Domain\Repositories\ProductRepositoryInterface;
 
 class ProductService
 {
     public function __construct(
-        private ProductRepositoryInterface $productRepository
+        private ProductRepositoryInterface $productRepository,
+        private TransactionManagerInterface $tx
     ) {}
 
     public function createProduct(
@@ -21,27 +23,30 @@ class ProductService
         ?string $description = null,
         ?float $costPrice = null
     ): Product {
-        // Check if SKU already exists for this tenant
-        $existingProduct = $this->productRepository->findBySku($sku, $tenantId);
-        if ($existingProduct) {
-            throw new \InvalidArgumentException('SKU already exists for this tenant');
-        }
+        return $this->tx->run(function () use ($tenantId, $name, $sku, $price, $stock, $categoryId, $description, $costPrice) {
+            // Check if SKU already exists for this tenant
+            $existingProduct = $this->productRepository->findBySku($sku, $tenantId);
+            if ($existingProduct) {
+                throw new \InvalidArgumentException('SKU already exists for this tenant');
+            }
 
-        $product = new Product(
-            id: \Ramsey\Uuid\Uuid::uuid4()->toString(),
-            tenantId: $tenantId,
-            name: $name,
-            sku: $sku,
-            price: $price,
-            stock: $stock,
-            categoryId: $categoryId,
-            description: $description,
-            costPrice: $costPrice,
-            createdAt: new \DateTime()
-        );
+            $product = new Product(
+                id: \Ramsey\Uuid\Uuid::uuid4()->toString(),
+                tenantId: $tenantId,
+                name: $name,
+                sku: $sku,
+                price: $price,
+                stock: $stock,
+                categoryId: $categoryId,
+                description: $description,
+                costPrice: $costPrice,
+                createdAt: new \DateTime(),
+                status: 'draft',
+            );
 
-        $this->productRepository->save($product);
-        return $product;
+            $this->productRepository->save($product);
+            return $product;
+        });
     }
 
     public function updateProduct(
@@ -51,33 +56,37 @@ class ProductService
         ?int $stock = null,
         ?string $description = null
     ): Product {
-        $product = $this->productRepository->findById($productId);
-        if (!$product) {
-            throw new \InvalidArgumentException('Product not found');
-        }
+        return $this->tx->run(function () use ($productId, $name, $price, $stock, $description) {
+            $product = $this->productRepository->findById($productId);
+            if (!$product) {
+                throw new \InvalidArgumentException('Product not found');
+            }
 
-        $product->updateDetails($name, $price, $description);
+            $product->updateDetails($name, $price, $description);
 
-        if ($stock !== null) {
-            $product->setStock($stock);
-        }
+            if ($stock !== null) {
+                $product->setStock($stock);
+            }
 
-        $this->productRepository->save($product);
+            $this->productRepository->save($product);
 
-        return $product;
+            return $product;
+        });
     }
 
     public function adjustStock(string $productId, int $quantity, string $reason): Product
     {
-        $product = $this->productRepository->findById($productId);
-        if (!$product) {
-            throw new \InvalidArgumentException('Product not found');
-        }
+        return $this->tx->run(function () use ($productId, $quantity, $reason) {
+            $product = $this->productRepository->findById($productId);
+            if (!$product) {
+                throw new \InvalidArgumentException('Product not found');
+            }
 
-        $product->adjustStock($quantity);
-        $this->productRepository->save($product);
-        
-        return $product;
+            $product->adjustStock($quantity);
+            $this->productRepository->save($product);
+
+            return $product;
+        });
     }
 
     public function getProductsByTenant(string $tenantId): array
@@ -97,7 +106,9 @@ class ProductService
 
     public function deleteProduct(string $productId): void
     {
-        $this->productRepository->delete($productId);
+        $this->tx->run(function () use ($productId) {
+            $this->productRepository->delete($productId);
+        });
     }
 
     public function getLowStockProducts(string $tenantId, int $threshold = 10): array

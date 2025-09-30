@@ -730,6 +730,44 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Order' }
+    put:
+      tags: [Sales]
+      summary: Update order
+      operationId: updateOrder
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_method:
+                  type: string
+                  enum: [cash, card, qris]
+                amount_paid:
+                  type: number
+                  format: float
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+    delete:
+      tags: [Sales]
+      summary: Delete order
+      operationId: deleteOrder
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/OrderId'
+      responses:
+        '204':
+          description: Deleted
 
   /tenants/{tenantId}/customers:
     get:

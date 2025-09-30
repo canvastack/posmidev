@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
-import { useAuth } from '../hooks/useAuth';
-import { roleApi } from '../api/roleApi';
-import type { Role, Permission, RoleForm } from '../types';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { useAuth } from '@/hooks/useAuth';
+import { roleApi } from '@/api/roleApi';
+import type { Role, Permission, RoleForm } from '@/types';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-export const RolesPage: React.FC = () => {
+function RolesPage() {
   const { tenantId } = useAuth();
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -41,8 +41,6 @@ export const RolesPage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-
 
   const handleOpenModal = (role?: Role) => {
     if (role) {
@@ -249,4 +247,6 @@ export const RolesPage: React.FC = () => {
       </Modal>
     </div>
   );
-};
+}
+
+export default RolesPage;

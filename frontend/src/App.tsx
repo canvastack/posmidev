@@ -1,53 +1,64 @@
+import React, { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { FrontendShell } from './layouts/FrontendShell'
 import { BackendShell } from './layouts/BackendShell'
-import { LoginPage } from './pages/LoginPage'
-import { RegisterPage } from './pages/RegisterPage'
-import { DashboardPage } from './pages/DashboardPage'
-import { PosPage } from './pages/PosPage'
-import { ProductsPage } from './pages/ProductsPage'
-import { OrdersPage } from './pages/OrdersPage'
-import { UsersPage } from './pages/UsersPage'
-import { RolesPage } from './pages/RolesPage'
-import { CustomersPage } from './pages/CustomersPage'
-import { SettingsPage } from './pages/SettingsPage'
+
+// Auth
+const LoginPage = lazy(() => import('./pages/frontend/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/frontend/RegisterPage'))
+
+// Admin (backend) pages
+const DashboardPage = lazy(() => import('./pages/backend/DashboardPage'))
+const PosPage = lazy(() => import('./pages/backend/PosPage'))
+const ProductsPage = lazy(() => import('./pages/backend/ProductsPage'))
+const OrdersPage = lazy(() => import('./pages/backend/OrdersPage'))
+const UsersPage = lazy(() => import('./pages/backend/UsersPage'))
+const RolesPage = lazy(() => import('./pages/backend/RolesPage'))
+const CustomersPage = lazy(() => import('./pages/backend/CustomersPage'))
+const SettingsPage = lazy(() => import('./pages/backend/SettingsPage'))
+
+// Public (frontend) pages
+const HomePage = lazy(() => import('./pages/frontend/HomePage'))
+const ProductsPublicPage = lazy(() => import('./pages/frontend/ProductsPublicPage'))
+const ProductDetailPublicPage = lazy(() => import('./pages/frontend/ProductDetailPublicPage'))
+const CompanyPage = lazy(() => import('./pages/frontend/CompanyPage'))
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* Public routes under FrontendShell */}
-        <Route element={<FrontendShell />}> 
-          <Route path="/pricing" element={<div>Pricing (public)</div>} />
-          <Route path="/features" element={<div>Features (public)</div>} />
-        </Route>
+      <Suspense fallback={<div className="p-4">Loading...</div>}>
+        <Routes>
+          {/* Public/Frontend routes */}
+          <Route element={<FrontendShell />}> 
+            <Route index element={<Navigate to="/home" replace />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/products" element={<ProductsPublicPage />} />
+            <Route path="/products/:id" element={<ProductDetailPublicPage />} />
+            <Route path="/company" element={<CompanyPage />} />
 
-        {/* Auth */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+            {/* Auth (public entry points) */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
-        {/* Protected routes under BackendShell */}
-        <Route element={<ProtectedRoute><BackendShell /></ProtectedRoute>}>
-          {/* Main app pages */}
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/pos" element={<PosPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/roles" element={<RolesPage />} />
+          {/* Protected routes under BackendShell (admin-only) */}
+          <Route path="/admin" element={<ProtectedRoute><BackendShell /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="pos" element={<PosPage />} />
+            <Route path="products" element={<ProductsPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="roles" element={<RolesPage />} />
+            <Route path="customers" element={<CustomersPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
 
-          {/* Customers centralized route (no tenantId in URL) */}
-          <Route path="/customers" element={<CustomersPage />} />
-
-          {/* Settings */}
-          <Route path="/settings" element={<SettingsPage />} />
-        </Route>
-
-        {/* Catch all */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+          {/* Catch all → public home */}
+          <Route path="*" element={<Navigate to="/home" replace />} />
+        </Routes>
+      </Suspense>
     </Router>
   )
 }

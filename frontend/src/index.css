@@ -198,11 +198,17 @@
     /* Mode-aware via html.light / html.dark (no Tailwind dark: needed) */
     @apply backdrop-blur-xl backdrop-saturate-150 border-b shadow-md;
   }
-  html.light .header-glass {
+  /* Alias to support existing class name in FrontendShell */
+  .glass-header {
+    @apply backdrop-blur-xl backdrop-saturate-150 border-b shadow-md;
+  }
+  html.light .header-glass,
+  html.light .glass-header {
     /* More glassy in light mode */
     @apply bg-white/70 text-gray-900 border-white/50;
   }
-  html.dark .header-glass {
+  html.dark .header-glass,
+  html.dark .glass-header {
     @apply bg-gray-900/70 text-gray-100 border-gray-700/40;
   }
   .sidebar-panel {
@@ -228,6 +234,14 @@
   }
   .card {
     @apply bg-card text-card-foreground rounded-xl shadow-sm border border-border p-6;
+  }
+
+  /* Public navbar link styles */
+  .link {
+    @apply text-sm text-muted-foreground hover:text-foreground transition-colors;
+  }
+  .link-active {
+    @apply text-foreground font-semibold underline underline-offset-4;
   }
 }
 

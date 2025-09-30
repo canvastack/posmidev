@@ -23,7 +23,11 @@ class ProductServiceTest extends TestCase
         $this->seed(PermissionSeeder::class);
 
         $this->productRepository = Mockery::mock(ProductRepositoryInterface::class);
-        $this->productService = new ProductService($this->productRepository);
+        $transactionManager = Mockery::mock(\Src\Pms\Core\Domain\Contracts\TransactionManagerInterface::class);
+        $transactionManager->shouldReceive('run')->andReturnUsing(function ($callback) {
+            return $callback();
+        });
+        $this->productService = new ProductService($this->productRepository, $transactionManager);
     }
 
     protected function tearDown(): void

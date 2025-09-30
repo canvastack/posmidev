@@ -14,7 +14,8 @@ class Product
         private ?string $categoryId = null,
         private ?string $description = null,
         private ?float $costPrice = null,
-        private ?\DateTimeInterface $createdAt = null
+        private ?\DateTimeInterface $createdAt = null,
+        private string $status = 'draft', // draft|published|archived
     ) {}
 
     public function getId(): string
@@ -65,6 +66,20 @@ class Product
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): void
+    {
+        $allowed = ['draft', 'published', 'archived'];
+        if (!in_array($status, $allowed, true)) {
+            throw new \InvalidArgumentException('Invalid product status');
+        }
+        $this->status = $status;
     }
 
     public function updateDetails(string $name, float $price, ?string $description = null): void

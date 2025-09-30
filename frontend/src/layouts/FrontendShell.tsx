@@ -1,7 +1,7 @@
 import { ScrollToTopButton } from '@/components/ScrollToTopButton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { MegaMenu } from '@/components/MegaMenu'
-import { Outlet } from 'react-router-dom'
+import { Outlet, NavLink } from 'react-router-dom'
 
 // Public/customer-facing shell with glass header and space for MegaMenu
 export function FrontendShell() {
@@ -10,6 +10,11 @@ export function FrontendShell() {
       <header className="sticky top-0 z-header glass-header">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between">
           <div className="font-semibold">POS</div>
+          <nav className="hidden md:flex items-center gap-4 text-sm">
+            <NavLink to="/home" className={({ isActive }) => isActive ? 'link-active' : 'link'}>Home</NavLink>
+            <NavLink to="/products" className={({ isActive }) => isActive ? 'link-active' : 'link'}>Products</NavLink>
+            <NavLink to="/company" className={({ isActive }) => isActive ? 'link-active' : 'link'}>Company</NavLink>
+          </nav>
           <div className="flex items-center gap-3">
             <MegaMenu />
             <ThemeToggle />

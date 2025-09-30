@@ -20,4 +20,14 @@ class OrderPolicy
     {
         return $user->tenant_id === $tenantId && $user->can('orders.create');
     }
+
+    public function update(User $user, string $tenantId): bool
+    {
+        return $user->tenant_id === $tenantId && $user->can('orders.update');
+    }
+
+    public function delete(User $user, string $tenantId): bool
+    {
+        return $user->tenant_id === $tenantId && $user->can('orders.delete');
+    }
 }

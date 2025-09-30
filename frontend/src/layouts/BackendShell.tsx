@@ -49,7 +49,7 @@ export function BackendShell() {
         onToggle={() => setSidebarCollapsed((v) => !v)}
       />
 
-      {/* Main content shifted by sidebar width to avoid overlap */}
+      {/* Main content shifted by sidebar width to avoid overlap (admin-prefixed) */}
       <main className={`p-4 ${sidebarCollapsed ? 'pl-16' : 'pl-64'}`}>
         <div className="content-surface min-h-[calc(100dvh-4rem)]">
           <Outlet />

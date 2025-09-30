@@ -54,6 +54,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 'category_id' => $product->getCategoryId(),
                 'description' => $product->getDescription(),
                 'cost_price' => $product->getCostPrice(),
+                'status' => $product->getStatus(),
             ]
         );
     }

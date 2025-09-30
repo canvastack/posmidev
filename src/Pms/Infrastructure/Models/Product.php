@@ -24,6 +24,7 @@ class Product extends Model
         'price',
         'cost_price',
         'stock',
+        'status',
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Product extends Model
         'price' => 'decimal:2',
         'cost_price' => 'decimal:2',
         'stock' => 'integer',
+        'status' => 'string',
     ];
 
     public function tenant(): BelongsTo

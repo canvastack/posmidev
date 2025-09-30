@@ -7,12 +7,16 @@ export type ButtonSize = 'sm' | 'md' | 'icon'
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize
+  loading?: boolean // prevent forwarding to DOM and allow disabling
 }
 
 export const Button: React.FC<ButtonProps> = ({
   className,
   variant = 'ghost',
   size = 'md',
+  loading = false,
+  disabled,
+  children,
   ...props
 }) => {
   // Match example design: ring-offset-background, ring-ring, accent background
@@ -32,6 +36,13 @@ export const Button: React.FC<ButtonProps> = ({
   }
 
   return (
-    <button className={cn(base, variants[variant], sizes[size], className)} {...props} />
+    <button
+      className={cn(base, variants[variant], sizes[size], className)}
+      disabled={disabled || loading}
+      aria-busy={loading}
+      {...props}
+    >
+      {loading ? 'Loading…' : children}
+    </button>
   )
 }

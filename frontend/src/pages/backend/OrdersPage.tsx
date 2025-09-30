@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../components/ui/Card';
-import { Modal } from '../components/ui/Modal';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
-import { useAuth } from '../hooks/useAuth';
-import type { Order } from '../types';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Modal } from '@/components/ui/Modal';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { useAuth } from '@/hooks/useAuth';
+import type { Order } from '@/types';
 import { EyeIcon } from '@heroicons/react/24/outline';
 
-export const OrdersPage: React.FC = () => {
+export default function OrdersPage() {
   const { tenantId } = useAuth();
   const [orders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

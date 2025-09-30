@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../hooks/useAuth';
-import { useCartStore } from '../stores/cartStore';
-import { productApi } from '../api/productApi';
-import { orderApi } from '../api/orderApi';
-import type { Product } from '../types';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { useCartStore } from '@/stores/cartStore';
+import { productApi } from '@/api/productApi';
+import { orderApi } from '@/api/orderApi';
+import type { Product } from '@/types';
 import { PlusIcon, MinusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-export const PosPage: React.FC = () => {
+export default function PosPage() {
   const { tenantId } = useAuth();
   const {
     items,

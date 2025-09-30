@@ -25,13 +25,22 @@ trait TenantTestTrait
             'name' => 'Test Store',
         ]);
 
-        $this->user = User::create([
-            'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
-            'tenant_id' => $this->tenant->id,
-            'name' => 'Test Admin',
-            'email' => 'admin@test.com',
-            'password' => bcrypt('password'),
-        ]);
+        // Pastikan user dibuat dengan tenant_id yang sama dengan tenant yang baru dibuat
+        $this->user = User::firstOrCreate(
+            ['email' => 'admin@test.com'],
+            [
+                'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
+                'tenant_id' => $this->tenant->id,
+                'name' => 'Test Admin',
+                'email' => 'admin@test.com',
+                'password' => bcrypt('password'),
+            ]
+        );
+
+        // Update tenant_id jika user sudah ada tapi dengan tenant_id berbeda
+        if ($this->user->tenant_id !== $this->tenant->id) {
+            $this->user->update(['tenant_id' => $this->tenant->id]);
+        }
 
         // Set tenant context for permissions
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
@@ -118,12 +127,17 @@ trait TenantTestTrait
 
     protected function createTestCustomer(): array
     {
+        // Gunakan email unik untuk menghindari konflik unique constraint
+        $uniqueEmail = 'customer_' . uniqid() . '@test.com';
+        // Gunakan phone unik juga untuk menghindari konflik unique constraint
+        $uniquePhone = '08123456' . rand(1000, 9999);
+
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/customers",
             [
                 'name' => 'Test Customer',
-                'email' => 'customer@test.com',
-                'phone' => '08123456789',
+                'email' => $uniqueEmail,
+                'phone' => $uniquePhone,
                 'address' => 'Test Address',
                 'tags' => ['VIP', 'Regular']
             ],
@@ -133,7 +147,7 @@ trait TenantTestTrait
         $response->assertCreated();
         $customerId = $response->json('data.id') ?? $response->json('id');
 
-        return ['id' => $customerId, 'response' => $response];
+        return ['id' => $customerId, 'email' => $uniqueEmail, 'phone' => $uniquePhone, 'response' => $response];
     }
 
     protected function createTestOrder(string $productId, int $quantity = 1, ?string $customerId = null): array

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthLayout } from '../layouts/AuthLayout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../hooks/useAuth';
-import { authApi } from '../api/authApi';
-import type { RegisterForm } from '../types';
+import { AuthLayout } from '@/layouts/AuthLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { authApi } from '@/api/authApi';
+import type { RegisterForm } from '@/types';
 
-export const RegisterPage: React.FC = () => {
+export default function RegisterPage() {
   const [form, setForm] = useState<RegisterForm>({
     tenant_name: '',
     user_name: '',
@@ -28,7 +28,7 @@ export const RegisterPage: React.FC = () => {
     try {
       const response = await authApi.register(form);
       login(response.user, response.token);
-      navigate('/dashboard');
+      navigate('/admin/dashboard');
     } catch (err) {
       const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setError(message || 'Registration failed');
@@ -120,4 +120,4 @@ export const RegisterPage: React.FC = () => {
       </form>
     </AuthLayout>
   );
-};
+}

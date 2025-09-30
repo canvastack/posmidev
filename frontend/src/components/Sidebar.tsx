@@ -1,30 +1,29 @@
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 import {
-  LayoutDashboard,
-  ShoppingCart,
-  Package,
-  Users,
-  CreditCard,
-  BarChart3,
-  Archive,
-  Tags,
+  LayoutDashboard, 
+  ShoppingCart, 
+  Package, 
+  Users, 
+  CreditCard, 
+  BarChart3, 
+  IdCard, 
+  ClipboardList, 
+  BrainCircuit,
   Settings,
   ChevronLeft,
-  ChevronRight,
+  ChevronRight
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: ShoppingCart, label: 'Point of Sale', path: '/admin/pos' },
   { icon: Package, label: 'Products', path: '/admin/products' },
-  { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-  { icon: Users, label: 'Orders', path: '/admin/orders' },
+  { icon: ClipboardList, label: 'Orders', path: '/admin/orders' },
+  { icon: IdCard, label: 'Users', path: '/admin/users' },
+  { icon: BrainCircuit, label: 'Roles', path: '/admin/roles' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
-  { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
-  { icon: Archive, label: 'Inventory', path: '/admin/inventory' },
-  { icon: Tags, label: 'Categories', path: '/admin/categories' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ]
 
@@ -62,7 +61,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <nav className="flex-1 px-2 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname.startsWith(item.path)
 
             return (
               <Link key={item.path} to={item.path}>

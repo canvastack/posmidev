@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AuthLayout } from '../layouts/AuthLayout';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../hooks/useAuth';
-import { authApi } from '../api/authApi';
-import type { LoginForm } from '../types';
+import { AuthLayout } from '@/layouts/AuthLayout';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/hooks/useAuth';
+import { authApi } from '@/api/authApi';
+import type { LoginForm } from '@/types';
 
-export const LoginPage: React.FC = () => {
+export default function LoginPage() {
   const [form, setForm] = useState<LoginForm>({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || '/admin/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,4 +96,4 @@ export const LoginPage: React.FC = () => {
       </form>
     </AuthLayout>
   );
-};
+}

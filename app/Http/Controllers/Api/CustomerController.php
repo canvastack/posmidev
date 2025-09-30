@@ -7,29 +7,27 @@ use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Src\Pms\Core\Application\Services\CustomerService;
 use Src\Pms\Infrastructure\Models\Customer;
 
 class CustomerController extends Controller
 {
+    public function __construct(
+        private CustomerService $customerService
+    ) {}
+
     public function index(Request $request, string $tenantId): JsonResponse
     {
         $this->authorize('viewAny', [Customer::class, $tenantId]);
 
-        $query = Customer::query()->where('tenant_id', $tenantId);
-
-        if ($search = $request->query('q')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('phone', 'LIKE', "%{$search}%");
-            });
-        }
-
         $perPage = max(1, min(100, (int) $request->query('per_page', 10)));
         $page = max(1, (int) $request->query('page', 1));
 
-        $paginator = $query->orderBy('name')->paginate($perPage, ['*'], 'page', $page);
+        if ($search = $request->query('q')) {
+            $paginator = $this->customerService->searchCustomersByNamePaginated($search, $tenantId, $perPage);
+        } else {
+            $paginator = $this->customerService->getCustomersByTenantPaginated($tenantId, $perPage);
+        }
 
         return response()->json([
             'data' => CustomerResource::collection($paginator->items()),
@@ -45,21 +43,15 @@ class CustomerController extends Controller
     {
         $this->authorize('viewAny', [Customer::class, $tenantId]);
 
-        $query = Customer::query()->where('tenant_id', $tenantId);
-
         $search = (string) $request->input('q', '');
-        if ($search !== '') {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('phone', 'LIKE', "%{$search}%");
-            });
-        }
-
         $perPage = max(1, min(100, (int) $request->input('per_page', 10)));
         $page = max(1, (int) $request->input('page', 1));
 
-        $paginator = $query->orderBy('name')->paginate($perPage, ['*'], 'page', $page);
+        if ($search !== '') {
+            $paginator = $this->customerService->searchCustomersByNamePaginated($search, $tenantId, $perPage);
+        } else {
+            $paginator = $this->customerService->getCustomersByTenantPaginated($tenantId, $perPage);
+        }
 
         return response()->json([
             'data' => CustomerResource::collection($paginator->items()),
@@ -74,26 +66,27 @@ class CustomerController extends Controller
     {
         $this->authorize('create', [Customer::class, $tenantId]);
 
-        $customer = new Customer();
-        $customer->id = (string) Str::uuid();
-        $customer->tenant_id = $tenantId;
-        $customer->name = (string) $request->input('name', '');
-        $customer->email = $request->input('email');
-        $customer->phone = $request->input('phone');
-        $customer->address = $request->input('address');
-        // Accept tags array when present (Phase 0 schema)
-        if ($request->has('tags')) {
-            $customer->tags = (array) $request->input('tags');
-        }
-        $customer->save();
+        try {
+            $customer = $this->customerService->createCustomer(
+                tenantId: $tenantId,
+                name: (string) $request->input('name', ''),
+                email: $request->input('email'),
+                phone: $request->input('phone'),
+                address: $request->input('address'),
+                tags: $request->has('tags') ? (array) $request->input('tags') : []
+            );
 
-        return response()->json(new CustomerResource($customer), 201);
+            return response()->json(new CustomerResource($customer), 201);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function show(Request $request, string $tenantId, string $id): JsonResponse
     {
-        $customer = Customer::find($id);
-        if (!$customer || (string) $customer->tenant_id !== (string) $tenantId) {
+        $customer = $this->customerService->getCustomer($id);
+
+        if (!$customer || $customer->getTenantId() !== $tenantId) {
             return response()->json(['message' => 'Customer not found'], 404);
         }
 
@@ -104,33 +97,34 @@ class CustomerController extends Controller
 
     public function update(CustomerRequest $request, string $tenantId, string $id): JsonResponse
     {
-        $customer = Customer::find($id);
-        if (!$customer || (string) $customer->tenant_id !== (string) $tenantId) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
         $this->authorize('update', [Customer::class, $tenantId]);
 
-        $customer->fill($request->only(['name', 'email', 'phone', 'address']));
-        if ($request->has('tags')) {
-            $customer->tags = (array) $request->input('tags');
-        }
-        $customer->save();
+        try {
+            $customer = $this->customerService->updateCustomer(
+                customerId: $id,
+                name: (string) $request->input('name', ''),
+                email: $request->input('email'),
+                phone: $request->input('phone'),
+                address: $request->input('address'),
+                tags: $request->has('tags') ? (array) $request->input('tags') : []
+            );
 
-        return response()->json(new CustomerResource($customer));
+            return response()->json(new CustomerResource($customer));
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 
     public function destroy(Request $request, string $tenantId, string $id): JsonResponse
     {
-        $customer = Customer::find($id);
-        if (!$customer || (string) $customer->tenant_id !== (string) $tenantId) {
-            return response()->json(['message' => 'Customer not found'], 404);
-        }
-
         $this->authorize('delete', [Customer::class, $tenantId]);
 
-        $customer->delete();
+        try {
+            $this->customerService->deleteCustomer($id);
 
-        return response()->json(null, 204);
+            return response()->json(null, 204);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
     }
 }

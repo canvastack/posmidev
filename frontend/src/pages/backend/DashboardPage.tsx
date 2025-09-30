@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '../components/ui/Card';
-import { useAuth } from '../hooks/useAuth';
-import { dashboardApi } from '../api/dashboardApi';
-import type { DashboardData } from '../types';
+import { Card, CardContent } from '@/components/ui/Card';
+import { useAuth } from '@/hooks/useAuth';
+import { dashboardApi } from '@/api/dashboardApi';
+import type { DashboardData } from '@/types';
 import {
   CurrencyDollarIcon,
   ShoppingCartIcon,
@@ -10,7 +10,7 @@ import {
   CubeIcon,
 } from '@heroicons/react/24/outline';
 
-export const DashboardPage: React.FC = () => {
+export default function DashboardPage() {
   const { tenantId } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent } from '../components/ui/Card'; // CardHeader removed if unused
-import { Button } from '../components/ui/Button';
-import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table';
-import { useAuth } from '../hooks/useAuth';
-import { productApi } from '../api/productApi';
-import type { Product, ProductForm } from '../types';
+import { Card, CardContent } from '@/components/ui/Card'; // CardHeader removed if unused
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { useAuth } from '@/hooks/useAuth';
+import { productApi } from '@/api/productApi';
+import type { Product, ProductForm } from '@/types';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-export const ProductsPage: React.FC = () => {
+export default function ProductsPage() {
   const { tenantId } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
