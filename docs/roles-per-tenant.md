@@ -1,32 +1,26 @@
-# Roles and Permissions — Teams (Tenant) Scoped -- DEPRECATED
+# Roles and Permissions — Tenant-Scoped with Teams (Updated)
 
-This document aligns with the core rule: Spatie Permission with Teams enabled. All roles and permissions are tenant-scoped by team = `tenant_id`. Any prior guidance about disabling Teams or using global roles is legacy and deprecated.
+This document aligns with the core rule: Spatie Permission with Teams enabled. All roles and permissions are tenant-scoped by team = `tenant_id`. Any prior guidance about disabling Teams or using global roles is deprecated.
 
 ## Summary
 - Teams enabled; `team_foreign_key = tenant_id`; guard `api`; `model_morph_key = model_uuid`.
 - Roles and permissions are tenant-scoped only; do not use `NULL tenant_id` roles.
 - Use `App\Models\Role` extending Spatie Role; ensure uniqueness includes `tenant_id, name, guard_name`.
-- Listing returns roles for the current tenant context; creation binds to current tenant via team context.
-- HQ bypass is via `Gate::before` and does not introduce global roles.
+- Listing and CRUD operations are scoped to the current tenant via team context.
+- HQ bypass is via `Gate::before` for `Super Admin` within the HQ tenant; it does not introduce global roles.
 
 ## Backend Details
-- Guard remains `api` throughout.
-- Policies enforce same-tenant checks and permission gates.
-- Migrations: `roles.tenant_id` (UUID, nullable, indexed) added via `2025_09_23_001000_alter_roles_add_tenant_id.php`.
-- Seeders:
-  - `RoleTenantBootstrapper` ensures baseline global roles: Super Admin, admin, manager, cashier.
-  - Existing seeders migrated to use `App\Models\Role` where necessary.
-
-## Rationale
-- Avoids enabling Spatie teams (and cross-table changes) while still providing per-tenant catalogs.
-- Keeps pivot tables unchanged and compatible with UUID users.
+- Guard: `api` across controllers/policies.
+- Policies enforce tenant checks and permission gates; team context is set by middleware.
+- Migrations (see 2025-09-23..25): add `tenant_id` to roles and pivots; convert morph key to UUID; enforce composite keys where applicable.
+- Seeders use `App\Models\Role` and grant permissions per team. Super Admin exists in HQ team.
 
 ## Usage Notes
-- Listing: returns global + tenant-specific roles.
-- Creation/Update: include `{"global": true}` in the payload to create global roles; omit or `false` for tenant-specific roles.
+- Listing: returns roles for the current team context only.
+- Creation/Update: binds new roles to the current team (`tenant_id`) implicitly via team context.
+- Avoid creating roles without a team; do not use global roles.
 
 ## Testing Checklist
-- List roles returns superset of global + tenant roles.
-- Create tenant role and verify it’s not visible in another tenant.
-- Create global role and verify it’s visible everywhere.
-- Policy: only authorized users in the same tenant can manage roles.
+- Verify role creation in tenant A is not visible in tenant B.
+- Verify permission checks honor team context.
+- Verify HQ Super Admin in HQ tenant can access across tenants (via `Gate::before`).

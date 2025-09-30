@@ -313,6 +313,75 @@ paths:
                         stock: { type: integer }
                         sku: { type: string }
 
+  /tenants/{tenantId}/public/settings:
+    get:
+      tags: [Public]
+      summary: Get public tenant settings
+      description: Public endpoint - returns tenant.settings.public as-is.
+      operationId: getPublicSettings
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicSettings' }
+
+  /tenants/{tenantId}/public/products:
+    get:
+      tags: [Public]
+      summary: List published products (public)
+      description: Returns only published products; default minStock=1; optional search by q.
+      operationId: listPublicProducts
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: minStock
+          schema: { type: integer, minimum: 0 }
+          description: Minimum stock to include (default 1)
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Paginated published products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/PublicProduct' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+
+  /tenants/{tenantId}/public/products/{productId}:
+    get:
+      tags: [Public]
+      summary: Get a published product by ID (public)
+      operationId: getPublicProduct
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicProduct' }
+        '404':
+          description: Not found
+
   /tenants/{tenantId}/products:
     get:
       tags: [Products]
@@ -1109,6 +1178,7 @@ components:
         sku: { type: string }
         price: { type: number, format: float }
         stock: { type: integer }
+        status: { type: string, enum: [draft, published, archived] }
         tenant_id: { type: string, format: uuid }
         category_id: { type: string, format: uuid, nullable: true }
         description: { type: string, nullable: true }
@@ -1124,6 +1194,7 @@ components:
         sku: { type: string, example: 'LP-001' }
         price: { type: number, format: float, example: 1500.99 }
         stock: { type: integer, example: 100 }
+        status: { type: string, enum: [draft, published, archived], default: draft }
         category_id: { type: string, format: uuid, nullable: true }
         description: { type: string, nullable: true }
         cost_price: { type: number, format: float, nullable: true }
@@ -1312,6 +1383,22 @@ components:
               type: string
               enum: [cash, card, ewallet]
               description: Default payment method for POS
+
+    PublicSettings:
+      description: Read-only subset used by public site (tenant.settings.public)
+      type: object
+      additionalProperties: true
+
+    PublicProduct:
+      type: object
+      description: Public product projection exposed by public endpoints
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        price: { type: number, format: float }
+        stock: { type: integer }
+        category_id: { type: string, format: uuid, nullable: true }
 
     TenantSettingsUpdate:
       type: object

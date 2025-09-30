@@ -30,6 +30,13 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
+    // Public content (no auth): tenant public settings and products
+    Route::prefix('tenants/{tenant}')->group(function () {
+        Route::get('/public/settings', [\App\Http\Controllers\Api\PublicContentController::class, 'settings']);
+        Route::get('/public/products', [\App\Http\Controllers\Api\PublicContentController::class, 'products']);
+        Route::get('/public/products/{productId}', [\App\Http\Controllers\Api\PublicContentController::class, 'showProduct']);
+    });
+
     // Diagnostics (temporary): should always return 200 JSON
     Route::get('/ping', function () {
         return response()->json(['ok' => true]);

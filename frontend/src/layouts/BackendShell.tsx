@@ -7,10 +7,13 @@ import { authApi } from '@/api/authApi'
 import { tenantApi, type Tenant } from '@/api/tenantApi'
 import { AdminHeader } from '@/layouts/AdminHeader'
 
-// Admin/POS shell with collapsible sidebar, glass header, and breadcrumbs
+// Admin/POS shell matching design-example: fixed sidebar (top-16), header, and content
 export function BackendShell() {
   const { user, logout } = useAuth()
   const [tenants, setTenants] = useState<Tenant[]>([])
+
+  // Sidebar collapsed state to control fixed sidebar width (16/64)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const hqEnv = import.meta.env.VITE_HQ_TENANT_ID
   const isHq = hqEnv ? (user?.tenant_id === hqEnv) : (user?.roles?.includes('Super Admin') ?? false)
@@ -36,18 +39,18 @@ export function BackendShell() {
   }
 
   return (
-    <div className="min-h-dvh grid grid-rows-[auto,1fr] grid-cols-[auto,1fr]">
-      {/* Reusable header */}
-      <AdminHeader
-        onLogout={handleLogout}
-        secondary={<Breadcrumbs />}
+    <div className="min-h-dvh">
+      {/* Header - sticky, occupies normal flow height (h-16) */}
+      <AdminHeader onLogout={handleLogout} secondary={<Breadcrumbs />} />
+
+      {/* Fixed Sidebar per design-example */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((v) => !v)}
       />
 
-      <div className="row-start-2 col-start-1">
-        <Sidebar />
-      </div>
-      <main className="p-4 row-start-2 col-start-2">
-        {/* Content card wrapper for modern look */}
+      {/* Main content shifted by sidebar width to avoid overlap */}
+      <main className={`p-4 ${sidebarCollapsed ? 'pl-16' : 'pl-64'}`}>
         <div className="content-surface min-h-[calc(100dvh-4rem)]">
           <Outlet />
         </div>

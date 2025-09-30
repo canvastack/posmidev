@@ -168,6 +168,10 @@ class DummyDataSeeder extends Seeder
                 $price = fake()->randomFloat(2, 1, 300);
                 $stock = fake()->numberBetween(0, 200);
                 $sku = strtoupper(Str::random(3)) . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+                // Randomize published status: 60-70% published, else draft/archived
+                $rand = fake()->numberBetween(1, 100);
+                $status = $rand <= 65 ? 'published' : ($rand <= 85 ? 'draft' : 'archived');
+
                 $products->push(Product::create([
                     'id' => (string) Str::uuid(),
                     'tenant_id' => $tenant->id,
@@ -178,6 +182,7 @@ class DummyDataSeeder extends Seeder
                     'price' => $price,
                     'cost_price' => max(0.1, $price * fake()->randomFloat(2, 0.4, 0.9)),
                     'stock' => $stock,
+                    'status' => $status,
                 ]));
             }
 
