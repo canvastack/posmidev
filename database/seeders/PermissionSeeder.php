@@ -44,6 +44,12 @@ class PermissionSeeder extends Seeder
             'customers.update',
             'customers.delete',
             
+            // Content pages permissions
+            'content.view',
+            'content.create',
+            'content.update',
+            'content.delete',
+            
             // User management permissions
             'users.view',
             'users.create',
@@ -113,6 +119,7 @@ class PermissionSeeder extends Seeder
             'orders.view', 'orders.create',
             'customers.view', 'customers.create', 'customers.update',
             'categories.view', 'categories.create', 'categories.update',
+            'content.view', 'content.create', 'content.update', // manage content pages
             'reports.view',
             'users.view', 'users.update', // manage users under tenant
         ]);

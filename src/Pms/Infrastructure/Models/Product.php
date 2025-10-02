@@ -25,6 +25,8 @@ class Product extends Model
         'cost_price',
         'stock',
         'status',
+        'image_path',
+        'thumbnail_path',
     ];
 
     protected $casts = [
@@ -36,6 +38,8 @@ class Product extends Model
         'stock' => 'integer',
         'status' => 'string',
     ];
+
+    protected $appends = ['image_url', 'thumbnail_url'];
 
     public function tenant(): BelongsTo
     {
@@ -55,5 +59,41 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * Get the full image URL accessor
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image_path) {
+            return null;
+        }
+
+        // If it's already a full URL, return as is
+        if (str_starts_with($this->image_path, 'http://') || str_starts_with($this->image_path, 'https://')) {
+            return $this->image_path;
+        }
+
+        // Otherwise, generate storage URL
+        return asset('storage/' . $this->image_path);
+    }
+
+    /**
+     * Get the full thumbnail URL accessor
+     */
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if (!$this->thumbnail_path) {
+            return $this->image_url; // Fallback to main image
+        }
+
+        // If it's already a full URL, return as is
+        if (str_starts_with($this->thumbnail_path, 'http://') || str_starts_with($this->thumbnail_path, 'https://')) {
+            return $this->thumbnail_path;
+        }
+
+        // Otherwise, generate storage URL
+        return asset('storage/' . $this->thumbnail_path);
     }
 }

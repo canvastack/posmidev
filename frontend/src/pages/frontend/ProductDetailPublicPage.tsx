@@ -16,11 +16,18 @@ import {
   CheckCircle,
   Truck,
   Shield,
-  RotateCcw
+  RotateCcw,
+  Loader2
 } from 'lucide-react';
+import { usePublicProduct } from '../../hooks/usePublicProduct';
 
-// Mock product data - in real app this would come from API
-const productData: Record<string, any> = {
+const HQ_TENANT_ID = import.meta.env.VITE_HQ_TENANT_ID || '11111111-1111-1111-1111-111111111111';
+
+// Placeholder image for products without images
+const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&h=600&fit=crop';
+
+// REMOVED: Mock product data - now fetching from API
+/* const productData: Record<string, any> = {
   '1': {
     id: '1',
     name: 'Premium Coffee Blend',
@@ -114,7 +121,7 @@ const productData: Record<string, any> = {
       'Allergens': 'May contain nuts'
     }
   }
-};
+}; */
 
 export default function ProductDetailPublicPage() {
   const { id } = useParams();
@@ -122,27 +129,54 @@ export default function ProductDetailPublicPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('description');
 
-  const product = productData[id as string];
-
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
-          <Button asChild>
-            <Link to="/products">Back to Products</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Fetch product from API
+  const { product, loading, error } = usePublicProduct(HQ_TENANT_ID, id || '');
 
   const handleQuantityChange = (change: number) => {
+    if (!product) return;
     const newQuantity = quantity + change;
     if (newQuantity >= 1 && newQuantity <= product.stock) {
       setQuantity(newQuantity);
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <HeaderFrontend />
+        <div className="container mx-auto px-6 py-16 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading product...</p>
+          </div>
+        </div>
+        <FooterFrontend />
+      </div>
+    );
+  }
+
+  // Error or Not Found state
+  if (error || !product) {
+    return (
+      <div className="min-h-screen">
+        <HeaderFrontend />
+        <div className="container mx-auto px-6 py-16 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">
+              {error || 'Product Not Found'}
+            </h2>
+            <Button asChild>
+              <Link to="/products">Back to Products</Link>
+            </Button>
+          </div>
+        </div>
+        <FooterFrontend />
+      </div>
+    );
+  }
+
+  const productImage = product.image_url || product.thumbnail_url || PLACEHOLDER_IMAGE;
 
   return (
     <div className="min-h-screen">
@@ -178,29 +212,16 @@ export default function ProductDetailPublicPage() {
           {/* Product Images */}
           <div className="space-y-4">
             <GlassCard className="p-4">
-              <div className="aspect-square rounded-xl overflow-hidden mb-4">
-                <img 
-                  src={product.images[selectedImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image: string, index: number) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImage === index ? 'border-primary' : 'border-transparent'
-                    }`}
-                  >
-                    <img 
-                      src={image}
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+              <div className="aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                {productImage ? (
+                  <img 
+                    src={productImage}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-9xl text-white/30">📦</span>
+                )}
               </div>
             </GlassCard>
           </div>
@@ -208,31 +229,27 @@ export default function ProductDetailPublicPage() {
           {/* Product Info */}
           <div className="space-y-6">
             <div>
-              <Badge className="gradient-secondary text-white mb-3">
-                {product.badge}
-              </Badge>
               <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{product.rating}</span>
-                </div>
-                <span className="text-muted-foreground">({product.reviews} reviews)</span>
-                <Badge variant="outline">{product.category}</Badge>
-              </div>
+              {product.description && (
+                <p className="text-lg text-muted-foreground mb-6">{product.description}</p>
+              )}
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl font-bold">${product.price}</span>
-                <span className="text-xl text-muted-foreground line-through">${product.originalPrice}</span>
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  Save ${(product.originalPrice - product.price).toFixed(2)}
-                </Badge>
+                <span className="text-3xl font-bold">${Number(product.price).toFixed(2)}</span>
               </div>
             </div>
 
             {/* Stock Status */}
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="font-medium text-green-600">In Stock ({product.stock} available)</span>
+              {product.stock > 0 ? (
+                <>
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="font-medium text-green-600">In Stock ({product.stock} available)</span>
+                </>
+              ) : (
+                <>
+                  <Badge variant="destructive">Out of Stock</Badge>
+                </>
+              )}
             </div>
 
             {/* Quantity Selector */}
@@ -263,9 +280,13 @@ export default function ProductDetailPublicPage() {
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Button size="lg" className="w-full gradient-secondary text-white">
+              <Button 
+                size="lg" 
+                className="w-full gradient-secondary text-white"
+                disabled={product.stock === 0}
+              >
                 <ShoppingCart className="h-5 w-5 mr-2" />
-                Add to Cart - ${(product.price * quantity).toFixed(2)}
+                {product.stock > 0 ? `Add to Cart - $${(product.price * quantity).toFixed(2)}` : 'Out of Stock'}
               </Button>
               <div className="grid grid-cols-2 gap-3">
                 <Button variant="outline" size="lg">
@@ -308,76 +329,15 @@ export default function ProductDetailPublicPage() {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <GlassCard>
-          <div className="border-b mb-6">
-            <div className="flex gap-8">
-              {[
-                { id: 'description', label: 'Description' },
-                { id: 'features', label: 'Features' },
-                { id: 'specifications', label: 'Specifications' },
-                { id: 'reviews', label: 'Reviews' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`pb-4 font-medium transition-colors ${
-                    activeTab === tab.id 
-                      ? 'text-primary border-b-2 border-primary' 
-                      : 'text-muted-foreground hover:text-primary'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+        {/* Product Details */}
+        {product.description && (
+          <GlassCard>
+            <h2 className="text-2xl font-bold mb-4">Product Description</h2>
+            <div className="prose max-w-none">
+              <p className="text-lg leading-relaxed">{product.description}</p>
             </div>
-          </div>
-
-          <div className="min-h-[200px]">
-            {activeTab === 'description' && (
-              <div className="prose max-w-none">
-                <p className="text-lg leading-relaxed">{product.description}</p>
-              </div>
-            )}
-
-            {activeTab === 'features' && (
-              <div className="space-y-3">
-                {product.features.map((feature: string, index: number) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'specifications' && (
-              <div className="grid md:grid-cols-2 gap-6">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b">
-                    <span className="font-medium">{key}:</span>
-                    <span className="text-muted-foreground">{value as string}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === 'reviews' && (
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                    <span className="text-2xl font-bold">{product.rating}</span>
-                  </div>
-                  <p className="text-muted-foreground">Based on {product.reviews} reviews</p>
-                </div>
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Reviews feature coming soon!</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </GlassCard>
+          </GlassCard>
+        )}
       </div>
 
       <FooterFrontend />

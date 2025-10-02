@@ -11,6 +11,7 @@ import {
   ClipboardList,
   BrainCircuit,
   Settings,
+  FileText,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
@@ -24,6 +25,7 @@ const menuItems = [
   { icon: IdCard, label: 'Users', path: '/admin/users' },
   { icon: BrainCircuit, label: 'Roles', path: '/admin/roles' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
+  { icon: FileText, label: 'Content Pages', path: '/admin/content-pages' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ]
 

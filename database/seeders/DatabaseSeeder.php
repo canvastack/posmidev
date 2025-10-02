@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SampleTenantsSeeder::class, // adds 3 simple sample tenants for picker options
             EavBlueprintsSeeder::class, // seed default customer blueprint
             PublicSiteContentSeeder::class, // seed public site navigation/company/homepage
+            ContentPagesSeeder::class, // seed about/company pages
         ]);
     }
 }

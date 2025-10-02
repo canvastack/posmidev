@@ -4,6 +4,7 @@ namespace Src\Pms\Core\Application\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Src\Pms\Infrastructure\Models\Product; // Using Eloquent model here for read-only query efficiency
+use Src\Pms\Infrastructure\Models\ContentPage;
 
 class PublicContentService
 {
@@ -22,7 +23,7 @@ class PublicContentService
             ->where('tenant_id', $tenantId)
             ->where('status', 'published')
             ->where('stock', '>=', $minStock)
-            ->select(['id', 'name', 'description', 'price', 'stock', 'category_id']);
+            ->select(['id', 'name', 'description', 'price', 'stock', 'category_id', 'image_path', 'thumbnail_path']);
 
         if ($q) {
             $query->where(function ($sub) use ($q) {
@@ -43,6 +44,31 @@ class PublicContentService
             ->where('tenant_id', $tenantId)
             ->where('status', 'published')
             ->where('id', $productId)
-            ->firstOrFail(['id', 'name', 'description', 'price', 'stock', 'category_id']);
+            ->firstOrFail(['id', 'name', 'description', 'price', 'stock', 'category_id', 'image_path', 'thumbnail_path']);
+    }
+
+    /**
+     * Return published content page by slug for a tenant; throws 404 if not found or not published.
+     */
+    public function getPublishedPage(string $tenantId, string $slug)
+    {
+        return ContentPage::query()
+            ->where('tenant_id', $tenantId)
+            ->where('slug', $slug)
+            ->published()
+            ->firstOrFail(['id', 'slug', 'title', 'content', 'published_at']);
+    }
+
+    /**
+     * Return all published content pages for a tenant.
+     */
+    public function getAllPublishedPages(string $tenantId)
+    {
+        return ContentPage::query()
+            ->where('tenant_id', $tenantId)
+            ->published()
+            ->select(['id', 'slug', 'title', 'published_at'])
+            ->orderBy('published_at', 'desc')
+            ->get();
     }
 }

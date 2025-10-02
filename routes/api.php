@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\StockAdjustmentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TenantController;
+use App\Http\Controllers\Api\ContentManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,11 +31,14 @@ Route::prefix('v1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Public content (no auth): tenant public settings and products
+    // Public content (no auth): tenant public settings, products, and pages
     Route::prefix('tenants/{tenant}')->group(function () {
         Route::get('/public/settings', [\App\Http\Controllers\Api\PublicContentController::class, 'settings']);
         Route::get('/public/products', [\App\Http\Controllers\Api\PublicContentController::class, 'products']);
         Route::get('/public/products/{productId}', [\App\Http\Controllers\Api\PublicContentController::class, 'showProduct']);
+        Route::get('/public/footer', [\App\Http\Controllers\Api\PublicContentController::class, 'footer']);
+        Route::get('/public/pages', [\App\Http\Controllers\Api\PublicContentController::class, 'pages']);
+        Route::get('/public/pages/{slug}', [\App\Http\Controllers\Api\PublicContentController::class, 'showPage']);
     });
 
     // Diagnostics (temporary): should always return 200 JSON
@@ -130,6 +134,14 @@ Route::prefix('v1')->group(function () {
             // Settings
             Route::get('settings', [\App\Http\Controllers\Api\SettingsController::class, 'show']);
             Route::patch('settings', [\App\Http\Controllers\Api\SettingsController::class, 'update']);
+
+            // Content Management
+            Route::get('content/footer', [ContentManagementController::class, 'getFooter']);
+            Route::put('content/footer', [ContentManagementController::class, 'updateFooter']);
+            Route::delete('content/footer', [ContentManagementController::class, 'deleteFooter']);
+            
+            // Content Pages Management
+            Route::apiResource('content/pages', \App\Http\Controllers\Api\ContentPagesController::class);
 
             // Orders
             Route::get('orders', [OrderQueryController::class, 'index']);

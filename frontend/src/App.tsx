@@ -19,6 +19,7 @@ const UsersPage = lazy(() => import('./pages/backend/UsersPage'))
 const RolesPage = lazy(() => import('./pages/backend/RolesPage'))
 const CustomersPage = lazy(() => import('./pages/backend/CustomersPage'))
 const SettingsPage = lazy(() => import('./pages/backend/SettingsPage'))
+const ContentPagesPage = lazy(() => import('./pages/backend/ContentPagesPage'))
 
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/HomePage'))
@@ -57,6 +58,7 @@ function App() {
             <Route path="roles" element={<RolesPage />} />
             <Route path="customers" element={<CustomersPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="content-pages" element={<ContentPagesPage />} />
           </Route>
 
           {/* Catch all → public home */}
