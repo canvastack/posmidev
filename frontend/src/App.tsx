@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { FrontendShell } from './layouts/FrontendShell'
 import { BackendShell } from './layouts/BackendShell'
+import { ThemeProvider } from './hooks/useTheme'
+import { Toaster } from './components/ui/sonner'
 
 // Auth
 const LoginPage = lazy(() => import('./pages/frontend/LoginPage'))
@@ -26,11 +28,13 @@ const CompanyPage = lazy(() => import('./pages/frontend/CompanyPage'))
 
 function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="p-4">Loading...</div>}>
-        <Routes>
+    <ThemeProvider defaultTheme="system" storageKey="posmid-ui-theme">
+      <Router>
+        <Toaster />
+        <Suspense fallback={<div className="p-4">Loading...</div>}>
+          <Routes>
           {/* Public/Frontend routes */}
-          <Route element={<FrontendShell />}> 
+          <Route element={<FrontendShell />}>
             <Route index element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/products" element={<ProductsPublicPage />} />
@@ -60,6 +64,7 @@ function App() {
         </Routes>
       </Suspense>
     </Router>
+    </ThemeProvider>
   )
 }
 

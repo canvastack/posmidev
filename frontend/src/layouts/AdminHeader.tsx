@@ -2,7 +2,7 @@ import { TenantPickerButton } from '@/components/TenantPickerButton'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { LogOut, Bell } from 'lucide-react'
 import React from 'react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 interface AdminHeaderProps {
   secondary?: React.ReactNode

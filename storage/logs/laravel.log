@@ -4768,3 +4768,78 @@
 [2025-10-01 22:23:38] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
 [2025-10-01 22:24:21] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
 [2025-10-01 22:24:21] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:48] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:41:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Finding product {"product_id":"cbd84ec2-8f0b-453f-ae9d-40af2f32af24","tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653","requested_quantity":1} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Product found, checking stock {"product_id":"cbd84ec2-8f0b-453f-ae9d-40af2f32af24","product_name":"Test Product","current_stock":50,"requested_quantity":1,"tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653"} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Finding product {"product_id":"bc55e1df-ab52-414c-b17e-e6ca83bcd57f","tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653","requested_quantity":2} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Product found, checking stock {"product_id":"bc55e1df-ab52-414c-b17e-e6ca83bcd57f","product_name":"Test Product","current_stock":50,"requested_quantity":2,"tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653"} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Finding product {"product_id":"32b183b1-d5d0-403d-9cbc-81e66da67e08","tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653","requested_quantity":3} 
+[2025-10-02 10:42:33] testing.INFO: OrderService: Product found, checking stock {"product_id":"32b183b1-d5d0-403d-9cbc-81e66da67e08","product_name":"Test Product","current_stock":50,"requested_quantity":3,"tenant_id":"049ead4b-aa41-4692-88c3-b2b51ac10653"} 
+[2025-10-02 10:42:35] testing.INFO: OrderService: Finding product {"product_id":"3eb6cdd4-731c-4753-a812-bc7ff0cf0b65","tenant_id":"7d71d864-4fa6-4c11-9ddb-4a8e89371f64","requested_quantity":3} 
+[2025-10-02 10:42:35] testing.INFO: OrderService: Product found, checking stock {"product_id":"3eb6cdd4-731c-4753-a812-bc7ff0cf0b65","product_name":"Mineral Water","current_stock":10,"requested_quantity":3,"tenant_id":"7d71d864-4fa6-4c11-9ddb-4a8e89371f64"} 
+[2025-10-02 10:42:35] testing.INFO: OrderService: Finding product {"product_id":"3eb6cdd4-731c-4753-a812-bc7ff0cf0b65","tenant_id":"7d71d864-4fa6-4c11-9ddb-4a8e89371f64","requested_quantity":8} 
+[2025-10-02 10:42:35] testing.INFO: OrderService: Product found, checking stock {"product_id":"3eb6cdd4-731c-4753-a812-bc7ff0cf0b65","product_name":"Mineral Water","current_stock":7,"requested_quantity":8,"tenant_id":"7d71d864-4fa6-4c11-9ddb-4a8e89371f64"} 
+[2025-10-02 10:42:35] testing.ERROR: OrderService: Insufficient stock detected {"product_id":"3eb6cdd4-731c-4753-a812-bc7ff0cf0b65","product_name":"Mineral Water","current_stock":7,"requested_quantity":8,"tenant_id":"7d71d864-4fa6-4c11-9ddb-4a8e89371f64"} 
+[2025-10-02 10:42:44] testing.INFO: Cross-tenant product access test {"status":404,"response_content":{"message":"Product not found"},"product_owner_tenant":"b568095b-b280-4008-bfcc-fbcb07c6818e","accessing_tenant":"9ba8fb5e-1ab0-480a-93df-67a0140b5a7a","product_id":"59d5c4f4-de8b-49d0-9cb2-e71afc7c043b","other_user_tenant":"9ba8fb5e-1ab0-480a-93df-67a0140b5a7a","response_headers":{"cache-control":["no-cache, private"],"date":["Thu, 02 Oct 2025 10:42:44 GMT"],"content-type":["application/json"],"x-ratelimit-limit":["60"],"x-ratelimit-remaining":["60"],"vary":["Origin"]},"request_url":"/api/v1/tenants/9ba8fb5e-1ab0-480a-93df-67a0140b5a7a/products/59d5c4f4-de8b-49d0-9cb2-e71afc7c043b","expected_behavior":"Route binding searches for product with tenant_id = otherTenant->id but finds none"} 
+[2025-10-02 10:42:46] testing.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Core\\Domain\\Entities\\Category","resource_id":"4f3a8a3c-383c-427e-9e89-032051dd55bf","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 10:43:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-02 15:17:56] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:17:57] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:23:43] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:23:44] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:23:48] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:23:48] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:39:36] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:39:37] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:41:04] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:41:04] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:42:52] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:42:52] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:42:55] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:42:55] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:46:57] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:46:57] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 15:47:18] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 15:47:19] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 16:08:57] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 16:08:57] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
+[2025-10-02 16:13:13] local.INFO: Dashboard#index start {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-02 16:13:13] local.INFO: Dashboard#index success {"tenantId":"411b8974-b25a-4c27-a121-c5c750b43e03"} 
