@@ -301,7 +301,15 @@
   /* Glassmorphism utilities (aligned to web/design-example) */
   .glass { @apply bg-white/10 backdrop-blur-md border border-white/20; }
   .glass-dark { @apply bg-gray-900/10 backdrop-blur-md border border-gray-700/20; }
-  .glass-card { @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-xl; }
+  .glass-card {
+    @apply backdrop-blur-xl border shadow-xl rounded-xl;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  .dark .glass-card {
+    background-color: rgba(17, 24, 39, 0.8);
+    border-color: rgba(55, 65, 81, 0.2);
+  }
 
   /* Gradients */
   .gradient-primary {

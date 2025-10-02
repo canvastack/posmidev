@@ -27,9 +27,12 @@ export interface Product {
   stock: number;
   tenant_id: string;
   category_id?: string;
+  category?: Category;
   description?: string;
   cost_price?: number;
   created_at: string;
+  image_url?: string | null;
+  thumbnail_url?: string | null;
 }
 
 export interface Category {

@@ -25,6 +25,12 @@ class ProductResource extends JsonResource
             'created_at' => $isDomainEntity
                 ? $this->resource->getCreatedAt()?->format('Y-m-d H:i:s')
                 : $this->resource->created_at?->format('Y-m-d H:i:s'),
+            'image_url' => $isDomainEntity
+                ? null
+                : ($this->resource->image_path ? asset('storage/' . $this->resource->image_path) : null),
+            'thumbnail_url' => $isDomainEntity
+                ? null
+                : ($this->resource->thumbnail_path ? asset('storage/' . $this->resource->thumbnail_path) : null),
         ];
     }
 }

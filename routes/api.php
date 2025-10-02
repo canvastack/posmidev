@@ -104,6 +104,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('tenants/{tenantId}')->middleware('team.tenant')->group(function () {
             Route::get('dashboard', [DashboardController::class, 'index']);
             Route::apiResource('products', ProductController::class);
+            Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             Route::apiResource('categories', CategoryController::class);
             Route::apiResource('roles', RoleController::class);
             Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
