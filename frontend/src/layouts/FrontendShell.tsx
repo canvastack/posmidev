@@ -22,7 +22,7 @@ export function FrontendShell() {
         </div>
       </header>
       <main className="container mx-auto px-4 py-6">
-        <div className="glass-card p-4">
+        <div className="card">
           <Outlet />
         </div>
       </main>

@@ -30,7 +30,7 @@ export const Drawer: React.FC<DrawerProps> = ({ open, onClose, side = 'left', wi
                 leaveFrom="translate-x-0"
                 leaveTo={side === 'left' ? '-translate-x-full' : 'translate-x-full'}
               >
-                <Dialog.Panel className={`pointer-events-auto ${widthClass} glass-card h-full shadow-xl`}> 
+                <Dialog.Panel className={`pointer-events-auto ${widthClass} card h-full shadow-xl`}>
                   {title && <div className="px-4 py-3 border-b border-white/10 text-sm font-semibold">{title}</div>}
                   <div className="h-full overflow-y-auto p-2">{children}</div>
                 </Dialog.Panel>

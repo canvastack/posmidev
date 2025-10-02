@@ -75,24 +75,24 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="overflow-hidden ring-1 ring-border/60 rounded-lg">
-        <table className="min-w-full divide-y divide-border/60">
-          <thead className="bg-foreground/5">
+      <div className="overflow-hidden ring-1 ring-border/60 rounded-xl bg-card text-card-foreground">
+        <table className="min-w-full divide-y divide-border">
+          <thead className="bg-muted/40 text-muted-foreground">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-3 py-2 text-left text-xs font-medium uppercase tracking-wide">
+                  <th key={header.id} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-border/60 bg-background">
+          <tbody className="divide-y divide-border bg-background">
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-foreground/5">
+              <tr key={row.id} className="hover:bg-accent/40 transition-colors">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 text-sm">
+                  <td key={cell.id} className="px-6 py-4 text-sm text-foreground">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -104,20 +104,28 @@ export function DataTable<TData, TValue>({
 
       <div className="flex items-center justify-between gap-2 text-sm">
         <div className="flex items-center gap-2">
-          <button className="px-2 py-1 rounded-md bg-foreground/10 disabled:opacity-50" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          <button
+            className="h-8 px-3 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
             Prev
           </button>
-          <button className="px-2 py-1 rounded-md bg-foreground/10 disabled:opacity-50" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <button
+            className="h-8 px-3 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
             Next
           </button>
-          <span className="opacity-80">
+          <span className="text-muted-foreground">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="opacity-80">Rows per page</span>
+          <span className="text-muted-foreground">Rows per page</span>
           <select
-            className="px-2 py-1 rounded-md bg-background border border-border"
+            className="h-8 px-2 rounded-md bg-background border border-input text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
           >

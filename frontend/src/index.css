@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 /* Tell Tailwind v4 where to scan for class usage */
 @source "../index.html";
@@ -172,6 +173,7 @@
     @apply border-border;
   }
   body {
+    /* Align with design-example: utility-driven base */
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
@@ -191,49 +193,96 @@
     @apply bg-danger-600 text-white hover:bg-danger-700 focus:ring-2 focus:ring-danger-500 focus:ring-offset-2;
   }
   /* Glassmorphism utilities */
-  .glass-card {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-xl;
-  }
-  .header-glass {
-    /* Mode-aware via html.light / html.dark (no Tailwind dark: needed) */
-    @apply backdrop-blur-xl backdrop-saturate-150 border-b shadow-md;
-  }
-  /* Alias to support existing class name in FrontendShell */
+  /* Deprecated: .glass-card replaced by .card to avoid Tailwind v4 @apply errors */
+  /* .glass-card { ... } removed */
+  /* .dark .glass-card { ... } removed */
+  .header-glass,
   .glass-header {
-    @apply backdrop-blur-xl backdrop-saturate-150 border-b shadow-md;
+    /* Header: remove radius; border only on bottom */
+    @apply shadow-lg backdrop-blur-xl;
+    background-color: rgba(255,255,255,0.8);
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    border-top: 0; border-left: 0; border-right: 0;
+    border-radius: 0;
   }
-  html.light .header-glass,
-  html.light .glass-header {
-    /* More glassy in light mode */
-    @apply bg-white/70 text-gray-900 border-white/50;
-  }
-  html.dark .header-glass,
-  html.dark .glass-header {
-    @apply bg-gray-900/70 text-gray-100 border-gray-700/40;
+  .dark .header-glass,
+  .dark .glass-header {
+    background-color: rgba(17, 24, 39, 0.8); /* ~gray-900/80 */
+    border-bottom-color: rgba(55, 65, 81, 0.2);     /* ~gray-700/20 */
   }
   .sidebar-panel {
     /* Sidebar panel parity: softened surface, clear border, elevated */
     @apply bg-card text-card-foreground border border-border/60 shadow-md rounded-xl m-2 p-2;
   }
-  .content-surface {
-    /* Main content surface card */
-    @apply bg-card text-card-foreground rounded-2xl shadow-xl border border-border p-4 md:p-6;
+  /* Subtle right-edge shadow for fixed sidebar (lighter than header) */
+  .sidebar-shadow {
+    box-shadow: 10px 0 24px -18px rgba(16, 24, 40, 0.14);
   }
+  html.dark .sidebar-shadow {
+    box-shadow: 10px 0 24px -18px rgba(0, 0, 0, 0.35);
+  }
+  /* Sidebar glassmorphism per spec + subtle right border */
+  .sidebar-glass {
+    /* Sidebar: remove radius; border only on right */
+    @apply shadow-md backdrop-blur-xl;
+    background-color: rgba(255,255,255,0.8);
+    border-right: 1px solid rgba(255,255,255,0.2);
+    border-top: 0; border-left: 0; border-bottom: 0;
+    border-radius: 0;
+  }
+  .dark .sidebar-glass {
+    background-color: rgba(17, 24, 39, 0.8); /* ~gray-900/80 */
+    border-right-color: rgba(55, 65, 81, 0.2);     /* ~gray-700/20 */
+  }
+  /* Removed legacy content-surface wrapper usage */
+  .content-surface { @apply p-0; }
   .glass-menu {
-    @apply bg-white/10 dark:bg-gray-900/30 backdrop-blur-lg ring-1 ring-white/15 shadow-glass rounded-xl;
+    @apply bg-white/10 backdrop-blur-lg ring-1 ring-white/15 rounded-xl;
+    box-shadow: var(--shadow-glass);
+  }
+  .dark .glass-menu {
+    background-color: rgba(17, 24, 39, 0.3); /* ~gray-900/30 */
   }
   .input {
-    /* Neutral base. Mode is applied via html.light/html.dark below */
-    @apply block w-full px-3 py-2 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500;
+    /* Token-driven input; adapt to light/dark */
+    @apply block w-full px-3 py-2 rounded-lg shadow-sm bg-background text-foreground placeholder:text-muted-foreground border border-input;
+    @apply ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  html.light .input {
-    @apply bg-white text-gray-900 placeholder:text-gray-500 border border-gray-300;
-  }
-  html.dark .input {
-    @apply bg-gray-900 text-gray-100 placeholder:text-gray-400 border border-gray-700;
+  .input::placeholder {
+    @apply text-muted-foreground;
   }
   .card {
-    @apply bg-card text-card-foreground rounded-xl shadow-sm border border-border p-6;
+    /* Use same surface as .glass-card without @apply on custom class (Tailwind v4 limitation) */
+    background-color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.2);
+    @apply backdrop-blur-xl shadow-xl rounded-xl p-6;
+  }
+  .dark .card {
+    background-color: rgba(17, 24, 39, 0.8); /* ~gray-900/80 */
+    border-color: rgba(55, 65, 81, 0.2);     /* ~gray-700/20 */
+  }
+
+  /* Smooth custom scrollbar for overflow containers */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground)) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: color-mix(in hsl, hsl(var(--muted-foreground)) 40%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in hsl, hsl(var(--muted-foreground)) 60%, transparent);
+    background-clip: content-box;
   }
 
   /* Public navbar link styles */
@@ -246,12 +295,31 @@
 }
 
 @layer utilities {
+  /* Typography */
   .font-inter { font-family: 'Inter', sans-serif; }
-  .gradient-primary { @apply bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800; }
-  .gradient-secondary { @apply bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700; }
-  .gradient-bg { @apply bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900; }
+
+  /* Glassmorphism utilities (aligned to web/design-example) */
+  .glass { @apply bg-white/10 backdrop-blur-md border border-white/20; }
+  .glass-dark { @apply bg-gray-900/10 backdrop-blur-md border border-gray-700/20; }
+  .glass-card { @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-xl; }
+
+  /* Gradients */
+  .gradient-primary {
+    @apply bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800;
+  }
+  
+  .gradient-secondary {
+    @apply bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-gray-900;
+  }
+
+  /* Simple animations */
   .animate-float { animation: float 6s ease-in-out infinite; }
   .animate-glow { animation: glow 2s ease-in-out infinite alternate; }
+
   /* z-index utilities for layering */
   .z-header { z-index: var(--z-header); }
   .z-overlay { z-index: var(--z-overlay); }
@@ -269,6 +337,9 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { @apply bg-gray-100 dark:bg-gray-800; }
-::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-600 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-gray-400 dark:bg-gray-500; }
+::-webkit-scrollbar-track { @apply bg-gray-100; }
+.dark ::-webkit-scrollbar-track { @apply bg-gray-800; }
+::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
+.dark ::-webkit-scrollbar-thumb { @apply bg-gray-600 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-gray-400; }
+.dark ::-webkit-scrollbar-thumb:hover { @apply bg-gray-500; }

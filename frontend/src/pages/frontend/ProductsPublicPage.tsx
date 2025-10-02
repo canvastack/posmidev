@@ -25,7 +25,7 @@ export default function ProductsPublicPage() {
       <h1 className="text-2xl font-bold">Products (Public)</h1>
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
         {items.map(p => (
-          <Link key={p.id} to={`/products/${p.id}`} className="glass-card p-4 hover:bg-accent/40 transition-colors rounded-md">
+          <Link key={p.id} to={`/products/${p.id}`} className="card hover:bg-accent/40 transition-colors" >
             <div className="aspect-video bg-muted rounded mb-3" />
             <div className="font-medium">{p.name}</div>
             <div className="text-sm text-muted-foreground">Rp {p.price.toLocaleString('id-ID')}</div>

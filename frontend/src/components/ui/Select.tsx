@@ -21,19 +21,21 @@ export const Select: React.FC<SelectProps> = ({ label, error, className, id, opt
       <select
         id={inputId}
         className={cn(
-          'block w-full px-3 py-2 rounded-lg border border-border bg-background focus:ring-primary-500 focus:border-primary-500 sm:text-sm',
-          error && 'border-danger-300 focus:ring-danger-500 focus:border-danger-500',
+          'block w-full px-3 py-2 rounded-lg bg-background text-foreground',
+          'border border-input placeholder:text-muted-foreground',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
+          error && 'border-destructive focus-visible:ring-destructive',
           className
         )}
         {...props}
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <option key={o.value} value={o.value} className="bg-background text-foreground">
             {o.label}
           </option>
         ))}
       </select>
-      {error && <p className="text-sm text-danger-600">{error}</p>}
+      {error && <p className="text-sm text-destructive-foreground/90 bg-destructive/10 px-2 py-1 rounded-md">{error}</p>}
     </div>
   )
 }

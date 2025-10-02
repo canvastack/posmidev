@@ -18,7 +18,7 @@ interface CardContentProps {
 
 // Updated to use glass utilities and tokens
 export const Card: React.FC<CardProps> = ({ children, className }) => (
-  <div className={cn('glass-card', className)}>
+  <div className={cn('card', className)}>
     {children}
   </div>
 );

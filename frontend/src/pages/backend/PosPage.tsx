@@ -123,6 +123,10 @@ export default function PosPage() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
       {/* Products Grid */}
       <div className="lg:col-span-2">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Point of Sale</h1>
+        <p className="text-muted-foreground">Process sales and manage transactions</p>
+      </div>
         <Card>
           <CardHeader>
             <h2 className="text-lg font-semibold">Products</h2>

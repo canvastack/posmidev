@@ -221,13 +221,16 @@ export const UsersByTenant: React.FC = () => {
                     <Fragment key={tenant.id}>
                       <TableRow>
                         <TableCell className="w-10">
-                          <button onClick={() => toggleExpand(tenant)} className="text-gray-600 hover:text-gray-900">
+                          <button
+                            onClick={() => toggleExpand(tenant)}
+                            className="text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md p-1"
+                          >
                             {state.expanded ? <ChevronDownIcon className="h-5 w-5" /> : <ChevronRightIcon className="h-5 w-5" />}
                           </button>
                         </TableCell>
                         <TableCell className="font-medium">{tenant.name}</TableCell>
                         <TableCell>
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-800">
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-secondary/15 text-secondary-foreground ring-1 ring-border/60">
                             {tenant.status ?? 'pending'}
                           </span>
                         </TableCell>
@@ -239,26 +242,26 @@ export const UsersByTenant: React.FC = () => {
                       </TableRow>
 
                       {state.expanded && (
-                        <tr>
-                          <td colSpan={4} className="bg-gray-50">
+                        <tr className="bg-accent/20">
+                          <td colSpan={4} className="bg-transparent">
                             <div className="p-4 space-y-3">
                               <div className="flex items-center justify-between">
                                 <div className="relative">
-                                  <MagnifyingGlassIcon className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                  <MagnifyingGlassIcon className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                                   <input
                                     type="text"
-                                    className="pl-9 pr-3 py-2 border rounded-md text-sm w-64"
+                                    className="pl-9 pr-3 py-2 border border-input rounded-md text-sm w-64 bg-background text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                                     placeholder="Search users..."
                                     value={state.search}
                                     onChange={(e) => setRowsState(prev => ({ ...prev, [tenant.id]: { ...ensureRowState(tenant.id), search: e.target.value } }))}
                                     onKeyDown={(e) => { if (e.key === 'Enter') fetchUsers(tenant.id, { page: 1, perPage: state.usersPerPage, q: state.search }); }}
                                   />
                                 </div>
-                                <div className="text-sm text-gray-600">Page {state.usersData?.current_page || 1} of {state.usersData?.last_page || 1} — {state.usersData?.total || 0} users</div>
+                                <div className="text-sm text-muted-foreground">Page {state.usersData?.current_page || 1} of {state.usersData?.last_page || 1} — {state.usersData?.total || 0} users</div>
                               </div>
 
-                              <div>
-                                <Table className="min-w-full">
+                              <div className="-mx-4 md:mx-0">
+                                <Table scrollX className="min-w-[1000px]">
                                   <TableHeader>
                                     <TableRow>
                                       <TableHead>Photo</TableHead>
@@ -287,7 +290,7 @@ export const UsersByTenant: React.FC = () => {
                                                 className="h-8 w-8 rounded-full object-cover"
                                               />
                                             ) : (
-                                              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-600">
+                                              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
                                                 {u.name?.slice(0,2)?.toUpperCase()}
                                               </div>
                                             )}
@@ -296,14 +299,14 @@ export const UsersByTenant: React.FC = () => {
                                           <TableCell>{u.email}</TableCell>
                                           <TableCell>{u.phone_number || '-'}</TableCell>
                                           <TableCell>
-                                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-800">
+                                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-secondary/15 text-secondary-foreground ring-1 ring-border/60">
                                               {u.status ?? 'pending'}
                                             </span>
                                           </TableCell>
                                           <TableCell>
                                             <div className="flex flex-wrap gap-1">
                                               {u.roles?.slice(0, 3).map((r) => (
-                                                <span key={r} className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                <span key={r} className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-muted text-foreground/90 ring-1 ring-border/60">
                                                   {r}
                                                 </span>
                                               ))}
@@ -410,12 +413,12 @@ export const UsersByTenant: React.FC = () => {
               <Input label="Display Name" name="display_name" value={form.display_name || ''} onChange={(e) => setForm(prev => ({ ...prev, display_name: e.target.value }))} />
               <Input label="Phone Number" name="phone_number" value={form.phone_number || ''} onChange={(e) => setForm(prev => ({ ...prev, phone_number: e.target.value }))} />
               <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Photo</label>
               <div className="flex items-center gap-3">
                 {form.photo ? (
                   <img src={form.photo_thumb || form.photo} onError={(e) => { (e.currentTarget as HTMLImageElement).src = form.photo || ''; }} className="h-10 w-10 rounded-full object-cover" />
                 ) : (
-                  <div className="h-10 w-10 rounded-full bg-gray-200" />
+                  <div className="h-10 w-10 rounded-full bg-muted" />
                 )}
                 <input
                   type="file"
@@ -435,8 +438,8 @@ export const UsersByTenant: React.FC = () => {
               {/* Simple square cropper */}
               {selectedFile && (
                 <div className="mt-3 space-y-2">
-                  <div className="text-xs text-gray-600">Crop avatar (1:1)</div>
-                  <div className="relative w-64 h-64 bg-gray-50 border overflow-hidden">
+                  <div className="text-xs text-muted-foreground">Crop avatar (1:1)</div>
+                  <div className="relative w-64 h-64 bg-muted border border-border overflow-hidden">
                     <img
                       ref={imageRef}
                       src={URL.createObjectURL(selectedFile)}
