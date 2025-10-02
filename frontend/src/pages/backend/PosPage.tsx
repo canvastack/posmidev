@@ -120,119 +120,127 @@ export default function PosPage() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-      {/* Products Grid */}
-      <div className="lg:col-span-2">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Point of Sale</h1>
-        <p className="text-muted-foreground">Process sales and manage transactions</p>
-      </div>
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold">Products</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                    product.stock > 0
-                      ? 'hover:bg-gray-50 border-gray-200'
-                      : 'bg-gray-100 border-gray-300 cursor-not-allowed'
-                  }`}
-                  onClick={() => handleAddToCart(product)}
-                >
-                  <div className="text-center">
-                    <h3 className="font-medium text-sm mb-1">{product.name}</h3>
-                    <p className="text-xs text-gray-500 mb-2">SKU: {product.sku}</p>
-                    <p className="font-semibold text-primary-600">
-                      {formatCurrency(product.price)}
-                    </p>
-                    <p className={`text-xs mt-1 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      Stock: {product.stock}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <div>
+      <div className="container mx-auto px-6">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-2">Point of Sale</h1>
+          <p className="text-muted-foreground">Process sales and manage transactions</p>
+        </div>
+        <div className="grid lg:grid-cols-3 gap-8 h-[calc(100vh-200px)]">
 
-      {/* Cart */}
-      <div className="lg:col-span-1">
-        <Card className="h-full">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Cart ({getTotalItems()})</h2>
-              {items.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={clearCart}>
-                  Clear
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto">
-              {items.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Cart is empty</p>
-              ) : (
-                <div className="space-y-3">
-                  {items.map((item) => (
-                    <div key={item.product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{item.product.name}</h4>
-                        <p className="text-xs text-gray-500">
-                          {formatCurrency(item.product.price)} each
+          {/* Products Grid */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <h2 className="text-lg font-semibold">Products</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {products.map((product) => (
+                    <div
+                      key={product.id}
+                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                        product.stock > 0
+                          ? 'hover:bg-gray-50 border-gray-200'
+                          : 'bg-gray-100 border-gray-300 cursor-not-allowed'
+                      }`}
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <div className="text-center">
+                        <h3 className="font-medium text-sm mb-1">{product.name}</h3>
+                        <p className="text-xs text-gray-500 mb-2">SKU: {product.sku}</p>
+                        <p className="font-semibold text-primary-600">
+                          {formatCurrency(product.price)}
                         </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
-                          className="p-1 rounded-full hover:bg-gray-200"
-                        >
-                          <MinusIcon className="h-4 w-4" />
-                        </button>
-                        <span className="w-8 text-center text-sm">{item.quantity}</span>
-                        <button
-                          onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
-                          className="p-1 rounded-full hover:bg-gray-200"
-                          disabled={item.quantity >= item.product.stock}
-                        >
-                          <PlusIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => removeItem(item.product.id)}
-                          className="p-1 rounded-full hover:bg-red-100 text-red-600"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
+                        <p className={`text-xs mt-1 ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          Stock: {product.stock}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            {items.length > 0 && (
-              <div className="border-t pt-4 mt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-lg font-semibold">Total:</span>
-                  <span className="text-lg font-bold text-primary-600">
-                    {formatCurrency(totalAmount)}
-                  </span>
+
+          {/* Cart */}
+          <div className="lg:col-span-1">
+            <Card className="h-full">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Cart ({getTotalItems()})</h2>
+                  {items.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={clearCart}>
+                      Clear
+                    </Button>
+                  )}
                 </div>
-                <Button
-                  className="w-full"
-                  onClick={() => setPaymentModalOpen(true)}
-                >
-                  Pay Now
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto">
+                  {items.length === 0 ? (
+                    <p className="text-gray-500 text-center py-8">Cart is empty</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {items.map((item) => (
+                        <div key={item.product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm">{item.product.name}</h4>
+                            <p className="text-xs text-gray-500">
+                              {formatCurrency(item.product.price)} each
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
+                              className="p-1 rounded-full hover:bg-gray-200"
+                            >
+                              <MinusIcon className="h-4 w-4" />
+                            </button>
+                            <span className="w-8 text-center text-sm">{item.quantity}</span>
+                            <button
+                              onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
+                              className="p-1 rounded-full hover:bg-gray-200"
+                              disabled={item.quantity >= item.product.stock}
+                            >
+                              <PlusIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => removeItem(item.product.id)}
+                              className="p-1 rounded-full hover:bg-red-100 text-red-600"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {items.length > 0 && (
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-lg font-semibold">Total:</span>
+                      <span className="text-lg font-bold text-primary-600">
+                        {formatCurrency(totalAmount)}
+                      </span>
+                    </div>
+                    <Button
+                      className="w-full"
+                      onClick={() => setPaymentModalOpen(true)}
+                    >
+                      Pay Now
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          
+        </div>
       </div>
 
       {/* Payment Modal */}
