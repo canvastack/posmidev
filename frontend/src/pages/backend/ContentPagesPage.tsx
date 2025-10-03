@@ -319,8 +319,8 @@ export default function ContentPagesPage() {
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         page.status === 'published' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
+                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                       }`}>
                         {page.status}
                       </span>
@@ -359,14 +359,14 @@ export default function ContentPagesPage() {
 
       <Modal isOpen={modalOpen} onClose={handleCloseModal} size="xl">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {editingPage ? 'Edit Content Page' : 'Add New Content Page'}
           </h2>
 
           {/* Basic Fields */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Title *
               </label>
               <Input
@@ -379,8 +379,8 @@ export default function ContentPagesPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Slug * <span className="text-gray-500 text-xs">(kebab-case: about-us)</span>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Slug * <span className="text-gray-500 dark:text-gray-400 text-xs">(kebab-case: about-us)</span>
               </label>
               <Input
                 name="slug"
@@ -394,14 +394,14 @@ export default function ContentPagesPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Status
             </label>
             <select
               name="status"
               value={form.status}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
@@ -409,14 +409,14 @@ export default function ContentPagesPage() {
           </div>
 
           {/* Editor Mode Tabs */}
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <div className="flex space-x-4">
               <button
                 type="button"
                 className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
                   editorMode === 'visual'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
                 onClick={() => setEditorMode('visual')}
               >
@@ -426,8 +426,8 @@ export default function ContentPagesPage() {
                 type="button"
                 className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
                   editorMode === 'json'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
                 onClick={() => {
                   setEditorMode('json');
@@ -443,8 +443,8 @@ export default function ContentPagesPage() {
           {editorMode === 'visual' && (
             <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
               {/* Hero Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="text-lg font-semibold mb-3">Hero Section</h3>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Hero Section</h3>
                 <div className="space-y-3">
                   <Input
                     placeholder="Badge text"
@@ -465,16 +465,16 @@ export default function ContentPagesPage() {
                     placeholder="Description"
                     value={visualForm.hero.description}
                     onChange={(e) => updateVisualField('hero', 'description', e.target.value)}
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                    className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
                     rows={3}
                   />
                 </div>
               </div>
 
               {/* Team Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Team Members</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Team Members</h3>
                   <Button
                     type="button"
                     size="sm"
@@ -486,13 +486,13 @@ export default function ContentPagesPage() {
                 </div>
                 <div className="space-y-3">
                   {visualForm.team.map((member, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded border">
+                    <div key={idx} className="bg-white dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600">
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-sm font-medium">Member #{idx + 1}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Member #{idx + 1}</span>
                         <button
                           type="button"
                           onClick={() => removeArrayItem('team', idx)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           <XMarkIcon className="h-4 w-4" />
                         </button>
@@ -518,7 +518,7 @@ export default function ContentPagesPage() {
                           placeholder="Description"
                           value={member.description}
                           onChange={(e) => updateArrayItem('team', idx, { ...member, description: e.target.value })}
-                          className="col-span-2 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                          className="col-span-2 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
                           rows={2}
                         />
                       </div>
@@ -528,8 +528,8 @@ export default function ContentPagesPage() {
               </div>
 
               {/* Story Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <h3 className="text-lg font-semibold mb-3">Story Section</h3>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">Story Section</h3>
                 <div className="space-y-3">
                   <Input
                     placeholder="Image URL"
@@ -549,7 +549,7 @@ export default function ContentPagesPage() {
                   
                   {/* Features */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">Features</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Features</label>
                     <div className="space-y-2">
                       {visualForm.story.features.map((feature, idx) => (
                         <div key={idx} className="flex gap-2">
@@ -560,7 +560,7 @@ export default function ContentPagesPage() {
                             variant="ghost"
                             onClick={() => removeStoryFeature(idx)}
                           >
-                            <XMarkIcon className="h-4 w-4 text-red-600" />
+                            <XMarkIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
                           </Button>
                         </div>
                       ))}
@@ -593,14 +593,14 @@ export default function ContentPagesPage() {
 
                   {/* Paragraphs */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">Paragraphs</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Paragraphs</label>
                     <div className="space-y-2">
                       {visualForm.story.paragraphs.map((para, idx) => (
                         <div key={idx} className="flex gap-2">
                           <textarea
                             value={para}
                             disabled
-                            className="flex-1 rounded-md border-gray-300 bg-gray-100 px-3 py-2 border text-sm"
+                            className="flex-1 rounded-md border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-300 px-3 py-2 border text-sm"
                             rows={2}
                           />
                           <Button
@@ -609,14 +609,14 @@ export default function ContentPagesPage() {
                             variant="ghost"
                             onClick={() => removeStoryParagraph(idx)}
                           >
-                            <XMarkIcon className="h-4 w-4 text-red-600" />
+                            <XMarkIcon className="h-4 w-4 text-red-600 dark:text-red-400" />
                           </Button>
                         </div>
                       ))}
                       <div className="flex gap-2">
                         <textarea
                           placeholder="Add paragraph"
-                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                          className="flex-1 rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
                           rows={2}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && e.ctrlKey) {
@@ -638,16 +638,16 @@ export default function ContentPagesPage() {
                           Add
                         </Button>
                       </div>
-                      <p className="text-xs text-gray-500">Press Ctrl+Enter to add</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Press Ctrl+Enter to add</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Services Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Services</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Services</h3>
                   <Button
                     type="button"
                     size="sm"
@@ -659,13 +659,13 @@ export default function ContentPagesPage() {
                 </div>
                 <div className="space-y-3">
                   {visualForm.services.map((service, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded border">
+                    <div key={idx} className="bg-white dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600">
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-sm font-medium">Service #{idx + 1}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Service #{idx + 1}</span>
                         <button
                           type="button"
                           onClick={() => removeArrayItem('services', idx)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           <XMarkIcon className="h-4 w-4" />
                         </button>
@@ -685,13 +685,13 @@ export default function ContentPagesPage() {
                           placeholder="Description"
                           value={service.description}
                           onChange={(e) => updateArrayItem('services', idx, { ...service, description: e.target.value })}
-                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                          className="w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
                           rows={2}
                         />
                         
                         {/* Service Features */}
                         <div>
-                          <label className="block text-xs font-medium mb-1">Features</label>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Features</label>
                           <div className="space-y-1">
                             {service.features.map((feature, fIdx) => (
                               <div key={fIdx} className="flex gap-1">
@@ -702,7 +702,7 @@ export default function ContentPagesPage() {
                                   variant="ghost"
                                   onClick={() => removeServiceFeature(idx, fIdx)}
                                 >
-                                  <XMarkIcon className="h-3 w-3 text-red-600" />
+                                  <XMarkIcon className="h-3 w-3 text-red-600 dark:text-red-400" />
                                 </Button>
                               </div>
                             ))}
@@ -740,9 +740,9 @@ export default function ContentPagesPage() {
               </div>
 
               {/* Milestones Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Milestones</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Milestones</h3>
                   <Button
                     type="button"
                     size="sm"
@@ -754,13 +754,13 @@ export default function ContentPagesPage() {
                 </div>
                 <div className="space-y-3">
                   {visualForm.milestones.map((milestone, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded border">
+                    <div key={idx} className="bg-white dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600">
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-sm font-medium">Milestone #{idx + 1}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Milestone #{idx + 1}</span>
                         <button
                           type="button"
                           onClick={() => removeArrayItem('milestones', idx)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           <XMarkIcon className="h-4 w-4" />
                         </button>
@@ -781,7 +781,7 @@ export default function ContentPagesPage() {
                           placeholder="Description"
                           value={milestone.description}
                           onChange={(e) => updateArrayItem('milestones', idx, { ...milestone, description: e.target.value })}
-                          className="col-span-3 w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
+                          className="col-span-3 w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border"
                           rows={2}
                         />
                       </div>
@@ -791,9 +791,9 @@ export default function ContentPagesPage() {
               </div>
 
               {/* Achievements Section */}
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">Achievements</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Achievements</h3>
                   <Button
                     type="button"
                     size="sm"
@@ -805,13 +805,13 @@ export default function ContentPagesPage() {
                 </div>
                 <div className="space-y-3">
                   {visualForm.achievements.map((achievement, idx) => (
-                    <div key={idx} className="bg-white p-3 rounded border">
+                    <div key={idx} className="bg-white dark:bg-gray-700 p-3 rounded border border-gray-200 dark:border-gray-600">
                       <div className="flex items-start justify-between mb-2">
-                        <span className="text-sm font-medium">Achievement #{idx + 1}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Achievement #{idx + 1}</span>
                         <button
                           type="button"
                           onClick={() => removeArrayItem('achievements', idx)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                         >
                           <XMarkIcon className="h-4 w-4" />
                         </button>
@@ -848,27 +848,27 @@ export default function ContentPagesPage() {
           {/* JSON Editor */}
           {editorMode === 'json' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Content (JSON) *
               </label>
               <textarea
                 value={contentString}
                 onChange={(e) => handleContentChange(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border font-mono text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-3 py-2 border font-mono text-sm"
                 rows={20}
                 placeholder='{"hero": {"title": "Welcome"}, "sections": []}'
                 required
               />
               {jsonError && (
-                <p className="mt-1 text-sm text-red-600">{jsonError}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
               )}
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Enter valid JSON content. Switch to Visual Editor for guided form input.
               </p>
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <Button
               type="button"
               variant="ghost"

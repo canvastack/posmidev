@@ -6,3 +6,9 @@ composer.lock
 devs/
 .zenc*/
 web/*example/
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+public/storage/
+bootstrap/cache/*.php
