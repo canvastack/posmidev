@@ -22,12 +22,6 @@ class MultiTenantDemoSeeder extends Seeder
 {
     public function run(): void
     {
-        // Ensure base roles exist (idempotent)
-        $guard = 'api';
-        $roleAdmin   = Role::findOrCreate('admin', $guard);
-        $roleManager = Role::findOrCreate('manager', $guard);
-        $roleCashier = Role::findOrCreate('cashier', $guard);
-
         // Business profiles with domain-appropriate categories and price ranges
         $businessProfiles = [
             [
@@ -97,6 +91,12 @@ class MultiTenantDemoSeeder extends Seeder
 
                 // Team context for Spatie (roles/permissions are tenant-scoped)
                 app(PermissionRegistrar::class)->setPermissionsTeamId((string) $tenant->id);
+
+                // Create roles within tenant context (no global roles)
+                $guard = 'api';
+                $roleAdmin   = Role::findOrCreate('admin', $guard);
+                $roleManager = Role::findOrCreate('manager', $guard);
+                $roleCashier = Role::findOrCreate('cashier', $guard);
 
                 // Unique email prefix per tenant to ensure global uniqueness across runs
                 $tenantEmailPrefix = Str::slug($profile['name']) . ($index + 1);

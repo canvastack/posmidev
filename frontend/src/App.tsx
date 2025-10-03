@@ -1,31 +1,31 @@
 import React, { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from './components/ProtectedRoute'
-import { FrontendShell } from './layouts/FrontendShell'
-import { BackendShell } from './layouts/BackendShell'
+import { ProtectedRoute } from '@/components/backend/auth/ProtectedRoute'
+import { FrontendLayout } from '@/layouts/frontend/FrontendLayout'
+import { BackendLayout } from '@/layouts/backend/BackendLayout'
 import { ThemeProvider } from './hooks/useTheme'
 import { Toaster } from './components/ui/sonner'
 
 // Auth
-const LoginPage = lazy(() => import('./pages/frontend/LoginPage'))
-const RegisterPage = lazy(() => import('./pages/frontend/RegisterPage'))
+const LoginPage = lazy(() => import('./pages/frontend/auth/login'))
+const RegisterPage = lazy(() => import('./pages/frontend/auth/register'))
 
 // Admin (backend) pages
-const DashboardPage = lazy(() => import('./pages/backend/DashboardPage'))
-const PosPage = lazy(() => import('./pages/backend/PosPage'))
-const ProductsPage = lazy(() => import('./pages/backend/ProductsPage'))
-const OrdersPage = lazy(() => import('./pages/backend/OrdersPage'))
-const UsersPage = lazy(() => import('./pages/backend/UsersPage'))
-const RolesPage = lazy(() => import('./pages/backend/RolesPage'))
-const CustomersPage = lazy(() => import('./pages/backend/CustomersPage'))
-const SettingsPage = lazy(() => import('./pages/backend/SettingsPage'))
-const ContentPagesPage = lazy(() => import('./pages/backend/ContentPagesPage'))
+const DashboardPage = lazy(() => import('./pages/backend/dashboard'))
+const PosPage = lazy(() => import('./pages/backend/pos'))
+const ProductsPage = lazy(() => import('./pages/backend/products'))
+const OrdersPage = lazy(() => import('./pages/backend/orders'))
+const UsersPage = lazy(() => import('./pages/backend/users'))
+const RolesPage = lazy(() => import('./pages/backend/roles'))
+const CustomersPage = lazy(() => import('./pages/backend/customers'))
+const SettingsPage = lazy(() => import('./pages/backend/settings'))
+const ContentPagesPage = lazy(() => import('./pages/backend/content-pages'))
 
 // Public (frontend) pages
-const HomePage = lazy(() => import('./pages/frontend/HomePage'))
-const ProductsPublicPage = lazy(() => import('./pages/frontend/ProductsPublicPage'))
-const ProductDetailPublicPage = lazy(() => import('./pages/frontend/ProductDetailPublicPage'))
-const CompanyPage = lazy(() => import('./pages/frontend/CompanyPage'))
+const HomePage = lazy(() => import('./pages/frontend/home'))
+const ProductsPublicPage = lazy(() => import('./pages/frontend/products'))
+const ProductDetailPublicPage = lazy(() => import('./pages/frontend/products/product-detail'))
+const CompanyPage = lazy(() => import('./pages/frontend/company'))
 
 function App() {
   return (
@@ -35,7 +35,7 @@ function App() {
         <Suspense fallback={<div className="p-4">Loading...</div>}>
           <Routes>
           {/* Public/Frontend routes */}
-          <Route element={<FrontendShell />}>
+          <Route element={<FrontendLayout />}>
             <Route index element={<Navigate to="/home" replace />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/products" element={<ProductsPublicPage />} />
@@ -47,8 +47,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
           </Route>
 
-          {/* Protected routes under BackendShell (admin-only) */}
-          <Route path="/admin" element={<ProtectedRoute><BackendShell /></ProtectedRoute>}>
+          {/* Protected routes under BackendLayout (admin-only) */}
+          <Route path="/admin" element={<ProtectedRoute><BackendLayout /></ProtectedRoute>}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="pos" element={<PosPage />} />

@@ -5018,3 +5018,38 @@ LINE 1: select * from \"content_pages\" where (\"tenant_id\" = $1 and \"s...
 [2025-10-02 19:34:53] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
 [2025-10-02 20:10:14] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
 [2025-10-02 20:10:14] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-03 13:45:10] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 13:45:10] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-03 14:01:00] local.ERROR: PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_NS_SEPARATOR on line 1 at D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\Exception\\ParseErrorException.php:44)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\CodeCleaner.php(306): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\CodeCleaner.php(240): Psy\\CodeCleaner->parse('<?php echo 'Che...', false)
+#2 D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\Shell.php(852): Psy\\CodeCleaner->clean(Array, false)
+#3 D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\Shell.php(881): Psy\\Shell->addCode('echo 'Checking ...', true)
+#4 D:\\worksites\\posmidev\\vendor\\psy\\psysh\\src\\Shell.php(1394): Psy\\Shell->setCode('echo 'Checking ...', true)
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\tinker\\src\\Console\\TinkerCommand.php(76): Psy\\Shell->execute('echo 'Checking ...')
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(93): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(662): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(211): Illuminate\\Container\\Container->call(Array)
+#12 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Command\\Command.php(326): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php(1096): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php(324): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2025-10-03 14:33:49] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 14:33:50] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-03 15:27:49] local.INFO: Dashboard#index start {"tenantId":"6ed4ba12-5cf5-449b-bc9b-64fd2f45cc91","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 15:27:49] local.INFO: Dashboard#index success {"tenantId":"6ed4ba12-5cf5-449b-bc9b-64fd2f45cc91"} 
+[2025-10-03 17:45:34] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 17:45:34] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-03 17:58:50] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 17:58:50] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-03 18:02:33] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
+[2025-10-03 18:02:34] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 

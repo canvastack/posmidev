@@ -187,6 +187,12 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  /* Ensure pointer cursor on interactive native elements */
+  button:not(:disabled):hover,
+  a[href]:hover,
+  [role="button"]:hover {
+    cursor: pointer;
+  }
 }
 
 @layer components {
