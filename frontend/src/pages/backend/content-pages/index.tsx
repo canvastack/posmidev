@@ -290,7 +290,7 @@ export default function ContentPagesPage() {
       </div>
 
       <Card>
-        <CardContent className="p-6">
+        <CardContent>
           <Table>
             <TableHeader>
               <TableRow>

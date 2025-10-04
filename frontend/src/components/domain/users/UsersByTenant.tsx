@@ -1,15 +1,15 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Card, CardContent } from '../ui/Card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/Input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/Table';
-import { Modal } from '../ui/Modal';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/Input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { Modal } from '@/components/ui/Modal';
 import { PlusIcon, PencilIcon, TrashIcon, ChevronDownIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { tenantApi, type Tenant } from '../../api/tenantApi';
-import { userApi, type Paginated, type CreateUserPayload, type UpdateUserPayload } from '../../api/userApi';
-import { roleApi } from '../../api/roleApi';
-import type { User } from '../../types';
-import { useAuth } from '../../hooks/useAuth';
+import { tenantApi, type Tenant } from '@/api/tenantApi';
+import { userApi, type Paginated, type CreateUserPayload, type UpdateUserPayload } from '@/api/userApi';
+import { roleApi } from '@/api/roleApi';
+import type { User } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TenantRowState {
   expanded: boolean;

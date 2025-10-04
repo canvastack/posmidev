@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/Table'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useAuth } from '@/hooks/useAuth'
-import { CustomerEavPanel } from '@/components/Customers/CustomerEavPanel'
+import { CustomerEavPanel } from '@/components/domain/customers/CustomerEavPanel'
 
 // Customers page behavior:
 // - HQ user with tenants.view: list tenants (top table), expandable to show that tenant's customers (AJAX) with pagination

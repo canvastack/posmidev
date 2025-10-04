@@ -12,7 +12,7 @@ interface TableHeadProps { children: React.ReactNode; className?: string }
 export const Table: React.FC<TableProps> = ({ children, className, scrollX, scrollY, maxHeight }) => (
   <div
     className={cn(
-      'ring-1 ring-border/60 rounded-xl bg-card text-card-foreground',
+      'bg-card text-card-foreground',
       scrollX || scrollY ? 'overflow-hidden' : 'overflow-hidden'
     )}
   >

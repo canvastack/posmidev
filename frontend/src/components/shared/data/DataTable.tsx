@@ -75,7 +75,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <div className="overflow-hidden ring-1 ring-border/60 rounded-xl bg-card text-card-foreground">
+      <div className="overflow-hidden ring-1 ring-border/60 rounded-md bg-card text-card-foreground">
         <table className="min-w-full divide-y divide-border">
           <thead className="bg-muted/40 text-muted-foreground">
             {table.getHeaderGroups().map((headerGroup) => (

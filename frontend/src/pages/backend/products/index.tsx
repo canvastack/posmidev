@@ -222,50 +222,70 @@ export default function ProductsPage() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Product Name"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              label="SKU"
-              name="sku"
-              value={form.sku}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name
+              </label>
+              <Input
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                SKU
+              </label>
+              <Input
+                name="sku"
+                value={form.sku}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Price"
-              name="price"
-              type="number"
-              step="0.01"
-              value={form.price}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              label="Stock"
-              name="stock"
-              type="number"
-              value={form.stock}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Price
+              </label>
+              <Input
+                name="price"
+                type="number"
+                step="0.01"
+                value={form.price}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Stock
+              </label>
+              <Input
+                name="stock"
+                type="number"
+                value={form.stock}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          <Input
-            label="Cost Price (Optional)"
-            name="cost_price"
-            type="number"
-            step="0.01"
-            value={form.cost_price}
-            onChange={handleChange}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cost Price (Optional)
+            </label>
+            <Input
+              name="cost_price"
+              type="number"
+              step="0.01"
+              value={form.cost_price}
+              onChange={handleChange}
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
