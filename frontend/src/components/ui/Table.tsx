@@ -7,7 +7,10 @@ interface TableBodyProps { children: React.ReactNode; className?: string }
 interface TableRowProps { children: React.ReactNode; className?: string }
 
 type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>
-interface TableHeadProps { children: React.ReactNode; className?: string }
+interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableHeaderCellElement> {
+  children: React.ReactNode;
+  className?: string;
+}
 
 export const Table: React.FC<TableProps> = ({ children, className, scrollX, scrollY, maxHeight }) => (
   <div
@@ -49,8 +52,8 @@ export const TableRow: React.FC<TableRowProps> = ({ children, className }) => (
   </tr>
 )
 
-export const TableHead: React.FC<TableHeadProps> = ({ children, className }) => (
-  <th className={cn('px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground', className)}>
+export const TableHead: React.FC<TableHeadProps> = ({ children, className, ...props }) => (
+  <th {...props} className={cn('px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground', className)}>
     {children}
   </th>
 )
