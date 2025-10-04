@@ -14,7 +14,7 @@ import { productApi, type ProductStats } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, PhotoIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
 import { BulkActionToolbar } from '@/components/domain/products/BulkActionToolbar';
 import { BulkDeleteModal } from '@/components/domain/products/BulkDeleteModal';
 import { BulkUpdateStatusModal } from '@/components/domain/products/BulkUpdateStatusModal';
@@ -22,6 +22,8 @@ import { BulkUpdateCategoryModal } from '@/components/domain/products/BulkUpdate
 import { BulkUpdatePriceModal } from '@/components/domain/products/BulkUpdatePriceModal';
 import { ExportButton } from '@/components/domain/products/ExportButton';
 import { ImportButton } from '@/components/domain/products/ImportButton';
+import { BarcodeGenerateButton } from '@/components/domain/products/BarcodeGenerateButton';
+import { BulkBarcodePrintModal } from '@/components/domain/products/BulkBarcodePrintModal';
 
 export default function ProductsPage() {
   const { tenantId } = useAuth();
@@ -75,6 +77,7 @@ export default function ProductsPage() {
   const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
   const [bulkCategoryModalOpen, setBulkCategoryModalOpen] = useState(false);
   const [bulkPriceModalOpen, setBulkPriceModalOpen] = useState(false);
+  const [bulkBarcodeModalOpen, setBulkBarcodeModalOpen] = useState(false);
   
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -135,7 +138,15 @@ export default function ProductsPage() {
       }
       
       const response = await productApi.getProducts(tenantId, params);
-      
+
+      console.log('Products loaded:', response.data?.length || 0, 'items');
+      if (response.data && response.data.length > 0) {
+        console.log('Sample product image data:', {
+          image_url: response.data[0].image_url,
+          thumbnail_url: response.data[0].thumbnail_url
+        });
+      }
+
       setProducts(response.data || []);
       setTotalPages(response.last_page || 1);
       setTotalItems(response.total || 0);
@@ -216,7 +227,7 @@ export default function ProductsPage() {
         status: product.status || 'active',
       });
       // Set image preview if product has image
-      setImagePreview(product.image_url || null);
+      setImagePreview(product.image_url ? getImageUrl(product.image_url) : null);
     } else {
       setEditingProduct(null);
       setForm({
@@ -514,6 +525,64 @@ export default function ProductsPage() {
     }).format(amount);
   };
 
+  // Helper function to handle image URLs properly
+  const getImageUrl = (imageUrl: string | null | undefined): string | null => {
+    if (!imageUrl) {
+      console.log('Image URL is null or undefined');
+      return null;
+    }
+
+    console.log('Processing image URL:', imageUrl);
+
+    // If it's already a local storage path, return as is
+    if (imageUrl.startsWith('/storage/') || imageUrl.startsWith('storage/')) {
+      const result = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+      console.log('Local storage path:', result);
+      return result;
+    }
+
+    // Check if it's a local app URL (localhost:9000) - this should be displayed
+    if (imageUrl.startsWith('http://localhost:9000') || imageUrl.startsWith('https://localhost:9000')) {
+      // Special case: if URL contains /storage/https://... extract the external URL
+      if (imageUrl.includes('/storage/https://') || imageUrl.includes('/storage/http://')) {
+        const parts = imageUrl.split('/storage/');
+        const extractedUrl = parts.length > 1 ? parts[1] : imageUrl;
+        console.log('✅ Extracted external URL from malformed path, displaying image:', extractedUrl);
+        return extractedUrl;
+      }
+
+      console.log('✅ Local app URL detected, displaying image:', imageUrl);
+      return imageUrl;
+    }
+
+    // Check if it's a full external URL - display it directly (including valid external images)
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      // Only treat as no-image if it's a known placeholder/demo domain
+      const placeholderDomains = ['via.placeholder.com', 'picsum.photos', 'loremflickr.com', 'dummyimage.com'];
+      const isPlaceholder = placeholderDomains.some(domain => imageUrl.includes(domain));
+
+      if (isPlaceholder) {
+        console.log('❌ Placeholder/demo image detected, using default icon instead:', imageUrl);
+        return null;
+      }
+
+      // Valid external URLs (including unsplash and other image services) should be displayed
+      console.log('✅ Valid external URL detected, displaying image:', imageUrl);
+      return imageUrl;
+    }
+
+    // Handle paths that start with 'products/' or 'products/thumb_'
+    if (imageUrl.startsWith('products/') || imageUrl.startsWith('products/thumb_')) {
+      console.log('Products path detected, keeping as is:', imageUrl);
+      return imageUrl;
+    }
+
+    // For any other format, assume it's a filename and prepend storage path
+    const result = imageUrl ? `/storage/${imageUrl}` : null;
+    console.log('Processed image URL:', result);
+    return result;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -527,13 +596,13 @@ export default function ProductsPage() {
           {/* Export/Import Buttons */}
           {hasPermission('products.view') && (
             <ExportButton
-              currentFilters={{
-                search: debouncedSearchQuery,
-                category_id: selectedCategory !== 'all' ? selectedCategory : undefined,
-                stock_filter: stockFilter !== 'all' ? stockFilter : undefined,
-                min_price: minPrice ? parseFloat(minPrice) : undefined,
-                max_price: maxPrice ? parseFloat(maxPrice) : undefined,
-              }}
+              currentFilters={[
+                ...(debouncedSearchQuery ? [{ search: debouncedSearchQuery }] : []),
+                ...(selectedCategory !== 'all' ? [{ category_id: selectedCategory as string }] : []),
+                ...(stockFilter !== 'all' ? [{ stock_filter: stockFilter as string }] : []),
+                ...(minPrice && !isNaN(parseFloat(minPrice)) ? [{ min_price: parseFloat(minPrice) }] : []),
+                ...(maxPrice && !isNaN(parseFloat(maxPrice)) ? [{ max_price: parseFloat(maxPrice) }] : []),
+              ].reduce((acc, filter) => ({ ...acc, ...filter }), {})}
             />
           )}
           {hasPermission('products.create') && (
@@ -995,15 +1064,20 @@ export default function ProductsPage() {
                         />
                       </TableCell>
                       <TableCell>
-                        {product.thumbnail_url || product.image_url ? (
-                          <img 
-                            src={product.thumbnail_url || product.image_url || ''} 
+                        {getImageUrl(product.thumbnail_url || product.image_url) ? (
+                          <img
+                            src={getImageUrl(product.thumbnail_url || product.image_url) || ''}
                             alt={product.name}
                             className="w-12 h-12 object-cover rounded"
                           />
                         ) : (
                           <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                            <PhotoIcon className="h-6 w-6 text-gray-400" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package w-6 h-6 text-gray-400">
+                              <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path>
+                              <path d="M12 22V12"></path>
+                              <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                              <path d="m7.5 4.27 9 5.15"></path>
+                            </svg>
                           </div>
                         )}
                       </TableCell>
@@ -1071,7 +1145,10 @@ export default function ProductsPage() {
                               <TrashIcon className="h-4 w-4" />
                             </Button>
                           )}
-                          {!hasPermission('products.update') && !hasPermission('products.delete') && (
+                          {hasPermission('products.view') && (
+                            <BarcodeGenerateButton product={product} variant="ghost" size="sm" />
+                          )}
+                          {!hasPermission('products.update') && !hasPermission('products.delete') && !hasPermission('products.view') && (
                             <span className="text-xs text-gray-400 italic">No actions available</span>
                           )}
                         </div>
@@ -1088,15 +1165,20 @@ export default function ProductsPage() {
                   <div key={product.id} className="p-4 hover:bg-gray-50">
                     <div className="flex gap-3 mb-3">
                       {/* Product Image */}
-                      {product.thumbnail_url || product.image_url ? (
-                        <img 
-                          src={product.thumbnail_url || product.image_url || ''} 
+                      {getImageUrl(product.thumbnail_url || product.image_url) ? (
+                        <img
+                          src={getImageUrl(product.thumbnail_url || product.image_url) || ''}
                           alt={product.name}
                           className="w-20 h-20 object-cover rounded flex-shrink-0"
                         />
                       ) : (
                         <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                          <PhotoIcon className="h-8 w-8 text-gray-400" />
+                          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package w-8 h-8 text-gray-400">
+                            <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path>
+                            <path d="M12 22V12"></path>
+                            <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                            <path d="m7.5 4.27 9 5.15"></path>
+                          </svg>
                         </div>
                       )}
                       
@@ -1224,14 +1306,19 @@ export default function ProductsPage() {
               {/* Image Preview */}
               <div className="flex-shrink-0">
                 {imagePreview ? (
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
+                  <img
+                    src={imagePreview.startsWith('data:') ? imagePreview : getImageUrl(imagePreview) || imagePreview}
+                    alt="Preview"
                     className="w-24 h-24 object-cover rounded border-2 border-gray-300"
                   />
                 ) : (
                   <div className="w-24 h-24 bg-gray-100 rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    <PhotoIcon className="h-12 w-12 text-gray-400" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package w-12 h-12 text-gray-400">
+                      <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path>
+                      <path d="M12 22V12"></path>
+                      <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                      <path d="m7.5 4.27 9 5.15"></path>
+                    </svg>
                   </div>
                 )}
               </div>
@@ -1249,7 +1336,10 @@ export default function ProductsPage() {
                   htmlFor="product-image"
                   className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 cursor-pointer"
                 >
-                  <PhotoIcon className="h-5 w-5 mr-2" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-camera h-5 w-5 mr-2">
+                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                    <circle cx="12" cy="13" r="3"></circle>
+                  </svg>
                   {imagePreview ? 'Change Image' : 'Upload Image'}
                 </label>
                 <p className="text-xs text-gray-500 mt-2">
@@ -1443,8 +1533,10 @@ export default function ProductsPage() {
             onUpdateStatus={() => setBulkStatusModalOpen(true)}
             onUpdateCategory={() => setBulkCategoryModalOpen(true)}
             onUpdatePrice={() => setBulkPriceModalOpen(true)}
+            onPrintBarcodes={() => setBulkBarcodeModalOpen(true)}
             canDelete={hasPermission('products.delete')}
             canUpdate={hasPermission('products.update')}
+            canView={hasPermission('products.view')}
           />
 
           {/* Bulk Operation Modals */}
@@ -1482,6 +1574,12 @@ export default function ProductsPage() {
             productIds={Array.from(bulkSelection.selectedIds)}
             selectedCount={bulkSelection.selectedCount}
             onSuccess={handleBulkOperationSuccess}
+          />
+
+          <BulkBarcodePrintModal
+            open={bulkBarcodeModalOpen}
+            onClose={() => setBulkBarcodeModalOpen(false)}
+            productIds={Array.from(bulkSelection.selectedIds)}
           />
         </>
       )}

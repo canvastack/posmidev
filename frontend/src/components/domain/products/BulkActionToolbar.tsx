@@ -1,4 +1,4 @@
-import { Trash2, Edit, Tag, DollarSign, X } from 'lucide-react';
+import { Trash2, Edit, Tag, DollarSign, X, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,8 +9,10 @@ interface BulkActionToolbarProps {
   onUpdateStatus: () => void;
   onUpdateCategory: () => void;
   onUpdatePrice: () => void;
+  onPrintBarcodes: () => void;
   canDelete: boolean;
   canUpdate: boolean;
+  canView: boolean;
   className?: string;
 }
 
@@ -21,8 +23,10 @@ export function BulkActionToolbar({
   onUpdateStatus,
   onUpdateCategory,
   onUpdatePrice,
+  onPrintBarcodes,
   canDelete,
   canUpdate,
+  canView,
   className,
 }: BulkActionToolbarProps) {
   if (selectedCount === 0) return null;
@@ -54,6 +58,17 @@ export function BulkActionToolbar({
       <div className="h-6 w-px bg-border" />
 
       <div className="flex items-center gap-2">
+        {canView && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPrintBarcodes}
+            className="gap-2"
+          >
+            <QrCode className="h-4 w-4" />
+            Print Barcodes
+          </Button>
+        )}
         {canUpdate && (
           <>
             <Button

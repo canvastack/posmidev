@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TenantController;
 use App\Http\Controllers\Api\ContentManagementController;
+use App\Http\Controllers\Api\BarcodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -120,6 +121,10 @@ Route::prefix('v1')->group(function () {
             Route::get('products/export', [ProductController::class, 'export']);
             Route::get('products/import/template', [ProductController::class, 'downloadTemplate']);
             Route::post('products/import', [ProductController::class, 'import']);
+            
+            // Barcode operations
+            Route::post('products/barcode/bulk', [BarcodeController::class, 'bulkGenerate']);
+            Route::get('products/{productId}/barcode', [BarcodeController::class, 'generate']);
             
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
