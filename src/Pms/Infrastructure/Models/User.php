@@ -6,13 +6,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Concerns\HasUuids; // re-enabled for UUID support
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Src\Pms\Core\Domain\Traits\BelongsToTenant;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     // Keep Laravel + Sanctum essentials only to isolate crashes in auth middleware
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, HasFactory;
     use HasUuids, BelongsToTenant;
     use HasRoles;
 

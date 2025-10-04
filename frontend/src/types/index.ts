@@ -6,6 +6,8 @@ export interface User {
   tenant_id: string;
   status?: 'active' | 'inactive' | 'pending' | 'banned';
   roles: string[];
+  permissions: string[];
+  is_hq_super_admin?: boolean;
   display_name?: string | null;
   photo?: string | null;
   photo_thumb?: string | null;

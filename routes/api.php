@@ -109,6 +109,18 @@ Route::prefix('v1')->group(function () {
         Route::prefix('tenants/{tenantId}')->middleware('team.tenant')->group(function () {
             Route::get('dashboard', [DashboardController::class, 'index']);
             Route::get('products/stats', [ProductStatsController::class, 'index']);
+            
+            // Bulk operations (must be before apiResource to avoid route conflicts)
+            Route::delete('products/bulk', [ProductController::class, 'bulkDelete']);
+            Route::patch('products/bulk/status', [ProductController::class, 'bulkUpdateStatus']);
+            Route::patch('products/bulk/category', [ProductController::class, 'bulkUpdateCategory']);
+            Route::patch('products/bulk/price', [ProductController::class, 'bulkUpdatePrice']);
+            
+            // Export/Import operations
+            Route::get('products/export', [ProductController::class, 'export']);
+            Route::get('products/import/template', [ProductController::class, 'downloadTemplate']);
+            Route::post('products/import', [ProductController::class, 'import']);
+            
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             Route::apiResource('categories', CategoryController::class);

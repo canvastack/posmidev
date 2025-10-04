@@ -477,6 +477,193 @@ paths:
         '204':
           description: Deleted
 
+  /tenants/{tenantId}/products/bulk:
+    delete:
+      tags: [Products]
+      summary: Bulk delete products
+      description: "Requires authentication and 'products.delete' permission within the tenant scope. Deletes multiple products in one operation."
+      operationId: bulkDeleteProducts
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                  description: Array of product IDs to delete
+      responses:
+        '200':
+          description: Bulk delete completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  deleted_count: { type: integer }
+                  requested_count: { type: integer }
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: string, format: uuid }
+                        message: { type: string }
+        '403':
+          description: Forbidden - missing products.delete permission
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/products/bulk/status:
+    patch:
+      tags: [Products]
+      summary: Bulk update product status
+      description: "Requires authentication and 'products.update' permission within the tenant scope. Updates status for multiple products."
+      operationId: bulkUpdateProductStatus
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, status]
+              properties:
+                ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                  description: Array of product IDs to update
+                status:
+                  type: string
+                  enum: [active, inactive, discontinued]
+                  description: New status for all selected products
+      responses:
+        '200':
+          description: Bulk status update completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  updated_count: { type: integer }
+                  requested_count: { type: integer }
+                  status: { type: string }
+        '403':
+          description: Forbidden - missing products.update permission
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/products/bulk/category:
+    patch:
+      tags: [Products]
+      summary: Bulk update product category
+      description: "Requires authentication and 'products.update' permission within the tenant scope. Assigns category to multiple products."
+      operationId: bulkUpdateProductCategory
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, category_id]
+              properties:
+                ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                  description: Array of product IDs to update
+                category_id:
+                  type: string
+                  format: uuid
+                  description: Category ID to assign (must belong to the same tenant)
+      responses:
+        '200':
+          description: Bulk category update completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  updated_count: { type: integer }
+                  requested_count: { type: integer }
+                  category_id: { type: string, format: uuid }
+        '403':
+          description: Forbidden - missing products.update permission
+        '404':
+          description: Category not found or does not belong to this tenant
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/products/bulk/price:
+    patch:
+      tags: [Products]
+      summary: Bulk update product prices
+      description: "Requires authentication and 'products.update' permission within the tenant scope. Updates prices for multiple products using percentage or fixed adjustments."
+      operationId: bulkUpdateProductPrice
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, type, operation, value]
+              properties:
+                ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                  description: Array of product IDs to update
+                type:
+                  type: string
+                  enum: [percentage, fixed]
+                  description: Type of price adjustment
+                operation:
+                  type: string
+                  enum: [increase, decrease, set]
+                  description: Operation to perform (increase/decrease/set price)
+                value:
+                  type: number
+                  format: float
+                  minimum: 0
+                  description: Amount or percentage value for the adjustment
+      responses:
+        '200':
+          description: Bulk price update completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  updated_count: { type: integer }
+                  requested_count: { type: integer }
+                  type: { type: string }
+                  operation: { type: string }
+                  value: { type: number }
+        '403':
+          description: Forbidden - missing products.update permission
+        '422':
+          description: Validation error
+
   /tenants/{tenantId}/categories:
     get:
       tags: [Products]

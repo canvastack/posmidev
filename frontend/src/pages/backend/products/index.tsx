@@ -6,15 +6,26 @@ import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { Badge } from '@/components/ui/Badge';
 import { Pagination } from '@/components/ui/Pagination';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useBulkSelection } from '@/hooks/useBulkSelection';
 import { productApi, type ProductStats } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, PhotoIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, PhotoIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
+import { BulkActionToolbar } from '@/components/domain/products/BulkActionToolbar';
+import { BulkDeleteModal } from '@/components/domain/products/BulkDeleteModal';
+import { BulkUpdateStatusModal } from '@/components/domain/products/BulkUpdateStatusModal';
+import { BulkUpdateCategoryModal } from '@/components/domain/products/BulkUpdateCategoryModal';
+import { BulkUpdatePriceModal } from '@/components/domain/products/BulkUpdatePriceModal';
+import { ExportButton } from '@/components/domain/products/ExportButton';
+import { ImportButton } from '@/components/domain/products/ImportButton';
 
 export default function ProductsPage() {
   const { tenantId } = useAuth();
+  const { hasPermission } = usePermissions();
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +60,6 @@ export default function ProductsPage() {
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
   
   // Validation state
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -57,6 +67,14 @@ export default function ProductsPage() {
   // Stats state
   const [stats, setStats] = useState<ProductStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+
+  // Bulk operations state
+  const productIds = products.map(p => p.id);
+  const bulkSelection = useBulkSelection(productIds);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
+  const [bulkCategoryModalOpen, setBulkCategoryModalOpen] = useState(false);
+  const [bulkPriceModalOpen, setBulkPriceModalOpen] = useState(false);
   
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -82,9 +100,9 @@ export default function ProductsPage() {
     if (!tenantId) return;
     setLoading(true);
     try {
-      const params: any = { 
-        page: currentPage, 
-        per_page: perPage 
+      const params: Record<string, string | number | boolean> = {
+        page: currentPage,
+        per_page: perPage
       };
       
       // Add search parameter if exists
@@ -280,19 +298,17 @@ export default function ProductsPage() {
       return;
     }
     
-    setUploadingImage(true);
     try {
       console.log('Uploading image for product:', productId);
       const result = await productApi.uploadImage(tenantId, productId, imageFile);
       console.log('Image upload result:', result);
       // Don't show toast here, let the parent function handle it
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to upload image:', error);
-      console.error('Error details:', error?.response?.data);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('Error details:', errorMessage);
       // Re-throw the error so the parent function can handle it
       throw error;
-    } finally {
-      setUploadingImage(false);
     }
   };
 
@@ -416,23 +432,29 @@ export default function ProductsPage() {
       await fetchProducts();
       await fetchStats(); // Refresh stats after product change
       handleCloseModal();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to save product:', error);
-      console.error('Error response:', error?.response?.data);
-      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('Error details:', errorMessage);
+
       // Handle validation errors from backend
-      if (error?.response?.data?.errors) {
-        setValidationErrors(error.response.data.errors);
+      if (error && typeof error === 'object' && 'response' in error &&
+          error.response && typeof error.response === 'object' && 'data' in error.response &&
+          error.response.data && typeof error.response.data === 'object' && 'errors' in error.response.data) {
+        setValidationErrors(error.response.data.errors as Record<string, string>);
         toast({
           title: 'Validation Error',
           description: 'Please fix the errors in the form.',
           variant: 'destructive',
         });
       } else {
-        const errorMessage = error?.response?.data?.message || error?.message || 'Failed to save product. Please try again.';
+        const responseMessage = error && typeof error === 'object' && 'response' in error &&
+          error.response && typeof error.response === 'object' && 'data' in error.response &&
+          error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+          ? String(error.response.data.message) : errorMessage;
         toast({
           title: 'Error',
-          description: errorMessage,
+          description: responseMessage || 'Failed to save product. Please try again.',
           variant: 'destructive',
         });
       }
@@ -478,6 +500,13 @@ export default function ProductsPage() {
     }));
   };
 
+  // Bulk operation handlers
+  const handleBulkOperationSuccess = async () => {
+    bulkSelection.clearSelection();
+    await fetchProducts();
+    await fetchStats();
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -494,10 +523,39 @@ export default function ProductsPage() {
             Manage your product inventory
           </p>
         </div>
-        <Button onClick={() => handleOpenModal()}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Product
-        </Button>
+        <div className="flex gap-2">
+          {/* Export/Import Buttons */}
+          {hasPermission('products.view') && (
+            <ExportButton
+              currentFilters={{
+                search: debouncedSearchQuery,
+                category_id: selectedCategory !== 'all' ? selectedCategory : undefined,
+                stock_filter: stockFilter !== 'all' ? stockFilter : undefined,
+                min_price: minPrice ? parseFloat(minPrice) : undefined,
+                max_price: maxPrice ? parseFloat(maxPrice) : undefined,
+              }}
+            />
+          )}
+          {hasPermission('products.create') && (
+            <ImportButton
+              onSuccess={async () => {
+                await fetchProducts();
+                await fetchStats();
+              }}
+            />
+          )}
+          {hasPermission('products.create') ? (
+            <Button onClick={() => handleOpenModal()}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add Product
+            </Button>
+          ) : (
+            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+              <ShieldExclamationIcon className="h-5 w-5" />
+              <span>No create permission</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -865,6 +923,18 @@ export default function ProductsPage() {
                 <Table scrollX={true}>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={bulkSelection.isAllSelected}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              bulkSelection.selectAll();
+                            } else {
+                              bulkSelection.clearSelection();
+                            }
+                          }}
+                        />
+                      </TableHead>
                       <TableHead>Image</TableHead>
                       <TableHead 
                         className="cursor-pointer hover:bg-gray-50"
@@ -919,6 +989,12 @@ export default function ProductsPage() {
                     {filteredProducts.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>
+                        <Checkbox
+                          checked={bulkSelection.isSelected(product.id)}
+                          onChange={() => bulkSelection.toggleSelection(product.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
                         {product.thumbnail_url || product.image_url ? (
                           <img 
                             src={product.thumbnail_url || product.image_url || ''} 
@@ -972,23 +1048,32 @@ export default function ProductsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenModal(product)}
-                            disabled={deleting === product.id}
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(product)}
-                            loading={deleting === product.id}
-                            disabled={deleting === product.id}
-                          >
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
+                          {hasPermission('products.update') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenModal(product)}
+                              disabled={deleting === product.id}
+                              title="Edit Product"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {hasPermission('products.delete') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product)}
+                              loading={deleting === product.id}
+                              disabled={deleting === product.id}
+                              title="Delete Product"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {!hasPermission('products.update') && !hasPermission('products.delete') && (
+                            <span className="text-xs text-gray-400 italic">No actions available</span>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -1035,23 +1120,32 @@ export default function ProductsPage() {
 
                       {/* Actions */}
                       <div className="flex flex-col space-y-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenModal(product)}
-                          disabled={deleting === product.id}
-                        >
-                          <PencilIcon className="h-5 w-5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(product)}
-                          loading={deleting === product.id}
-                          disabled={deleting === product.id}
-                        >
-                          <TrashIcon className="h-5 w-5" />
-                        </Button>
+                        {hasPermission('products.update') && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleOpenModal(product)}
+                            disabled={deleting === product.id}
+                            title="Edit Product"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {hasPermission('products.delete') && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(product)}
+                            loading={deleting === product.id}
+                            disabled={deleting === product.id}
+                            title="Delete Product"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {!hasPermission('products.update') && !hasPermission('products.delete') && (
+                          <span className="text-xs text-gray-400 italic px-2">No actions</span>
+                        )}
                       </div>
                     </div>
 
@@ -1338,6 +1432,59 @@ export default function ProductsPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Bulk Action Toolbar */}
+      {tenantId && (
+        <>
+          <BulkActionToolbar
+            selectedCount={bulkSelection.selectedCount}
+            onClearSelection={bulkSelection.clearSelection}
+            onDelete={() => setBulkDeleteModalOpen(true)}
+            onUpdateStatus={() => setBulkStatusModalOpen(true)}
+            onUpdateCategory={() => setBulkCategoryModalOpen(true)}
+            onUpdatePrice={() => setBulkPriceModalOpen(true)}
+            canDelete={hasPermission('products.delete')}
+            canUpdate={hasPermission('products.update')}
+          />
+
+          {/* Bulk Operation Modals */}
+          <BulkDeleteModal
+            open={bulkDeleteModalOpen}
+            onOpenChange={setBulkDeleteModalOpen}
+            tenantId={tenantId}
+            productIds={Array.from(bulkSelection.selectedIds)}
+            selectedCount={bulkSelection.selectedCount}
+            onSuccess={handleBulkOperationSuccess}
+          />
+
+          <BulkUpdateStatusModal
+            open={bulkStatusModalOpen}
+            onOpenChange={setBulkStatusModalOpen}
+            tenantId={tenantId}
+            productIds={Array.from(bulkSelection.selectedIds)}
+            selectedCount={bulkSelection.selectedCount}
+            onSuccess={handleBulkOperationSuccess}
+          />
+
+          <BulkUpdateCategoryModal
+            open={bulkCategoryModalOpen}
+            onOpenChange={setBulkCategoryModalOpen}
+            tenantId={tenantId}
+            productIds={Array.from(bulkSelection.selectedIds)}
+            selectedCount={bulkSelection.selectedCount}
+            onSuccess={handleBulkOperationSuccess}
+          />
+
+          <BulkUpdatePriceModal
+            open={bulkPriceModalOpen}
+            onOpenChange={setBulkPriceModalOpen}
+            tenantId={tenantId}
+            productIds={Array.from(bulkSelection.selectedIds)}
+            selectedCount={bulkSelection.selectedCount}
+            onSuccess={handleBulkOperationSuccess}
+          />
+        </>
+      )}
     </div>
   );
 };

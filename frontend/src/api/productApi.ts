@@ -88,4 +88,46 @@ export const productApi = {
     );
     return response.data.data;
   },
+
+  // Bulk Operations
+  bulkDelete: async (tenantId: string, productIds: string[]): Promise<{ success: number; errors: number }> => {
+    const response = await apiClient.delete(`/tenants/${tenantId}/products/bulk`, {
+      data: { product_ids: productIds },
+    });
+    return response.data;
+  },
+
+  bulkUpdateStatus: async (tenantId: string, productIds: string[], status: 'active' | 'inactive' | 'discontinued'): Promise<{ updated: number }> => {
+    const response = await apiClient.patch(`/tenants/${tenantId}/products/bulk/status`, {
+      product_ids: productIds,
+      status,
+    });
+    return response.data;
+  },
+
+  bulkUpdateCategory: async (tenantId: string, productIds: string[], categoryId: string): Promise<{ updated: number }> => {
+    const response = await apiClient.patch(`/tenants/${tenantId}/products/bulk/category`, {
+      product_ids: productIds,
+      category_id: categoryId,
+    });
+    return response.data;
+  },
+
+  bulkUpdatePrice: async (
+    tenantId: string,
+    productIds: string[],
+    adjustment: {
+      type: 'percentage' | 'fixed';
+      operation: 'increase' | 'decrease' | 'set';
+      value: number;
+    }
+  ): Promise<{ updated: number }> => {
+    const response = await apiClient.patch(`/tenants/${tenantId}/products/bulk/price`, {
+      product_ids: productIds,
+      adjustment_type: adjustment.type,
+      operation: adjustment.operation,
+      value: adjustment.value,
+    });
+    return response.data;
+  },
 };

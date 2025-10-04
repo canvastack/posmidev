@@ -22,9 +22,12 @@ class PermissionSeeder extends Seeder
             'products.create',
             'products.update',
             'products.delete',
+            'products.export',
+            'products.import',
             
             // Inventory permissions
             'inventory.adjust',
+            'products.stock.adjust',
             
             // Order permissions
             'orders.view',
@@ -120,13 +123,13 @@ class PermissionSeeder extends Seeder
             }
 
             $managerRole->givePermissionTo([
-                'products.view', 'products.create', 'products.update',
-                'inventory.adjust',
+                'products.view', 'products.create', 'products.update', 'products.export', 'products.import',
+                'inventory.adjust', 'products.stock.adjust',
                 'orders.view', 'orders.create',
                 'customers.view', 'customers.create', 'customers.update',
                 'categories.view', 'categories.create', 'categories.update',
                 'content.view', 'content.create', 'content.update', // manage content pages
-                'reports.view',
+                'reports.view', 'reports.export',
                 'users.view', 'users.update', // manage users under tenant
             ]);
 
