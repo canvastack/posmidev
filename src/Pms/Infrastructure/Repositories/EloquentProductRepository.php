@@ -28,9 +28,65 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $models->map(fn($model) => $this->toDomainEntity($model))->toArray();
     }
 
-    public function findByTenantPaginated(string $tenantId, int $perPage = 15)
+    public function findByTenantPaginated(
+        string $tenantId, 
+        int $perPage = 15, 
+        ?string $search = null, 
+        ?string $categoryId = null,
+        ?string $sortBy = null,
+        ?string $sortOrder = 'asc',
+        ?string $stockFilter = null,
+        ?float $minPrice = null,
+        ?float $maxPrice = null
+    )
     {
-        return ProductModel::where('tenant_id', $tenantId)->paginate($perPage);
+        $query = ProductModel::where('tenant_id', $tenantId);
+
+        // Apply search filter
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ILIKE', "%{$search}%")
+                  ->orWhere('sku', 'ILIKE', "%{$search}%")
+                  ->orWhere('description', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        // Apply category filter
+        if ($categoryId && $categoryId !== 'all') {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Apply stock filter
+        if ($stockFilter) {
+            switch ($stockFilter) {
+                case 'in_stock':
+                    $query->where('stock', '>', 10);
+                    break;
+                case 'low_stock':
+                    $query->where('stock', '>', 0)->where('stock', '<=', 10);
+                    break;
+                case 'out_of_stock':
+                    $query->where('stock', '<=', 0);
+                    break;
+            }
+        }
+
+        // Apply price range filter
+        if ($minPrice !== null) {
+            $query->where('price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        // Apply sorting
+        $allowedSortFields = ['name', 'sku', 'price', 'stock', 'created_at'];
+        $sortField = in_array($sortBy, $allowedSortFields) ? $sortBy : 'created_at';
+        $sortDirection = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
+        
+        $query->orderBy($sortField, $sortDirection);
+
+        return $query->with('category')->paginate($perPage);
     }
 
     public function findBySku(string $sku, string $tenantId): ?ProductEntity

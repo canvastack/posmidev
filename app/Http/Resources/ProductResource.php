@@ -22,6 +22,7 @@ class ProductResource extends JsonResource
             'category_id' => $isDomainEntity ? $this->resource->getCategoryId() : $this->resource->category_id,
             'description' => $isDomainEntity ? $this->resource->getDescription() : $this->resource->description,
             'cost_price' => $isDomainEntity ? $this->resource->getCostPrice() : $this->resource->cost_price,
+            'status' => $isDomainEntity ? $this->resource->getStatus() : ($this->resource->status ?? 'active'),
             'created_at' => $isDomainEntity
                 ? $this->resource->getCreatedAt()?->format('Y-m-d H:i:s')
                 : $this->resource->created_at?->format('Y-m-d H:i:s'),
@@ -31,6 +32,15 @@ class ProductResource extends JsonResource
             'thumbnail_url' => $isDomainEntity
                 ? null
                 : ($this->resource->thumbnail_path ? asset('storage/' . $this->resource->thumbnail_path) : null),
+            // Include category relation if loaded
+            'category' => $isDomainEntity 
+                ? null 
+                : ($this->whenLoaded('category', function () {
+                    return $this->resource->category ? [
+                        'id' => $this->resource->category->id,
+                        'name' => $this->resource->category->name,
+                    ] : null;
+                })),
         ];
     }
 }

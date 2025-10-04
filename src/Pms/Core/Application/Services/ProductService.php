@@ -94,9 +94,29 @@ class ProductService
         return $this->productRepository->findByTenant($tenantId);
     }
 
-    public function getProductsByTenantPaginated(string $tenantId, int $perPage = 15)
+    public function getProductsByTenantPaginated(
+        string $tenantId, 
+        int $perPage = 15, 
+        ?string $search = null, 
+        ?string $categoryId = null,
+        ?string $sortBy = null,
+        ?string $sortOrder = 'asc',
+        ?string $stockFilter = null,
+        ?float $minPrice = null,
+        ?float $maxPrice = null
+    )
     {
-        return $this->productRepository->findByTenantPaginated($tenantId, $perPage);
+        return $this->productRepository->findByTenantPaginated(
+            $tenantId, 
+            $perPage, 
+            $search, 
+            $categoryId,
+            $sortBy,
+            $sortOrder,
+            $stockFilter,
+            $minPrice,
+            $maxPrice
+        );
     }
 
     public function getProduct(string $productId): ?Product

@@ -15,7 +15,7 @@ class Product
         private ?string $description = null,
         private ?float $costPrice = null,
         private ?\DateTimeInterface $createdAt = null,
-        private string $status = 'draft', // draft|published|archived
+        private string $status = 'active', // active|inactive|discontinued
     ) {}
 
     public function getId(): string
@@ -75,7 +75,7 @@ class Product
 
     public function setStatus(string $status): void
     {
-        $allowed = ['draft', 'published', 'archived'];
+        $allowed = ['active', 'inactive', 'discontinued'];
         if (!in_array($status, $allowed, true)) {
             throw new \InvalidArgumentException('Invalid product status');
         }

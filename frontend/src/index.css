@@ -97,6 +97,7 @@
   --z-header: 30;
   --z-overlay: 50;
   --z-modal: 100;
+  --z-toast: 150;
 
   /* Base surface tokens aligned to HSL variables (design-example) */
   --color-background: hsl(var(--background));
@@ -348,6 +349,7 @@
   .z-header { z-index: var(--z-header); }
   .z-overlay { z-index: var(--z-overlay); }
   .z-modal { z-index: var(--z-modal); }
+  .z-toast { z-index: var(--z-toast); }
 }
 
 @keyframes float {

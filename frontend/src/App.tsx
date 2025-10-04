@@ -4,7 +4,7 @@ import { ProtectedRoute } from '@/components/backend/auth/ProtectedRoute'
 import { FrontendLayout } from '@/layouts/frontend/FrontendLayout'
 import { BackendLayout } from '@/layouts/backend/BackendLayout'
 import { ThemeProvider } from './hooks/useTheme'
-import { Toaster } from './components/ui/sonner'
+import { Toaster } from './components/ui/toaster'
 
 // Auth
 const LoginPage = lazy(() => import('./pages/frontend/auth/login'))

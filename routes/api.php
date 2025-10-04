@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProductStatsController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderQueryController;
 use App\Http\Controllers\Api\RoleController;
@@ -107,6 +108,7 @@ Route::prefix('v1')->group(function () {
         // Tenant-specific routes
         Route::prefix('tenants/{tenantId}')->middleware('team.tenant')->group(function () {
             Route::get('dashboard', [DashboardController::class, 'index']);
+            Route::get('products/stats', [ProductStatsController::class, 'index']);
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             Route::apiResource('categories', CategoryController::class);

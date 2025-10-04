@@ -30,6 +30,7 @@ export interface Product {
   category?: Category;
   description?: string;
   cost_price?: number;
+  status?: 'active' | 'inactive' | 'discontinued';
   created_at: string;
   image_url?: string | null;
   thumbnail_url?: string | null;
@@ -106,6 +107,7 @@ export interface ProductForm {
   category_id?: string;
   description?: string;
   cost_price?: number;
+  status?: 'active' | 'inactive' | 'discontinued';
 }
 
 export interface OrderForm {

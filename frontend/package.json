@@ -16,6 +16,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-toast": "^1.2.15",
     "@tanstack/react-table": "^8.16.0",
     "@tanstack/react-virtual": "^3.10.8",
     "axios": "^1.12.2",

@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
 use Src\Pms\Core\Application\Services\ProductService;
 
 class ProductController extends Controller
@@ -23,7 +23,25 @@ class ProductController extends Controller
         $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
         $perPage = $request->get('per_page', 15);
-        $products = $this->productService->getProductsByTenantPaginated($tenantId, $perPage);
+        $search = $request->get('search');
+        $categoryId = $request->get('category_id');
+        $sortBy = $request->get('sort_by');
+        $sortOrder = $request->get('sort_order', 'asc');
+        $stockFilter = $request->get('stock_filter');
+        $minPrice = $request->get('min_price');
+        $maxPrice = $request->get('max_price');
+        
+        $products = $this->productService->getProductsByTenantPaginated(
+            $tenantId, 
+            $perPage, 
+            $search, 
+            $categoryId,
+            $sortBy,
+            $sortOrder,
+            $stockFilter,
+            $minPrice,
+            $maxPrice
+        );
 
         return response()->json([
             'data' => ProductResource::collection($products->items())->toArray($request),
@@ -49,6 +67,14 @@ class ProductController extends Controller
                 description: $request->description,
                 costPrice: $request->cost_price
             );
+
+            // Update status if provided (using Eloquent model directly)
+            if ($request->has('status')) {
+                $productModel = \Src\Pms\Infrastructure\Models\Product::find($product->getId());
+                if ($productModel) {
+                    $productModel->update(['status' => $request->status]);
+                }
+            }
 
             return response()->json(new ProductResource($product), 201);
         } catch (\InvalidArgumentException $e) {
@@ -94,8 +120,24 @@ class ProductController extends Controller
             description: $request->description
         );
 
+        // Update additional fields using Eloquent model directly
+        $updateData = [];
+        if ($request->has('category_id')) {
+            $updateData['category_id'] = $request->category_id;
+        }
+        if ($request->has('cost_price')) {
+            $updateData['cost_price'] = $request->cost_price;
+        }
+        if ($request->has('status')) {
+            $updateData['status'] = $request->status;
+        }
+        
+        if (!empty($updateData)) {
+            $product->update($updateData);
+        }
+
         return response()->json([
-            'data' => (new ProductResource($updatedProduct))->toArray($request)
+            'data' => (new ProductResource($product->fresh()))->toArray($request)
         ]);
     }
 
@@ -143,7 +185,8 @@ class ProductController extends Controller
             $thumbnailPath = 'products/' . $thumbnailFilename;
 
             // Create thumbnail using Intervention Image
-            $thumbnail = Image::make($image->getRealPath());
+            $imageManager = new ImageManager(['driver' => 'gd']);
+            $thumbnail = $imageManager->make($image->getRealPath());
             $thumbnail->fit(200, 200);
             $thumbnail->save(storage_path('app/public/' . $thumbnailPath));
 

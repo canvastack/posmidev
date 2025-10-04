@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from './button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
 interface PaginationProps {
@@ -10,6 +10,7 @@ interface PaginationProps {
   itemsPerPage?: number;
   totalItems?: number;
   className?: string;
+  showFirstLast?: boolean;
 }
 
 export const Pagination: React.FC<PaginationProps> = ({
@@ -19,6 +20,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   itemsPerPage = 20,
   totalItems,
   className,
+  showFirstLast = false,
 }) => {
   const getVisiblePages = () => {
     const delta = 2;
@@ -68,16 +70,33 @@ export const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       <div className="flex items-center gap-1">
+        {/* First Page Button */}
+        {showFirstLast && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onPageChange(1)}
+            disabled={currentPage <= 1}
+            className="p-2"
+            title="First page"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+        )}
+
+        {/* Previous Page Button */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           className="p-2"
+          title="Previous page"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
 
+        {/* Page Numbers */}
         {getVisiblePages().map((page, index) => (
           <React.Fragment key={index}>
             {page === '...' ? (
@@ -98,15 +117,31 @@ export const Pagination: React.FC<PaginationProps> = ({
           </React.Fragment>
         ))}
 
+        {/* Next Page Button */}
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           className="p-2"
+          title="Next page"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
+
+        {/* Last Page Button */}
+        {showFirstLast && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage >= totalPages}
+            className="p-2"
+            title="Last page"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );

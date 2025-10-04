@@ -5053,3 +5053,752 @@ LINE 1: select * from \"content_pages\" where (\"tenant_id\" = $1 and \"s...
 [2025-10-03 17:58:50] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
 [2025-10-03 18:02:33] local.INFO: Dashboard#index start {"tenantId":"11111111-1111-1111-1111-111111111111","userId":"0c9f59c0-266d-44b4-b61d-18d1db579324"} 
 [2025-10-03 18:02:34] local.INFO: Dashboard#index success {"tenantId":"11111111-1111-1111-1111-111111111111"} 
+[2025-10-04 11:22:54] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:23:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:23:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:24:10] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:24:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:24:57] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:25:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:29:37] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:34:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:35:06] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:35:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:35:36] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:35:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:25] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:25] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:25] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:25] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:25] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:38] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:40:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:41:19] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:41:19] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:41:19] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:41:19] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:41:19] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:12] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:12] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:12] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:12] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:12] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:42:56] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:50:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:50:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:50:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:50:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 11:50:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:14:02] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:14:02] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:14:02] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:14:02] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:14:02] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:20:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:20:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:20:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:20:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:20:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:21:39] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:21:39] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:21:39] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:21:39] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:21:39] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:22:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:22:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:22:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:22:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:22:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:27:32] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:27:32] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:27:32] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:27:32] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:27:32] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:28:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:28:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:28:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:28:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:28:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:16] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:23] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:23] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:23] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:23] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:23] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:44] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:44] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:44] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:44] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:29:44] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:42] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:42] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:42] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:42] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:42] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:47:49] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:33] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:33] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:33] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:33] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:33] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:51] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:51] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:51] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:51] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:48:51] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:59:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:59:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:59:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:59:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 12:59:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:00:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:00:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:00:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:00:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:00:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:01:53] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:01:53] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:01:53] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:01:53] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:01:53] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:02:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:02:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:02:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:02:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:02:18] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:24:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:24:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:24:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:24:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:24:13] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:27:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:27:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:27:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:27:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 13:27:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:10:49] local.ERROR: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "81fb431b-b91a-44f2-9ae4-0078c8518dbb" does not exist
+LINE 1: ...as aggregate from "products" where "sku" = $1 and "81fb431b-...
+                                                             ^ (Connection: pgsql, SQL: select count(*) as aggregate from "products" where "sku" = TO1-000001 and "81fb431b-b91a-44f2-9ae4-0078c8518dbb" <> tenant_id) {"userId":"0c9f59c0-266d-44b4-b61d-18d1db579324","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" does not exist
+LINE 1: ...as aggregate from \"products\" where \"sku\" = $1 and \"81fb431b-...
+                                                             ^ (Connection: pgsql, SQL: select count(*) as aggregate from \"products\" where \"sku\" = TO1-000001 and \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" <> tenant_id) at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:829)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(414): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2913): Illuminate\\Database\\Connection->select('select count(*)...', Array, false)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2902): Illuminate\\Database\\Query\\Builder->runSelect()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3456): Illuminate\\Database\\Query\\Builder->Illuminate\\Database\\Query\\{closure}()
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2901): Illuminate\\Database\\Query\\Builder->onceWithColumns(Array, Object(Closure))
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3383): Illuminate\\Database\\Query\\Builder->get(Array)
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3311): Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\DatabasePresenceVerifier.php(54): Illuminate\\Database\\Query\\Builder->count()
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Concerns\\ValidatesAttributes.php(948): Illuminate\\Validation\\DatabasePresenceVerifier->getCount('products', 'sku', 'TO1-000001', 'tenant_id', '81fb431b-b91a-4...', Array)
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(660): Illuminate\\Validation\\Validator->validateUnique('sku', 'TO1-000001', Array, Object(Illuminate\\Validation\\Validator))
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(459): Illuminate\\Validation\\Validator->validateAttribute('sku', 'Unique')
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(494): Illuminate\\Validation\\Validator->passes()
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\ValidatesWhenResolvedTrait.php(31): Illuminate\\Validation\\Validator->fails()
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Providers\\FormRequestServiceProvider.php(30): Illuminate\\Foundation\\Http\\FormRequest->validateResolved()
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1302): Illuminate\\Foundation\\Providers\\FormRequestServiceProvider->Illuminate\\Foundation\\Providers\\{closure}(Object(App\\Http\\Requests\\ProductRequest), Object(Illuminate\\Foundation\\Application))
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1266): Illuminate\\Container\\Container->fireCallbackArray(Object(App\\Http\\Requests\\ProductRequest), Array)
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1252): Illuminate\\Container\\Container->fireAfterResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(813): Illuminate\\Container\\Container->fireResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(986): Illuminate\\Container\\Container->resolve('App\\\\Http\\\\Reques...', Array, true)
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(731): Illuminate\\Foundation\\Application->resolve('App\\\\Http\\\\Reques...', Array)
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(971): Illuminate\\Container\\Container->make('App\\\\Http\\\\Reques...', Array)
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(85): Illuminate\\Foundation\\Application->make('App\\\\Http\\\\Reques...')
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(50): Illuminate\\Routing\\ControllerDispatcher->transformDependency(Object(ReflectionParameter), Array, Object(stdClass))
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(29): Illuminate\\Routing\\ControllerDispatcher->resolveMethodDependencies(Array, Object(ReflectionMethod))
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(59): Illuminate\\Routing\\ControllerDispatcher->resolveClassMethodDependencies(Array, Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(40): Illuminate\\Routing\\ControllerDispatcher->resolveParameters(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#31 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#40 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#43 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#44 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#45 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#46 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#47 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#48 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#49 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#50 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#51 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#52 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#54 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#55 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#57 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#59 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#61 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#63 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#64 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#65 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#66 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#67 {main}
+
+[previous exception] [object] (PDOException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" does not exist
+LINE 1: ...as aggregate from \"products\" where \"sku\" = $1 and \"81fb431b-...
+                                                             ^ at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:428)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(428): PDOStatement->execute()
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(816): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select count(*)...', Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(414): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2913): Illuminate\\Database\\Connection->select('select count(*)...', Array, false)
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2902): Illuminate\\Database\\Query\\Builder->runSelect()
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3456): Illuminate\\Database\\Query\\Builder->Illuminate\\Database\\Query\\{closure}()
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2901): Illuminate\\Database\\Query\\Builder->onceWithColumns(Array, Object(Closure))
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3383): Illuminate\\Database\\Query\\Builder->get(Array)
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3311): Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\DatabasePresenceVerifier.php(54): Illuminate\\Database\\Query\\Builder->count()
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Concerns\\ValidatesAttributes.php(948): Illuminate\\Validation\\DatabasePresenceVerifier->getCount('products', 'sku', 'TO1-000001', 'tenant_id', '81fb431b-b91a-4...', Array)
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(660): Illuminate\\Validation\\Validator->validateUnique('sku', 'TO1-000001', Array, Object(Illuminate\\Validation\\Validator))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(459): Illuminate\\Validation\\Validator->validateAttribute('sku', 'Unique')
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(494): Illuminate\\Validation\\Validator->passes()
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\ValidatesWhenResolvedTrait.php(31): Illuminate\\Validation\\Validator->fails()
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Providers\\FormRequestServiceProvider.php(30): Illuminate\\Foundation\\Http\\FormRequest->validateResolved()
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1302): Illuminate\\Foundation\\Providers\\FormRequestServiceProvider->Illuminate\\Foundation\\Providers\\{closure}(Object(App\\Http\\Requests\\ProductRequest), Object(Illuminate\\Foundation\\Application))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1266): Illuminate\\Container\\Container->fireCallbackArray(Object(App\\Http\\Requests\\ProductRequest), Array)
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1252): Illuminate\\Container\\Container->fireAfterResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(813): Illuminate\\Container\\Container->fireResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(986): Illuminate\\Container\\Container->resolve('App\\\\Http\\\\Reques...', Array, true)
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(731): Illuminate\\Foundation\\Application->resolve('App\\\\Http\\\\Reques...', Array)
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(971): Illuminate\\Container\\Container->make('App\\\\Http\\\\Reques...', Array)
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(85): Illuminate\\Foundation\\Application->make('App\\\\Http\\\\Reques...')
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(50): Illuminate\\Routing\\ControllerDispatcher->transformDependency(Object(ReflectionParameter), Array, Object(stdClass))
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(29): Illuminate\\Routing\\ControllerDispatcher->resolveMethodDependencies(Array, Object(ReflectionMethod))
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(59): Illuminate\\Routing\\ControllerDispatcher->resolveClassMethodDependencies(Array, Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(40): Illuminate\\Routing\\ControllerDispatcher->resolveParameters(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#31 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#33 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#40 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#43 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#44 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#45 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#46 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#47 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#48 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#49 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#50 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#51 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#52 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#54 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#55 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#57 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#59 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#61 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#63 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#64 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#65 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#66 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#67 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#68 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#69 {main}
+"} 
+[2025-10-04 14:11:43] local.ERROR: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "81fb431b-b91a-44f2-9ae4-0078c8518dbb" does not exist
+LINE 1: ...as aggregate from "products" where "sku" = $1 and "81fb431b-...
+                                                             ^ (Connection: pgsql, SQL: select count(*) as aggregate from "products" where "sku" = TO1-000001 and "81fb431b-b91a-44f2-9ae4-0078c8518dbb" <> tenant_id) {"userId":"0c9f59c0-266d-44b4-b61d-18d1db579324","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" does not exist
+LINE 1: ...as aggregate from \"products\" where \"sku\" = $1 and \"81fb431b-...
+                                                             ^ (Connection: pgsql, SQL: select count(*) as aggregate from \"products\" where \"sku\" = TO1-000001 and \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" <> tenant_id) at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:829)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(414): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2913): Illuminate\\Database\\Connection->select('select count(*)...', Array, false)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2902): Illuminate\\Database\\Query\\Builder->runSelect()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3456): Illuminate\\Database\\Query\\Builder->Illuminate\\Database\\Query\\{closure}()
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2901): Illuminate\\Database\\Query\\Builder->onceWithColumns(Array, Object(Closure))
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3383): Illuminate\\Database\\Query\\Builder->get(Array)
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3311): Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\DatabasePresenceVerifier.php(54): Illuminate\\Database\\Query\\Builder->count()
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Concerns\\ValidatesAttributes.php(948): Illuminate\\Validation\\DatabasePresenceVerifier->getCount('products', 'sku', 'TO1-000001', 'tenant_id', '81fb431b-b91a-4...', Array)
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(660): Illuminate\\Validation\\Validator->validateUnique('sku', 'TO1-000001', Array, Object(Illuminate\\Validation\\Validator))
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(459): Illuminate\\Validation\\Validator->validateAttribute('sku', 'Unique')
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(494): Illuminate\\Validation\\Validator->passes()
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\ValidatesWhenResolvedTrait.php(31): Illuminate\\Validation\\Validator->fails()
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Providers\\FormRequestServiceProvider.php(30): Illuminate\\Foundation\\Http\\FormRequest->validateResolved()
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1302): Illuminate\\Foundation\\Providers\\FormRequestServiceProvider->Illuminate\\Foundation\\Providers\\{closure}(Object(App\\Http\\Requests\\ProductRequest), Object(Illuminate\\Foundation\\Application))
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1266): Illuminate\\Container\\Container->fireCallbackArray(Object(App\\Http\\Requests\\ProductRequest), Array)
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1252): Illuminate\\Container\\Container->fireAfterResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(813): Illuminate\\Container\\Container->fireResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(986): Illuminate\\Container\\Container->resolve('App\\\\Http\\\\Reques...', Array, true)
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(731): Illuminate\\Foundation\\Application->resolve('App\\\\Http\\\\Reques...', Array)
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(971): Illuminate\\Container\\Container->make('App\\\\Http\\\\Reques...', Array)
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(85): Illuminate\\Foundation\\Application->make('App\\\\Http\\\\Reques...')
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(50): Illuminate\\Routing\\ControllerDispatcher->transformDependency(Object(ReflectionParameter), Array, Object(stdClass))
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(29): Illuminate\\Routing\\ControllerDispatcher->resolveMethodDependencies(Array, Object(ReflectionMethod))
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(59): Illuminate\\Routing\\ControllerDispatcher->resolveClassMethodDependencies(Array, Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(40): Illuminate\\Routing\\ControllerDispatcher->resolveParameters(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#31 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#40 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#43 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#44 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#45 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#46 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#47 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#48 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#49 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#50 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#51 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#52 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#54 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#55 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#57 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#59 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#61 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#63 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#64 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#65 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#66 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#67 {main}
+
+[previous exception] [object] (PDOException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"81fb431b-b91a-44f2-9ae4-0078c8518dbb\" does not exist
+LINE 1: ...as aggregate from \"products\" where \"sku\" = $1 and \"81fb431b-...
+                                                             ^ at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:428)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(428): PDOStatement->execute()
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(816): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select count(*)...', Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(783): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(414): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2913): Illuminate\\Database\\Connection->select('select count(*)...', Array, false)
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2902): Illuminate\\Database\\Query\\Builder->runSelect()
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3456): Illuminate\\Database\\Query\\Builder->Illuminate\\Database\\Query\\{closure}()
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(2901): Illuminate\\Database\\Query\\Builder->onceWithColumns(Array, Object(Closure))
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3383): Illuminate\\Database\\Query\\Builder->get(Array)
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3311): Illuminate\\Database\\Query\\Builder->aggregate('count', Array)
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\DatabasePresenceVerifier.php(54): Illuminate\\Database\\Query\\Builder->count()
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Concerns\\ValidatesAttributes.php(948): Illuminate\\Validation\\DatabasePresenceVerifier->getCount('products', 'sku', 'TO1-000001', 'tenant_id', '81fb431b-b91a-4...', Array)
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(660): Illuminate\\Validation\\Validator->validateUnique('sku', 'TO1-000001', Array, Object(Illuminate\\Validation\\Validator))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(459): Illuminate\\Validation\\Validator->validateAttribute('sku', 'Unique')
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\Validator.php(494): Illuminate\\Validation\\Validator->passes()
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Validation\\ValidatesWhenResolvedTrait.php(31): Illuminate\\Validation\\Validator->fails()
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Providers\\FormRequestServiceProvider.php(30): Illuminate\\Foundation\\Http\\FormRequest->validateResolved()
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1302): Illuminate\\Foundation\\Providers\\FormRequestServiceProvider->Illuminate\\Foundation\\Providers\\{closure}(Object(App\\Http\\Requests\\ProductRequest), Object(Illuminate\\Foundation\\Application))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1266): Illuminate\\Container\\Container->fireCallbackArray(Object(App\\Http\\Requests\\ProductRequest), Array)
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(1252): Illuminate\\Container\\Container->fireAfterResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(813): Illuminate\\Container\\Container->fireResolvingCallbacks('App\\\\Http\\\\Reques...', Object(App\\Http\\Requests\\ProductRequest))
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(986): Illuminate\\Container\\Container->resolve('App\\\\Http\\\\Reques...', Array, true)
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(731): Illuminate\\Foundation\\Application->resolve('App\\\\Http\\\\Reques...', Array)
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(971): Illuminate\\Container\\Container->make('App\\\\Http\\\\Reques...', Array)
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(85): Illuminate\\Foundation\\Application->make('App\\\\Http\\\\Reques...')
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(50): Illuminate\\Routing\\ControllerDispatcher->transformDependency(Object(ReflectionParameter), Array, Object(stdClass))
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ResolvesRouteDependencies.php(29): Illuminate\\Routing\\ControllerDispatcher->resolveMethodDependencies(Array, Object(ReflectionMethod))
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(59): Illuminate\\Routing\\ControllerDispatcher->resolveClassMethodDependencies(Array, Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(40): Illuminate\\Routing\\ControllerDispatcher->resolveParameters(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'store')
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#31 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#33 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#40 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#42 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#43 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#44 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#45 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#46 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#47 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#48 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#49 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#50 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#51 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#52 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#53 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#54 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#55 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#56 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#57 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#58 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#59 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#60 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#61 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#62 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#63 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#64 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#65 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#66 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#67 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#68 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#69 {main}
+"} 
+[2025-10-04 14:28:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:28:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:28:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:28:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:28:09] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:52:17] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:52:17] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:52:17] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:52:17] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 14:52:17] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:07:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:07:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:07:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:07:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:07:29] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:20] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:24] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:19:43] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:14] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:30] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:30] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:30] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:30] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:30] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:35] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:35] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:35] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:35] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:20:35] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:23:37] local.ERROR: Class "Intervention\Image\Facades\Image" not found {"userId":"0c9f59c0-266d-44b4-b61d-18d1db579324","exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\Facades\\Image\" not found at D:\\worksites\\posmidev\\app\\Http\\Controllers\\Api\\ProductController.php:188)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Api\\ProductController->uploadImage(Object(Illuminate\\Http\\Request), '81fb431b-b91a-4...', Object(Src\\Pms\\Infrastructure\\Models\\Product))
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('uploadImage', Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'uploadImage')
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#40 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#42 {main}
+"} 
+[2025-10-04 15:29:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:29:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:29:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:29:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:29:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:29:26] local.ERROR: Class "Intervention\Image\Facades\Image" not found {"userId":"0c9f59c0-266d-44b4-b61d-18d1db579324","exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\Facades\\Image\" not found at D:\\worksites\\posmidev\\app\\Http\\Controllers\\Api\\ProductController.php:188)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Api\\ProductController->uploadImage(Object(Illuminate\\Http\\Request), '81fb431b-b91a-4...', Object(Src\\Pms\\Infrastructure\\Models\\Product))
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('uploadImage', Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'uploadImage')
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#40 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#42 {main}
+"} 
+[2025-10-04 15:32:15] local.ERROR: Class "Intervention\Image\ImageServiceProvider" not found {"exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageServiceProvider\" not found at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php:206)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(142): Illuminate\\Foundation\\ProviderRepository->createProvider('Intervention\\\\Im...')
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(61): Illuminate\\Foundation\\ProviderRepository->compileManifest(Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(794): Illuminate\\Foundation\\ProviderRepository->load(Array)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders.php(17): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(286): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(447): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(199): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2025-10-04 15:32:15] local.ERROR: Class "Intervention\Image\ImageServiceProvider" not found {"exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageServiceProvider\" not found at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php:206)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(142): Illuminate\\Foundation\\ProviderRepository->createProvider('Intervention\\\\Im...')
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(61): Illuminate\\Foundation\\ProviderRepository->compileManifest(Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(794): Illuminate\\Foundation\\ProviderRepository->load(Array)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders.php(17): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(286): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(447): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(199): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2025-10-04 15:32:16] local.ERROR: Class "Intervention\Image\ImageServiceProvider" not found {"exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageServiceProvider\" not found at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php:206)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(142): Illuminate\\Foundation\\ProviderRepository->createProvider('Intervention\\\\Im...')
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(61): Illuminate\\Foundation\\ProviderRepository->compileManifest(Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(794): Illuminate\\Foundation\\ProviderRepository->load(Array)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders.php(17): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(286): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(447): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(199): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2025-10-04 15:32:45] local.ERROR: Class "Intervention\Image\ImageServiceProviderLaravelRecent" not found {"exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageServiceProviderLaravelRecent\" not found at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php:206)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(142): Illuminate\\Foundation\\ProviderRepository->createProvider('Intervention\\\\Im...')
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(61): Illuminate\\Foundation\\ProviderRepository->compileManifest(Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(794): Illuminate\\Foundation\\ProviderRepository->load(Array)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders.php(17): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(286): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(447): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(199): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2025-10-04 15:32:45] local.ERROR: Class "Intervention\Image\ImageServiceProviderLaravelRecent" not found {"exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageServiceProviderLaravelRecent\" not found at D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php:206)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(142): Illuminate\\Foundation\\ProviderRepository->createProvider('Intervention\\\\Im...')
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\ProviderRepository.php(61): Illuminate\\Foundation\\ProviderRepository->compileManifest(Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(794): Illuminate\\Foundation\\ProviderRepository->load(Array)
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Bootstrap\\RegisterProviders.php(17): Illuminate\\Foundation\\Application->registerConfiguredProviders()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(286): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(447): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(199): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2025-10-04 15:34:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:34:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:34:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:34:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:34:52] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:35:07] local.ERROR: Class "Intervention\Image\ImageManager" not found {"userId":"0c9f59c0-266d-44b4-b61d-18d1db579324","exception":"[object] (Error(code: 0): Class \"Intervention\\Image\\ImageManager\" not found at D:\\worksites\\posmidev\\app\\Http\\Controllers\\Api\\ProductController.php:188)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Api\\ProductController->uploadImage(Object(Illuminate\\Http\\Request), '81fb431b-b91a-4...', Object(Src\\Pms\\Infrastructure\\Models\\Product))
+#1 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('uploadImage', Array)
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(259): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\ProductController), 'uploadImage')
+#3 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#4 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#5 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 D:\\worksites\\posmidev\\app\\Http\\Middleware\\SetPermissionsTeamFromTenant.php(23): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\SetPermissionsTeamFromTenant->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(159): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(125): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequest(Object(Illuminate\\Http\\Request), Object(Closure), Array)
+#12 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\ThrottleRequests.php(87): Illuminate\\Routing\\Middleware\\ThrottleRequests->handleRequestUsingNamedLimiter(Object(Illuminate\\Http\\Request), Object(Closure), 'api', Object(Closure))
+#13 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\ThrottleRequests->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#14 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure), 'api')
+#16 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(805): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#18 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#19 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#20 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#21 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#22 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#23 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#26 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#27 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#28 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#31 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#32 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#33 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#34 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#38 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#39 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#40 D:\\worksites\\posmidev\\public\\index.php(27): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#41 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\worksites\\\\po...')
+#42 {main}
+"} 
+[2025-10-04 15:37:00] local.ERROR: Command "dump-autoload" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"dump-autoload\" is not defined. at D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php:737)
+[stacktrace]
+#0 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php(266): Symfony\\Component\\Console\\Application->find('dump-autoload')
+#1 D:\\worksites\\posmidev\\vendor\\symfony\\console\\Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 D:\\worksites\\posmidev\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 D:\\worksites\\posmidev\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2025-10-04 15:39:01] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:39:01] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:39:01] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:39:01] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:39:01] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:55:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:55:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:55:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:55:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:55:58] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:08] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 
+[2025-10-04 15:56:31] local.INFO: CategoryResource::toArray called {"resource_type":"Src\\Pms\\Infrastructure\\Models\\Category","resource_id":"no_getId_method","has_private_id":false} 

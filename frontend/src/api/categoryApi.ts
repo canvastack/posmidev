@@ -4,7 +4,8 @@ import type { Category } from '../types';
 export const categoryApi = {
   getCategories: async (tenantId: string): Promise<Category[]> => {
     const response = await apiClient.get(`/tenants/${tenantId}/categories`);
-    return response.data;
+    // Handle both plain array and Laravel resource collection format
+    return Array.isArray(response.data) ? response.data : (response.data.data || []);
   },
 
   getCategory: async (tenantId: string, categoryId: string): Promise<Category> => {
