@@ -14,7 +14,7 @@ import { productApi, type ProductStats } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { BulkActionToolbar } from '@/components/domain/products/BulkActionToolbar';
 import { BulkDeleteModal } from '@/components/domain/products/BulkDeleteModal';
 import { BulkUpdateStatusModal } from '@/components/domain/products/BulkUpdateStatusModal';
@@ -24,6 +24,7 @@ import { ExportButton } from '@/components/domain/products/ExportButton';
 import { ImportButton } from '@/components/domain/products/ImportButton';
 import { BarcodeGenerateButton } from '@/components/domain/products/BarcodeGenerateButton';
 import { BulkBarcodePrintModal } from '@/components/domain/products/BulkBarcodePrintModal';
+import { ProductHistoryModal } from '@/components/domain/products/ProductHistoryModal';
 
 export default function ProductsPage() {
   const { tenantId } = useAuth();
@@ -78,6 +79,10 @@ export default function ProductsPage() {
   const [bulkCategoryModalOpen, setBulkCategoryModalOpen] = useState(false);
   const [bulkPriceModalOpen, setBulkPriceModalOpen] = useState(false);
   const [bulkBarcodeModalOpen, setBulkBarcodeModalOpen] = useState(false);
+  
+  // History modal state
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
   
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -1146,7 +1151,20 @@ export default function ProductsPage() {
                             </Button>
                           )}
                           {hasPermission('products.view') && (
-                            <BarcodeGenerateButton product={product} variant="ghost" size="sm" />
+                            <>
+                              <BarcodeGenerateButton product={product} variant="ghost" size="sm" />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setHistoryProduct(product);
+                                  setHistoryModalOpen(true);
+                                }}
+                                title="View History"
+                              >
+                                <ClockIcon className="h-4 w-4" />
+                              </Button>
+                            </>
                           )}
                           {!hasPermission('products.update') && !hasPermission('products.delete') && !hasPermission('products.view') && (
                             <span className="text-xs text-gray-400 italic">No actions available</span>
@@ -1225,7 +1243,20 @@ export default function ProductsPage() {
                             <TrashIcon className="h-5 w-5" />
                           </Button>
                         )}
-                        {!hasPermission('products.update') && !hasPermission('products.delete') && (
+                        {hasPermission('products.view') && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setHistoryProduct(product);
+                              setHistoryModalOpen(true);
+                            }}
+                            title="View History"
+                          >
+                            <ClockIcon className="h-5 w-5" />
+                          </Button>
+                        )}
+                        {!hasPermission('products.update') && !hasPermission('products.delete') && !hasPermission('products.view') && (
                           <span className="text-xs text-gray-400 italic px-2">No actions</span>
                         )}
                       </div>
@@ -1581,6 +1612,19 @@ export default function ProductsPage() {
             onClose={() => setBulkBarcodeModalOpen(false)}
             productIds={Array.from(bulkSelection.selectedIds)}
           />
+
+          {/* Product History Modal */}
+          {historyProduct && (
+            <ProductHistoryModal
+              isOpen={historyModalOpen}
+              onClose={() => {
+                setHistoryModalOpen(false);
+                setHistoryProduct(null);
+              }}
+              product={historyProduct}
+              tenantId={tenantId}
+            />
+          )}
         </>
       )}
     </div>

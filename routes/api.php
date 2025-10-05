@@ -5,12 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ProductStatsController;
+use App\Http\Controllers\Api\ProductHistoryController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderQueryController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\StockAdjustmentController;
+use App\Http\Controllers\Api\StockAlertController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TenantController;
@@ -126,6 +128,11 @@ Route::prefix('v1')->group(function () {
             Route::post('products/barcode/bulk', [BarcodeController::class, 'bulkGenerate']);
             Route::get('products/{productId}/barcode', [BarcodeController::class, 'generate']);
             
+            // Product history & audit trail
+            Route::get('products/{productId}/history', [ProductHistoryController::class, 'index']);
+            Route::get('products/{productId}/history/price', [ProductHistoryController::class, 'priceHistory']);
+            Route::get('products/{productId}/history/stock', [ProductHistoryController::class, 'stockHistory']);
+            
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             Route::apiResource('categories', CategoryController::class);
@@ -167,7 +174,17 @@ Route::prefix('v1')->group(function () {
             Route::get('orders/{orderId}', [OrderQueryController::class, 'show']);
             Route::post('orders', [OrderController::class, 'store']);
 
+            // Stock Adjustments (Phase 5)
+            Route::get('stock-adjustments/reasons', [StockAdjustmentController::class, 'getAdjustmentReasons']);
             Route::post('stock-adjustments', [StockAdjustmentController::class, 'store']);
+
+            // Stock Alerts (Phase 5)
+            Route::get('stock-alerts', [StockAlertController::class, 'index']);
+            Route::get('stock-alerts/stats', [StockAlertController::class, 'stats']);
+            Route::get('stock-alerts/low-stock-products', [StockAlertController::class, 'lowStockProducts']);
+            Route::post('stock-alerts/{alertId}/acknowledge', [StockAlertController::class, 'acknowledge']);
+            Route::post('stock-alerts/{alertId}/resolve', [StockAlertController::class, 'resolve']);
+            Route::post('stock-alerts/{alertId}/dismiss', [StockAlertController::class, 'dismiss']);
         });
     });
 });

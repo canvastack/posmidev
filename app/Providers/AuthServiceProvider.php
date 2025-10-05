@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, User, Tenant, Customer, ContentPage};
-use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, UserPolicy, TenantPolicy, CustomerPolicy, ContentPagePolicy};
+use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, StockAlert, User, Tenant, Customer, ContentPage};
+use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, StockAlertPolicy, UserPolicy, TenantPolicy, CustomerPolicy, ContentPagePolicy};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -19,6 +19,7 @@ class AuthServiceProvider extends ServiceProvider
         Order::class => OrderPolicy::class,
         Category::class => CategoryPolicy::class,
         StockAdjustment::class => StockAdjustmentPolicy::class,
+        StockAlert::class => StockAlertPolicy::class,
         User::class => UserPolicy::class,
         Tenant::class => TenantPolicy::class,
         Customer::class => CustomerPolicy::class,

@@ -43,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register Observers
+        \Src\Pms\Infrastructure\Models\Product::observe(\App\Observers\ProductObserver::class);
+
         // Register Policies
         \Illuminate\Support\Facades\Gate::policy(\Src\Pms\Infrastructure\Models\Product::class, \App\Policies\ProductPolicy::class);
         \Illuminate\Support\Facades\Gate::policy(\Src\Pms\Infrastructure\Models\Order::class, \App\Policies\OrderPolicy::class);

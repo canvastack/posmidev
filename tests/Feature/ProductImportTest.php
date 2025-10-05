@@ -157,6 +157,8 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_validates_required_fields()
     {
+        $this->actingAs($this->user, 'api');
+
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
             ['', 'Missing SKU', '100.00'], // Missing SKU

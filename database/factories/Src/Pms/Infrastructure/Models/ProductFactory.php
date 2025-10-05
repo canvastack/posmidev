@@ -29,6 +29,8 @@ class ProductFactory extends Factory
     {
         $price = fake()->randomFloat(2, 10, 1000);
         $costPrice = $price * 0.6; // Cost is 60% of selling price
+        $stock = fake()->numberBetween(0, 500);
+        $reorderPoint = fake()->numberBetween(10, 50); // Random reorder point
 
         return [
             'id' => (string) Str::uuid(),
@@ -39,7 +41,10 @@ class ProductFactory extends Factory
             'description' => fake()->sentence(),
             'price' => $price,
             'cost_price' => $costPrice,
-            'stock' => fake()->numberBetween(0, 500),
+            'stock' => $stock,
+            'reorder_point' => $reorderPoint,
+            'reorder_quantity' => fake()->numberBetween(20, 100),
+            'low_stock_alert_enabled' => fake()->boolean(80), // 80% enabled by default
             'status' => fake()->randomElement(['active', 'inactive', 'discontinued']),
         ];
     }
@@ -91,6 +96,8 @@ class ProductFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'stock' => fake()->numberBetween(1, 10),
+            'reorder_point' => fake()->numberBetween(15, 30),
+            'low_stock_alert_enabled' => true,
         ]);
     }
 
@@ -101,6 +108,50 @@ class ProductFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'stock' => fake()->numberBetween(50, 500),
+        ]);
+    }
+
+    /**
+     * Indicate that the product will trigger low stock alert.
+     * Stock is set below reorder point to trigger alert.
+     */
+    public function withLowStockAlert(): static
+    {
+        $reorderPoint = fake()->numberBetween(20, 50);
+        return $this->state(fn (array $attributes) => [
+            'stock' => fake()->numberBetween(1, $reorderPoint - 1),
+            'reorder_point' => $reorderPoint,
+            'reorder_quantity' => fake()->numberBetween(50, 100),
+            'low_stock_alert_enabled' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the product will trigger critical alert.
+     * Stock is set below half of reorder point.
+     */
+    public function withCriticalAlert(): static
+    {
+        $reorderPoint = fake()->numberBetween(20, 50);
+        $criticalThreshold = intval($reorderPoint / 2);
+        return $this->state(fn (array $attributes) => [
+            'stock' => fake()->numberBetween(1, max(1, $criticalThreshold - 1)),
+            'reorder_point' => $reorderPoint,
+            'reorder_quantity' => fake()->numberBetween(50, 100),
+            'low_stock_alert_enabled' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the product will trigger out of stock alert.
+     */
+    public function withOutOfStockAlert(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'stock' => 0,
+            'reorder_point' => fake()->numberBetween(20, 50),
+            'reorder_quantity' => fake()->numberBetween(50, 100),
+            'low_stock_alert_enabled' => true,
         ]);
     }
 

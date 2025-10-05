@@ -21,6 +21,10 @@ const CustomersPage = lazy(() => import('./pages/backend/customers'))
 const SettingsPage = lazy(() => import('./pages/backend/settings'))
 const ContentPagesPage = lazy(() => import('./pages/backend/content-pages'))
 
+// Stock Management (Phase 5)
+const StockAlertsPage = lazy(() => import('./pages/backend/stock-alerts'))
+const LowStockProductsPage = lazy(() => import('./pages/backend/stock-alerts/LowStockProductsPage'))
+
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/home'))
 const ProductsPublicPage = lazy(() => import('./pages/frontend/products'))
@@ -59,6 +63,9 @@ function App() {
             <Route path="customers" element={<CustomersPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="content-pages" element={<ContentPagesPage />} />
+            {/* Stock Management (Phase 5) */}
+            <Route path="stock-alerts" element={<StockAlertsPage />} />
+            <Route path="stock-alerts/low-stock" element={<LowStockProductsPage />} />
           </Route>
 
           {/* Catch all → public home */}

@@ -233,3 +233,9 @@ export interface ContentPageForm {
   status: 'draft' | 'published';
   published_at?: string | null;
 }
+
+// Export history types
+export * from './history';
+
+// Export stock management types (Phase 5)
+export * from './stock';

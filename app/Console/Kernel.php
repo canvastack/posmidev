@@ -12,7 +12,21 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Phase 5: Stock Management - Low Stock Alert Check
+        // Runs daily at 09:00 AM (Asia/Jakarta timezone)
+        // Checks all products across all tenants for low stock conditions
+        // and creates alerts + sends notifications
+        $schedule->command('stock:check-low-alerts --notify')
+            ->dailyAt('09:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onSuccess(function () {
+                \Log::info('Low stock alert check completed successfully');
+            })
+            ->onFailure(function () {
+                \Log::error('Low stock alert check failed');
+            });
     }
 
     /**
