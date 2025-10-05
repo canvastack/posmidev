@@ -1714,6 +1714,848 @@ paths:
                       status: { type: string }
                       updated_at: { type: string, format: date-time }
 
+  # ========== PRODUCT VARIANTS ==========
+  /tenants/{tenantId}/products/{productId}/variants:
+    get:
+      tags: [Product Variants]
+      summary: List variants for a product
+      operationId: listProductVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 500
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search in SKU and name
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: sort_by
+          schema:
+            type: string
+            default: sort_order
+            enum: [sort_order, sku, name, price, stock, created_at]
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            default: asc
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductVariant'
+                  current_page:
+                    type: integer
+                  last_page:
+                    type: integer
+                  per_page:
+                    type: integer
+                  total:
+                    type: integer
+        '403':
+          description: Forbidden - Insufficient permissions
+        '404':
+          description: Product not found
+
+    post:
+      tags: [Product Variants]
+      summary: Create a new variant
+      operationId: createProductVariant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductVariantInput'
+      responses:
+        '201':
+          description: Variant created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/ProductVariant'
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/products/{productId}/variants/bulk:
+    post:
+      tags: [Product Variants]
+      summary: Create multiple variants
+      description: Create up to 500 variants at once
+      operationId: bulkCreateProductVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variants:
+                  type: array
+                  minItems: 1
+                  maxItems: 500
+                  items:
+                    $ref: '#/components/schemas/ProductVariantInput'
+      responses:
+        '201':
+          description: Variants created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  success_count:
+                    type: integer
+                  error_count:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                        sku:
+                          type: string
+                        message:
+                          type: string
+
+    patch:
+      tags: [Product Variants]
+      summary: Update multiple variants
+      operationId: bulkUpdateProductVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                updates:
+                  type: object
+      responses:
+        '200':
+          description: Variants updated
+
+    delete:
+      tags: [Product Variants]
+      summary: Delete multiple variants
+      operationId: bulkDeleteProductVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: Variants deleted
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}:
+    get:
+      tags: [Product Variants]
+      summary: Get a single variant
+      operationId: getProductVariant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductVariant'
+
+    patch:
+      tags: [Product Variants]
+      summary: Update a variant
+      operationId: updateProductVariant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductVariantInput'
+      responses:
+        '200':
+          description: Variant updated
+
+    delete:
+      tags: [Product Variants]
+      summary: Delete a variant (soft delete)
+      operationId: deleteProductVariant
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      responses:
+        '200':
+          description: Variant deleted
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/stock:
+    post:
+      tags: [Product Variants]
+      summary: Update variant stock
+      operationId: updateVariantStock
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 0
+                reason:
+                  type: string
+                  maxLength: 255
+      responses:
+        '200':
+          description: Stock updated
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/reserve:
+    post:
+      tags: [Product Variants]
+      summary: Reserve stock for an order
+      operationId: reserveVariantStock
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                order_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Stock reserved
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/release:
+    post:
+      tags: [Product Variants]
+      summary: Release reserved stock
+      operationId: releaseVariantStock
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                order_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Stock released
+
+  # ========== VARIANT ATTRIBUTES ==========
+  /tenants/{tenantId}/variant-attributes:
+    get:
+      tags: [Variant Attributes]
+      summary: List variant attributes
+      operationId: listVariantAttributes
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: display_type
+          schema:
+            type: string
+            enum: [select, radio, button, swatch, color_swatch]
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantAttribute'
+
+    post:
+      tags: [Variant Attributes]
+      summary: Create a variant attribute
+      operationId: createVariantAttribute
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantAttributeInput'
+      responses:
+        '201':
+          description: Attribute created
+
+  /tenants/{tenantId}/variant-attributes/popular:
+    get:
+      tags: [Variant Attributes]
+      summary: Get popular variant attributes
+      operationId: getPopularVariantAttributes
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successful operation
+
+  /tenants/{tenantId}/variant-attributes/{id}:
+    get:
+      tags: [Variant Attributes]
+      summary: Get a variant attribute
+      operationId: getVariantAttribute
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+
+    patch:
+      tags: [Variant Attributes]
+      summary: Update a variant attribute
+      operationId: updateVariantAttribute
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantAttributeInput'
+      responses:
+        '200':
+          description: Attribute updated
+
+    delete:
+      tags: [Variant Attributes]
+      summary: Delete a variant attribute
+      operationId: deleteVariantAttribute
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Attribute deleted
+
+  /tenants/{tenantId}/variant-attributes/{id}/values:
+    post:
+      tags: [Variant Attributes]
+      summary: Add a value to an attribute
+      operationId: addAttributeValue
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+                price_modifier:
+                  type: number
+      responses:
+        '200':
+          description: Value added
+
+    delete:
+      tags: [Variant Attributes]
+      summary: Remove a value from an attribute
+      operationId: removeAttributeValue
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+      responses:
+        '200':
+          description: Value removed
+
+  # ========== VARIANT TEMPLATES ==========
+  /tenants/{tenantId}/variant-templates:
+    get:
+      tags: [Variant Templates]
+      summary: List variant templates
+      description: Returns both system templates and tenant-specific templates
+      operationId: listVariantTemplates
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: include_system
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantTemplate'
+
+    post:
+      tags: [Variant Templates]
+      summary: Create a variant template
+      operationId: createVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantTemplateInput'
+      responses:
+        '201':
+          description: Template created
+
+  /tenants/{tenantId}/variant-templates/{id}:
+    get:
+      tags: [Variant Templates]
+      summary: Get a variant template
+      operationId: getVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+
+    patch:
+      tags: [Variant Templates]
+      summary: Update a variant template
+      description: System templates cannot be modified
+      operationId: updateVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantTemplateInput'
+      responses:
+        '200':
+          description: Template updated
+
+    delete:
+      tags: [Variant Templates]
+      summary: Delete a variant template
+      description: System templates cannot be deleted
+      operationId: deleteVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template deleted
+
+  /tenants/{tenantId}/variant-templates/{id}/apply:
+    post:
+      tags: [Variant Templates]
+      summary: Apply template to a product
+      description: Generates all variant combinations and creates them
+      operationId: applyVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  format: uuid
+                override_existing:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: Template applied successfully
+
+  /tenants/{tenantId}/variant-templates/{id}/preview:
+    post:
+      tags: [Variant Templates]
+      summary: Preview variants that would be generated
+      description: Shows variant combinations without creating them
+      operationId: previewVariantTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Preview generated
+
+  # ========== VARIANT ANALYTICS ==========
+  /tenants/{tenantId}/variants/{variantId}/analytics:
+    get:
+      tags: [Variant Analytics]
+      summary: Get analytics for a variant
+      operationId: getVariantAnalytics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: variantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variant:
+                    $ref: '#/components/schemas/ProductVariant'
+                  analytics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantAnalytics'
+                  summary:
+                    type: object
+
+  /tenants/{tenantId}/products/{productId}/analytics:
+    get:
+      tags: [Variant Analytics]
+      summary: Get analytics for all variants of a product
+      operationId: getProductVariantAnalytics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+        - in: query
+          name: period_start
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: period_end
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful operation
+
+  /tenants/{tenantId}/variants/analytics/top-performers:
+    get:
+      tags: [Variant Analytics]
+      summary: Get top performing variants
+      operationId: getTopPerformingVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: metric
+          schema:
+            type: string
+            enum: [revenue, profit, quantity_sold, conversion_rate, turnover_rate]
+            default: revenue
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: monthly
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successful operation
+
+  /tenants/{tenantId}/variants/analytics/compare:
+    post:
+      tags: [Variant Analytics]
+      summary: Compare multiple variants
+      operationId: compareVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variant_ids:
+                  type: array
+                  minItems: 2
+                  maxItems: 10
+                  items:
+                    type: string
+                    format: uuid
+                period_type:
+                  type: string
+                  enum: [daily, weekly, monthly]
+      responses:
+        '200':
+          description: Comparison data returned
+
+  /tenants/{tenantId}/variants/analytics/performance-summary:
+    get:
+      tags: [Variant Analytics]
+      summary: Get performance summary for all variants
+      operationId: getVariantPerformanceSummary
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: monthly
+      responses:
+        '200':
+          description: Performance summary
+
+tags:
+  - name: Authentication
+    description: User registration, login, and logout
+  - name: Tenants
+    description: Tenant management operations
+  - name: Products
+    description: Product catalog management
+  - name: Categories
+    description: Product category management
+  - name: Orders
+    description: Sales order management
+  - name: Stock Alerts
+    description: Inventory alert management
+  - name: Product Variants
+    description: Manage product variants (color, size, material combinations)
+  - name: Variant Attributes
+    description: Manage reusable variant attributes (Size, Color, etc.)
+  - name: Variant Templates
+    description: Pre-built variant configurations for quick setup
+  - name: Variant Analytics
+    description: Performance analytics and insights for variants
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1763,6 +2605,12 @@ components:
       in: path
       required: true
       description: ID of the stock alert
+      schema: { type: string, format: uuid }
+    VariantId:
+      name: variantId
+      in: path
+      required: true
+      description: ID of the product variant
       schema: { type: string, format: uuid }
 
   schemas:
@@ -1834,6 +2682,411 @@ components:
         category_id: { type: string, format: uuid, nullable: true }
         description: { type: string, nullable: true }
         cost_price: { type: number, format: float, nullable: true }
+    
+    ProductVariant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        sku:
+          type: string
+          maxLength: 255
+        barcode:
+          type: string
+          nullable: true
+        name:
+          type: string
+          maxLength: 255
+        display_name:
+          type: string
+          description: Human-readable name with attributes
+        attributes:
+          type: object
+          description: 'JSONB key-value pairs (e.g., {"color": "Red", "size": "M"})'
+          additionalProperties: true
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+        cost_price:
+          type: number
+          format: decimal
+          minimum: 0
+          nullable: true
+        price_modifier:
+          type: number
+          format: decimal
+          nullable: true
+        profit_margin:
+          type: number
+          format: decimal
+          description: Calculated profit percentage
+        stock:
+          type: integer
+          minimum: 0
+        reserved_stock:
+          type: integer
+          minimum: 0
+        available_stock:
+          type: integer
+          minimum: 0
+          description: Computed as stock - reserved_stock
+        manage_stock:
+          type: boolean
+          default: true
+        reorder_level:
+          type: integer
+          nullable: true
+        reorder_quantity:
+          type: integer
+          nullable: true
+        is_low_stock:
+          type: boolean
+        is_critical_stock:
+          type: boolean
+        images:
+          type: array
+          items:
+            type: string
+          description: Array of image paths
+        image_url:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+          default: true
+        is_default:
+          type: boolean
+          default: false
+        sort_order:
+          type: integer
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        product:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            sku:
+              type: string
+
+    ProductVariantInput:
+      type: object
+      required:
+        - sku
+        - name
+        - price
+        - stock
+      properties:
+        sku:
+          type: string
+          maxLength: 255
+        barcode:
+          type: string
+          nullable: true
+        name:
+          type: string
+          maxLength: 255
+        attributes:
+          type: object
+          additionalProperties: true
+        price:
+          type: number
+          minimum: 0
+        cost_price:
+          type: number
+          minimum: 0
+          nullable: true
+        price_modifier:
+          type: number
+          nullable: true
+        stock:
+          type: integer
+          minimum: 0
+        reserved_stock:
+          type: integer
+          minimum: 0
+          default: 0
+        manage_stock:
+          type: boolean
+          default: true
+        reorder_level:
+          type: integer
+          nullable: true
+        reorder_quantity:
+          type: integer
+          nullable: true
+        images:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+          default: true
+        is_default:
+          type: boolean
+          default: false
+        sort_order:
+          type: integer
+          default: 0
+
+    VariantAttribute:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        display_type:
+          type: string
+          enum: [select, radio, button, swatch, color_swatch]
+        values:
+          type: array
+          items:
+            type: string
+        value_count:
+          type: integer
+        price_modifiers:
+          type: object
+          additionalProperties:
+            type: number
+        visual_settings:
+          type: object
+          additionalProperties: true
+        sort_order:
+          type: integer
+        is_active:
+          type: boolean
+        usage_count:
+          type: integer
+        total_combinations:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    VariantAttributeInput:
+      type: object
+      required:
+        - name
+        - display_type
+        - values
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          nullable: true
+        display_type:
+          type: string
+          enum: [select, radio, button, swatch, color_swatch]
+        values:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        price_modifiers:
+          type: object
+          additionalProperties:
+            type: number
+        visual_settings:
+          type: object
+        sort_order:
+          type: integer
+          default: 0
+        is_active:
+          type: boolean
+          default: true
+
+    VariantTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: NULL for system templates
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        configuration:
+          type: object
+          properties:
+            attributes:
+              type: array
+              items:
+                type: object
+            sku_pattern:
+              type: string
+            price_calculation:
+              type: string
+              enum: [base, base_plus_modifiers, custom]
+            stock_settings:
+              type: object
+        is_system:
+          type: boolean
+        is_active:
+          type: boolean
+        usage_count:
+          type: integer
+        total_combinations:
+          type: integer
+        can_delete:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    VariantTemplateInput:
+      type: object
+      required:
+        - name
+        - configuration
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          nullable: true
+        description:
+          type: string
+        configuration:
+          type: object
+          required:
+            - attributes
+          properties:
+            attributes:
+              type: array
+              minItems: 1
+            sku_pattern:
+              type: string
+            price_calculation:
+              type: string
+              enum: [base, base_plus_modifiers, custom]
+            stock_settings:
+              type: object
+        is_active:
+          type: boolean
+          default: true
+
+    VariantAnalytics:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        variant_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        period_type:
+          type: string
+          enum: [daily, weekly, monthly]
+        period_start:
+          type: string
+          format: date-time
+        period_end:
+          type: string
+          format: date-time
+        total_orders:
+          type: integer
+        quantity_sold:
+          type: integer
+        revenue:
+          type: number
+          format: decimal
+        profit:
+          type: number
+          format: decimal
+        profit_margin_percent:
+          type: number
+          format: decimal
+        stock_start:
+          type: integer
+        stock_end:
+          type: integer
+        stock_change:
+          type: integer
+        turnover_rate:
+          type: number
+          format: decimal
+        days_of_stock:
+          type: number
+          format: decimal
+          nullable: true
+        view_count:
+          type: integer
+        add_to_cart_count:
+          type: integer
+        conversion_rate:
+          type: number
+          format: decimal
+        cart_abandonment_rate:
+          type: number
+          format: decimal
+        revenue_percentile:
+          type: number
+          format: decimal
+          nullable: true
+        profit_percentile:
+          type: number
+          format: decimal
+          nullable: true
+        turnover_percentile:
+          type: number
+          format: decimal
+          nullable: true
+        performance_status:
+          type: string
+          enum: [excellent, good, average, poor]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
 
     Role:
       type: object

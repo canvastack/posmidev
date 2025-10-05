@@ -34,6 +34,10 @@ class Product extends Model
         'reorder_quantity',
         'low_stock_alert_enabled',
         'last_alerted_at',
+        // Phase 6: Product Variants fields
+        'has_variants',
+        'variant_count',
+        'manage_stock_by_variant',
     ];
 
     protected $casts = [
@@ -49,6 +53,10 @@ class Product extends Model
         'reorder_quantity' => 'integer',
         'low_stock_alert_enabled' => 'boolean',
         'last_alerted_at' => 'datetime',
+        // Phase 6: Product Variants casts
+        'has_variants' => 'boolean',
+        'variant_count' => 'integer',
+        'manage_stock_by_variant' => 'boolean',
     ];
 
     protected $appends = ['image_url', 'thumbnail_url'];
@@ -131,6 +139,30 @@ class Product extends Model
     public function stockAlerts(): HasMany
     {
         return $this->hasMany(StockAlert::class);
+    }
+
+    /**
+     * Product variants relationship (Phase 6)
+     */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * Active variants only (Phase 6)
+     */
+    public function activeVariants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->where('is_active', true);
+    }
+
+    /**
+     * Default variant (Phase 6)
+     */
+    public function defaultVariant(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->where('is_default', true);
     }
 
     // ========================================
@@ -250,6 +282,82 @@ class Product extends Model
         return $this->isLowStock() && $this->reorder_quantity > 0;
     }
 
+    // ========================================
+    // Phase 6: Product Variants Helper Methods
+    // ========================================
+
+    /**
+     * Get total stock across all variants
+     * 
+     * @return int
+     */
+    public function getTotalVariantStock(): int
+    {
+        if (!$this->has_variants) {
+            return $this->stock;
+        }
+
+        return $this->variants()->sum('stock');
+    }
+
+    /**
+     * Get total available stock across all variants (stock - reserved)
+     * 
+     * @return int
+     */
+    public function getTotalAvailableVariantStock(): int
+    {
+        if (!$this->has_variants) {
+            return $this->stock;
+        }
+
+        return $this->variants()->get()->sum(function ($variant) {
+            return $variant->available_stock;
+        });
+    }
+
+    /**
+     * Check if product has any low stock variants
+     * 
+     * @return bool
+     */
+    public function hasLowStockVariants(): bool
+    {
+        if (!$this->has_variants) {
+            return $this->isLowStock();
+        }
+
+        return $this->variants()->lowStock()->exists();
+    }
+
+    /**
+     * Check if product has any out of stock variants
+     * 
+     * @return bool
+     */
+    public function hasOutOfStockVariants(): bool
+    {
+        if (!$this->has_variants) {
+            return $this->isOutOfStock();
+        }
+
+        return $this->variants()->outOfStock()->exists();
+    }
+
+    /**
+     * Get the effective stock (product stock if no variants, else sum of variant stock)
+     * 
+     * @return int
+     */
+    public function getEffectiveStock(): int
+    {
+        if ($this->manage_stock_by_variant && $this->has_variants) {
+            return $this->getTotalVariantStock();
+        }
+
+        return $this->stock;
+    }
+
     /**
      * Get severity level for stock alerts
      * 
@@ -296,6 +404,10 @@ class Product extends Model
                 'reorder_point',
                 'reorder_quantity',
                 'low_stock_alert_enabled',
+                // Phase 6: Log variant fields
+                'has_variants',
+                'variant_count',
+                'manage_stock_by_variant',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()

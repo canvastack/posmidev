@@ -18,6 +18,10 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\TenantController;
 use App\Http\Controllers\Api\ContentManagementController;
 use App\Http\Controllers\Api\BarcodeController;
+use App\Http\Controllers\Api\ProductVariantController;
+use App\Http\Controllers\Api\VariantAttributeController;
+use App\Http\Controllers\Api\VariantTemplateController;
+use App\Http\Controllers\Api\VariantAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -135,6 +139,48 @@ Route::prefix('v1')->group(function () {
             
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
+            
+            // Product Variants (Phase 6)
+            Route::prefix('products/{productId}/variants')->group(function () {
+                Route::get('/', [ProductVariantController::class, 'index']);
+                Route::post('/', [ProductVariantController::class, 'store']);
+                Route::post('/bulk', [ProductVariantController::class, 'bulkStore']);
+                Route::patch('/bulk', [ProductVariantController::class, 'bulkUpdate']);
+                Route::delete('/bulk', [ProductVariantController::class, 'bulkDestroy']);
+                Route::get('/{variantId}', [ProductVariantController::class, 'show']);
+                Route::patch('/{variantId}', [ProductVariantController::class, 'update']);
+                Route::delete('/{variantId}', [ProductVariantController::class, 'destroy']);
+                Route::post('/{variantId}/stock', [ProductVariantController::class, 'updateStock']);
+                Route::post('/{variantId}/reserve', [ProductVariantController::class, 'reserveStock']);
+                Route::post('/{variantId}/release', [ProductVariantController::class, 'releaseStock']);
+            });
+            
+            // Variant Attributes (Phase 6)
+            Route::get('variant-attributes', [VariantAttributeController::class, 'index']);
+            Route::get('variant-attributes/popular', [VariantAttributeController::class, 'popular']);
+            Route::post('variant-attributes', [VariantAttributeController::class, 'store']);
+            Route::get('variant-attributes/{id}', [VariantAttributeController::class, 'show']);
+            Route::patch('variant-attributes/{id}', [VariantAttributeController::class, 'update']);
+            Route::delete('variant-attributes/{id}', [VariantAttributeController::class, 'destroy']);
+            Route::post('variant-attributes/{id}/values', [VariantAttributeController::class, 'addValue']);
+            Route::delete('variant-attributes/{id}/values', [VariantAttributeController::class, 'removeValue']);
+            
+            // Variant Templates (Phase 6)
+            Route::get('variant-templates', [VariantTemplateController::class, 'index']);
+            Route::post('variant-templates', [VariantTemplateController::class, 'store']);
+            Route::get('variant-templates/{id}', [VariantTemplateController::class, 'show']);
+            Route::patch('variant-templates/{id}', [VariantTemplateController::class, 'update']);
+            Route::delete('variant-templates/{id}', [VariantTemplateController::class, 'destroy']);
+            Route::post('variant-templates/{id}/apply', [VariantTemplateController::class, 'applyToProduct']);
+            Route::post('variant-templates/{id}/preview', [VariantTemplateController::class, 'preview']);
+            
+            // Variant Analytics (Phase 6)
+            Route::get('variants/{variantId}/analytics', [VariantAnalyticsController::class, 'show']);
+            Route::get('products/{productId}/analytics', [VariantAnalyticsController::class, 'productAnalytics']);
+            Route::get('variants/analytics/top-performers', [VariantAnalyticsController::class, 'topPerformers']);
+            Route::post('variants/analytics/compare', [VariantAnalyticsController::class, 'compare']);
+            Route::get('variants/analytics/performance-summary', [VariantAnalyticsController::class, 'performanceSummary']);
+            
             Route::apiResource('categories', CategoryController::class);
             Route::apiResource('roles', RoleController::class);
             Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
