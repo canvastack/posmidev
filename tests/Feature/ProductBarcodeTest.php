@@ -21,16 +21,17 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_barcode_with_default_settings(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+        $productId = $productResult['id'];
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode",
             $this->authenticatedRequest()['headers']
         );
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'image/png');
-        
+
         // Verify response contains image data
         $this->assertNotEmpty($response->getContent());
     }
@@ -38,10 +39,11 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_code128_barcode(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+        $productId = $productResult['id'];
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode?type=code128",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode?type=code128",
             $this->authenticatedRequest()['headers']
         );
 
@@ -52,13 +54,27 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_ean13_barcode(): void
     {
-        // Create product with 13-digit SKU for EAN13
-        $product = $this->createTestProduct([
-            'sku' => '1234567890123',
-        ]);
+        // Create product with valid EAN13 SKU (12 digits + checksum)
+        $ean13Sku = '123456789012'; // 12 digits for EAN13 (will add checksum)
+
+        $response = $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/products",
+            [
+                'name' => 'EAN13 Test Product',
+                'sku' => $ean13Sku,
+                'price' => 100.00,
+                'stock' => 50,
+                'description' => 'Test product for EAN13 barcode',
+                'cost_price' => 80.00,
+            ],
+            $this->authenticatedRequest()['headers']
+        );
+
+        $response->assertCreated();
+        $productId = $response->json('data.id') ?? $response->json('id');
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode?type=ean13",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode?type=ean13",
             $this->authenticatedRequest()['headers']
         );
 
@@ -69,10 +85,11 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_qr_code(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+        $productId = $productResult['id'];
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode?type=qr",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode?type=qr",
             $this->authenticatedRequest()['headers']
         );
 
@@ -83,10 +100,11 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_barcode_in_svg_format(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode?format=svg",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode?format=svg",
             $this->authenticatedRequest()['headers']
         );
 
@@ -101,13 +119,14 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_barcode_with_different_sizes(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $sizes = ['small', 'medium', 'large'];
 
         foreach ($sizes as $size) {
             $response = $this->getJson(
-                "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode?size={$size}",
+                "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode?size={$size}",
                 $this->authenticatedRequest()['headers']
             );
 
@@ -134,10 +153,11 @@ class ProductBarcodeTest extends TestCase
     {
         // Create another tenant with product
         $otherTenant = $this->createOtherTenant();
-        $product = $this->createTestProduct(['tenant_id' => $otherTenant->id]);
+        $productResult = $this->createTestProduct();
+        $productId = $productResult['id'];
 
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode",
             $this->authenticatedRequest()['headers']
         );
 
@@ -147,13 +167,14 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_cannot_generate_barcode_without_permission(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
         
         // Create user without products.view permission
         $userWithoutPermission = $this->createUserWithoutPermissions();
 
         $response = $this->actingAs($userWithoutPermission, 'api')
-            ->getJson("/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode");
+            ->getJson("/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode");
 
         $response->assertForbidden();
     }
@@ -161,14 +182,17 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_bulk_barcode_pdf(): void
     {
-        $product1 = $this->createTestProduct();
-        $product2 = $this->createTestProduct();
-        $product3 = $this->createTestProduct();
+        $product1Result = $this->createTestProduct();
+        $product1Id = $product1Result['id'];
+        $product2Result = $this->createTestProduct();
+        $product2Id = $product2Result['id'];
+        $product3Result = $this->createTestProduct();
+        $product3Id = $product3Result['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product1->id, $product2->id, $product3->id],
+                'product_ids' => [$product1Id, $product2Id, $product3Id],
                 'barcode_type' => 'code128',
                 'layout' => '4x6',
             ],
@@ -186,7 +210,8 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_bulk_barcode_with_different_layouts(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $layouts = ['4x6', '2x7', '1x10'];
 
@@ -194,7 +219,7 @@ class ProductBarcodeTest extends TestCase
             $response = $this->postJson(
                 "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
                 [
-                    'product_ids' => [$product->id],
+                    'product_ids' => [$productId],
                     'barcode_type' => 'code128',
                     'layout' => $layout,
                 ],
@@ -209,12 +234,13 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_bulk_barcode_with_custom_content(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product->id],
+                'product_ids' => [$productId],
                 'barcode_type' => 'code128',
                 'layout' => '4x6',
                 'show_name' => true,
@@ -247,12 +273,13 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_bulk_barcode_requires_valid_barcode_type(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product->id],
+                'product_ids' => [$productId],
                 'barcode_type' => 'invalid_type',
                 'layout' => '4x6',
             ],
@@ -266,12 +293,13 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_bulk_barcode_requires_valid_layout(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product->id],
+                'product_ids' => [$productId],
                 'barcode_type' => 'code128',
                 'layout' => 'invalid_layout',
             ],
@@ -285,14 +313,15 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_cannot_generate_bulk_barcode_without_permission(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
         $userWithoutPermission = $this->createUserWithoutPermissions();
 
         $response = $this->actingAs($userWithoutPermission, 'api')
             ->postJson(
                 "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
                 [
-                    'product_ids' => [$product->id],
+                    'product_ids' => [$productId],
                     'barcode_type' => 'code128',
                     'layout' => '4x6',
                 ]
@@ -304,16 +333,18 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_bulk_barcode_filters_products_by_tenant(): void
     {
-        $ownProduct = $this->createTestProduct();
-        
+        $ownProductResult = $this->createTestProduct();
+        $ownProductId = $ownProductResult['id'];
+
         // Create another tenant with product
         $otherTenant = $this->createOtherTenant();
-        $otherProduct = $this->createTestProduct(['tenant_id' => $otherTenant->id]);
+        $otherProductResult = $this->createTestProduct();
+        $otherProductId = $otherProductResult['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$ownProduct->id, $otherProduct->id],
+                'product_ids' => [$ownProductId, $otherProductId],
                 'barcode_type' => 'code128',
                 'layout' => '4x6',
             ],
@@ -321,7 +352,7 @@ class ProductBarcodeTest extends TestCase
         );
 
         $response->assertOk();
-        
+
         // Should only generate for own product
         // PDF should be generated but we can't easily verify content
         $this->assertNotEmpty($response->getContent());
@@ -330,13 +361,15 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_can_generate_bulk_barcode_with_qr_codes(): void
     {
-        $product1 = $this->createTestProduct();
-        $product2 = $this->createTestProduct();
+        $product1Result = $this->createTestProduct();
+        $product1Id = $product1Result['id'];
+        $product2Result = $this->createTestProduct();
+        $product2Id = $product2Result['id'];
 
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product1->id, $product2->id],
+                'product_ids' => [$product1Id, $product2Id],
                 'barcode_type' => 'qr',
                 'layout' => '4x6',
             ],
@@ -350,11 +383,12 @@ class ProductBarcodeTest extends TestCase
     /** @test */
     public function test_barcode_endpoints_require_authentication(): void
     {
-        $product = $this->createTestProduct();
+        $productResult = $this->createTestProduct();
+$productId = $productResult['id'];
 
         // Test single barcode endpoint
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode"
+            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode"
         );
         $response->assertUnauthorized();
 
@@ -362,7 +396,7 @@ class ProductBarcodeTest extends TestCase
         $response = $this->postJson(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
-                'product_ids' => [$product->id],
+                'product_ids' => [$productId],
                 'barcode_type' => 'code128',
                 'layout' => '4x6',
             ]

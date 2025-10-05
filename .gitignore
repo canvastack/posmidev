@@ -7,5 +7,6 @@ devs/
 .zenc*/
 web/*example/
 storage/*
+storage/logs/laravel.log
 public/storage/
 bootstrap/cache/*.php

@@ -67,7 +67,7 @@ class BarcodeController extends Controller
     public function generate(Request $request, string $tenantId, string $productId)
     {
         // Authorization check
-        if (Gate::denies('view', Product::class)) {
+        if (Gate::denies('view', [Product::class, $tenantId])) {
             abort(403, 'Unauthorized to view products');
         }
 
@@ -186,7 +186,7 @@ class BarcodeController extends Controller
     public function bulkGenerate(Request $request, string $tenantId)
     {
         // Authorization check
-        if (Gate::denies('view', Product::class)) {
+        if (Gate::denies('view', [Product::class, $tenantId])) {
             abort(403, 'Unauthorized to view products');
         }
 

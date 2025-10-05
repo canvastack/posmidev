@@ -492,7 +492,7 @@ class ProductController extends Controller
         $this->authorize('create', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240', // Max 10MB
+            'file' => 'required|file|mimes:xlsx,xls,csv,txt,text/csv,text/plain|max:10240', // Max 10MB
         ]);
 
         try {

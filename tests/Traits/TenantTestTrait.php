@@ -190,4 +190,26 @@ trait TenantTestTrait
         $this->assertIsInt($response['per_page']);
         $this->assertIsInt($response['total']);
     }
+
+    protected function createOtherTenant(): Tenant
+    {
+        return Tenant::create([
+            'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
+            'name' => 'Other Test Store',
+        ]);
+    }
+
+    protected function createUserWithoutPermissions(): User
+    {
+        $user = User::create([
+            'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
+            'tenant_id' => $this->tenant->id,
+            'name' => 'User Without Permissions',
+            'email' => 'nouser@test.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // Don't assign any roles or permissions
+        return $user;
+    }
 }

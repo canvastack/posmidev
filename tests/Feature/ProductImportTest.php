@@ -12,59 +12,49 @@ use Src\Pms\Infrastructure\Models\Tenant;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Database\Seeders\PermissionSeeder;
+use Tests\Traits\TenantTestTrait;
 
 class ProductImportTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TenantTestTrait;
 
-    private Tenant $tenant;
+    private Tenant $otherTenant;
     private User $adminUser;
     private User $managerUser;
     private User $cashierUser;
-    private Tenant $otherTenant;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Seed permissions
-        $this->seed(PermissionSeeder::class);
-
-        // Create test tenants
-        $this->tenant = Tenant::factory()->create();
+        $this->setUpTenantWithAdminUser();
         $this->otherTenant = Tenant::factory()->create();
 
-        // Set permission team context for tenant 1
+        // Create additional users with different roles for testing
+        $this->createAdditionalUsers();
+    }
+
+    protected function createAdditionalUsers(): void
+    {
+        // Set permission team context for tenant
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
 
-        // Create roles for this tenant
-        $adminRole = Role::create([
-            'name' => 'admin',
-            'guard_name' => 'api',
-            'tenant_id' => $this->tenant->id,
-        ]);
-
-        $managerRole = Role::create([
+        // Create manager role
+        $managerRole = Role::firstOrCreate([
             'name' => 'manager',
             'guard_name' => 'api',
             'tenant_id' => $this->tenant->id,
         ]);
+        $managerRole->givePermissionTo(['products.view', 'products.create', 'products.update']);
 
-        $cashierRole = Role::create([
+        // Create cashier role
+        $cashierRole = Role::firstOrCreate([
             'name' => 'cashier',
             'guard_name' => 'api',
             'tenant_id' => $this->tenant->id,
         ]);
-
-        // Assign permissions to roles
-        $adminRole->givePermissionTo(['products.view', 'products.create', 'products.update', 'products.delete']);
-        $managerRole->givePermissionTo(['products.view', 'products.create', 'products.update']);
         $cashierRole->givePermissionTo(['products.view']);
 
-        // Create users with different permission levels
-        $this->adminUser = User::factory()->create(['tenant_id' => $this->tenant->id]);
-        $this->adminUser->assignRole($adminRole);
-
+        // Create users with different roles
         $this->managerUser = User::factory()->create(['tenant_id' => $this->tenant->id]);
         $this->managerUser->assignRole($managerRole);
 
@@ -78,7 +68,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function admin_can_download_import_template()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $response = $this->get("/api/v1/tenants/{$this->tenant->id}/products/import/template");
 
@@ -89,8 +79,6 @@ class ProductImportTest extends TestCase
     /** @test */
     public function admin_can_import_valid_products()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         $category = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Electronics',
@@ -103,9 +91,11 @@ class ProductImportTest extends TestCase
             ['MOUSE-001', 'Wireless Mouse', 'Ergonomic mouse', 'Electronics', '25.00', '15.00', '50', 'active'],
         ]);
 
-        $response = $this->postJson("/api/v1/tenants/{$this->tenant->id}/products/import", [
-            'file' => $csv,
-        ]);
+        $response = $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/import",
+            ['file' => $csv],
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -134,7 +124,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_skips_duplicate_sku_within_tenant()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create existing product
         Product::factory()->create([
@@ -167,8 +157,6 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_validates_required_fields()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
             ['', 'Missing SKU', '100.00'], // Missing SKU
@@ -190,7 +178,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_validates_numeric_fields()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price', 'Cost Price', 'Stock'],
@@ -210,7 +198,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_validates_status_field()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price', 'Status'],
@@ -233,7 +221,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_finds_category_by_name_within_tenant()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $myCategory = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -251,6 +239,12 @@ class ProductImportTest extends TestCase
             ['PROD-001', 'Product 1', '100.00', 'Electronics'],
         ]);
 
+        $this->actingAs($this->user, 'api');
+
+        $this->actingAs($this->user, 'api');
+
+        $this->actingAs($this->user, 'api');
+
         $response = $this->postJson("/api/v1/tenants/{$this->tenant->id}/products/import", [
             'file' => $csv,
         ]);
@@ -267,7 +261,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_handles_missing_category_gracefully()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price', 'Category'],
@@ -289,7 +283,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_products_are_scoped_to_correct_tenant()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
@@ -351,7 +345,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function user_cannot_import_to_another_tenant()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
@@ -383,7 +377,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_rejects_invalid_file_types()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
 
@@ -397,7 +391,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_handles_large_file()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create CSV with 1000 rows
         $rows = [['SKU', 'Name', 'Price']];
@@ -421,7 +415,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_returns_detailed_error_messages()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
@@ -449,7 +443,7 @@ class ProductImportTest extends TestCase
     /** @test */
     public function import_sets_default_values_for_optional_fields()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $csv = $this->createCsvFile([
             ['SKU', 'Name', 'Price'],
@@ -473,6 +467,7 @@ class ProductImportTest extends TestCase
      */
     protected function createCsvFile(array $rows): UploadedFile
     {
+        // Use the same approach as the working test
         $filename = 'test_import_' . uniqid() . '.csv';
         $path = sys_get_temp_dir() . '/' . $filename;
 
@@ -485,16 +480,4 @@ class ProductImportTest extends TestCase
         return new UploadedFile($path, $filename, 'text/csv', null, true);
     }
 
-    protected function tearDown(): void
-    {
-        // Clean up temporary CSV files
-        $files = glob(sys_get_temp_dir() . '/test_import_*.csv');
-        foreach ($files as $file) {
-            if (file_exists($file)) {
-                @unlink($file);
-            }
-        }
-
-        parent::tearDown();
-    }
 }

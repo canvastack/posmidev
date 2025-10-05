@@ -11,59 +11,49 @@ use Src\Pms\Infrastructure\Models\Tenant;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Database\Seeders\PermissionSeeder;
+use Tests\Traits\TenantTestTrait;
 
 class ProductExportTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, TenantTestTrait;
 
-    private Tenant $tenant;
+    private Tenant $otherTenant;
     private User $adminUser;
     private User $managerUser;
     private User $cashierUser;
-    private Tenant $otherTenant;
 
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Seed permissions
-        $this->seed(PermissionSeeder::class);
-
-        // Create test tenants
-        $this->tenant = Tenant::factory()->create();
+        $this->setUpTenantWithAdminUser();
         $this->otherTenant = Tenant::factory()->create();
 
-        // Set permission team context for tenant 1
+        // Create additional users with different roles for testing
+        $this->createAdditionalUsers();
+    }
+
+    protected function createAdditionalUsers(): void
+    {
+        // Set permission team context for tenant
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
 
-        // Create roles for this tenant
-        $adminRole = Role::create([
-            'name' => 'admin',
-            'guard_name' => 'api',
-            'tenant_id' => $this->tenant->id,
-        ]);
-
-        $managerRole = Role::create([
+        // Create manager role
+        $managerRole = Role::firstOrCreate([
             'name' => 'manager',
             'guard_name' => 'api',
             'tenant_id' => $this->tenant->id,
         ]);
+        $managerRole->givePermissionTo(['products.view', 'products.create', 'products.update']);
 
-        $cashierRole = Role::create([
+        // Create cashier role
+        $cashierRole = Role::firstOrCreate([
             'name' => 'cashier',
             'guard_name' => 'api',
             'tenant_id' => $this->tenant->id,
         ]);
-
-        // Assign permissions to roles
-        $adminRole->givePermissionTo(['products.view', 'products.create', 'products.update', 'products.delete']);
-        $managerRole->givePermissionTo(['products.view', 'products.create', 'products.update']);
         $cashierRole->givePermissionTo(['products.view']);
 
-        // Create users with different permission levels
-        $this->adminUser = User::factory()->create(['tenant_id' => $this->tenant->id]);
-        $this->adminUser->assignRole($adminRole);
-
+        // Create users with different roles
         $this->managerUser = User::factory()->create(['tenant_id' => $this->tenant->id]);
         $this->managerUser->assignRole($managerRole);
 
@@ -77,14 +67,15 @@ class ProductExportTest extends TestCase
     /** @test */
     public function admin_can_export_products_as_xlsx()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         // Create test products
         $products = Product::factory()->count(5)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx");
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx",
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -93,14 +84,15 @@ class ProductExportTest extends TestCase
     /** @test */
     public function admin_can_export_products_as_csv()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         // Create test products
         Product::factory()->count(3)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv");
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/export?format=csv",
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
@@ -109,13 +101,14 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_defaults_to_xlsx_when_format_not_specified()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         Product::factory()->count(2)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export");
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/export",
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -124,8 +117,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_only_includes_tenant_products()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         // Create products for this tenant
         $myProducts = Product::factory()->count(3)->create([
             'tenant_id' => $this->tenant->id,
@@ -136,7 +127,10 @@ class ProductExportTest extends TestCase
             'tenant_id' => $this->otherTenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv");
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/export?format=csv",
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         
@@ -153,7 +147,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_search_filter()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create products with different names
         Product::factory()->create([
@@ -190,7 +184,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_category_filter()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create categories
         $category1 = Category::factory()->create([
@@ -230,7 +224,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_stock_filter()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create products with different stock levels
         Product::factory()->create([
@@ -264,7 +258,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_price_range_filter()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create products with different prices
         Product::factory()->create([
@@ -298,7 +292,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_multiple_filters_combined()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $category = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -375,7 +369,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function user_cannot_export_products_from_another_tenant()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create products for another tenant
         Product::factory()->count(3)->create([
@@ -403,7 +397,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_handles_large_dataset()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         // Create 500 products
         Product::factory()->count(500)->create([
@@ -418,13 +412,14 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_includes_correct_headers_in_csv()
     {
-        $this->actingAs($this->adminUser, 'api');
-
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv");
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/products/export?format=csv",
+            $this->authenticatedRequest()['headers']
+        );
 
         $response->assertStatus(200);
         
@@ -442,7 +437,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_returns_empty_file_when_no_products_match_filters()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -465,7 +460,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_includes_category_name_in_export()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         $category = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -491,7 +486,7 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_calculates_profit_margin_correctly()
     {
-        $this->actingAs($this->adminUser, 'api');
+        $this->actingAs($this->user, 'api');
 
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
