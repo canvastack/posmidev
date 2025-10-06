@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             EavBlueprintsSeeder::class, // seed default customer blueprint
             PublicSiteContentSeeder::class, // seed public site navigation/company/homepage
             ContentPagesSeeder::class, // seed about/company pages
+            VariantTemplateSeeder::class, // seed system variant templates (WEEK 14)
         ]);
     }
 }

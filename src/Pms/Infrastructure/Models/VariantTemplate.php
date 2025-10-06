@@ -192,7 +192,7 @@ class VariantTemplate extends Model
     /**
      * Get attributes from configuration
      */
-    public function getAttributes(): array
+    public function getConfigurationAttributes(): array
     {
         return $this->configuration['attributes'] ?? [];
     }
@@ -266,7 +266,7 @@ class VariantTemplate extends Model
      */
     public function calculateEstimatedVariantCount(): int
     {
-        $attributes = $this->getAttributes();
+        $attributes = $this->getConfigurationAttributes();
         
         if (empty($attributes)) {
             return 0;
@@ -295,7 +295,7 @@ class VariantTemplate extends Model
      */
     public function generateVariantCombinations(): array
     {
-        $attributes = $this->getAttributes();
+        $attributes = $this->getConfigurationAttributes();
         
         if (empty($attributes)) {
             return [];
