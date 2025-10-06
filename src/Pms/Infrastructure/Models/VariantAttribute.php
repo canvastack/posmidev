@@ -94,9 +94,12 @@ class VariantAttribute extends Model
      */
     public function scopeSearch(Builder $query, string $search): Builder
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('name', 'ILIKE', "%{$search}%")
-                ->orWhere('description', 'ILIKE', "%{$search}%");
+        $driver = $query->getConnection()->getDriverName();
+        $operator = $driver === 'pgsql' ? 'ILIKE' : 'LIKE';
+        
+        return $query->where(function ($q) use ($search, $operator) {
+            $q->where('name', $operator, "%{$search}%")
+                ->orWhere('description', $operator, "%{$search}%");
         });
     }
 

@@ -60,7 +60,7 @@ class VariantAnalyticsController extends Controller
         $periodEnd = $request->get('period_end');
 
         $query = VariantAnalytics::query()
-            ->whereIn('variant_id', $product->variants()->pluck('id'))
+            ->whereIn('product_variant_id', $product->variants()->pluck('id'))
             ->where('period_type', $periodType);
 
         if ($periodStart) {
@@ -76,15 +76,15 @@ class VariantAnalyticsController extends Controller
             ->get();
 
         // Group by variant
-        $byVariant = $analytics->groupBy('variant_id')->map(function ($variantAnalytics) {
+        $byVariant = $analytics->groupBy('product_variant_id')->map(function ($variantAnalytics) {
             return [
-                'variant' => new ProductVariantResource($variantAnalytics->first()->variant),
+                'variant' => new ProductVariantResource($variantAnalytics->first()->productVariant),
                 'analytics' => VariantAnalyticsResource::collection($variantAnalytics),
                 'summary' => [
-                    'total_revenue' => $variantAnalytics->sum('revenue'),
+                    'total_revenue' => (float) $variantAnalytics->sum('revenue'),
                     'total_orders' => $variantAnalytics->sum('total_orders'),
                     'total_quantity_sold' => $variantAnalytics->sum('quantity_sold'),
-                    'total_profit' => $variantAnalytics->sum('profit'),
+                    'total_profit' => (float) $variantAnalytics->sum('profit'),
                 ],
             ];
         })->values();
@@ -165,7 +165,7 @@ class VariantAnalyticsController extends Controller
         $periodType = $validated['period_type'] ?? 'monthly';
 
         $query = VariantAnalytics::query()
-            ->whereIn('variant_id', $validated['variant_ids'])
+            ->whereIn('product_variant_id', $validated['variant_ids'])
             ->where('period_type', $periodType);
 
         if (isset($validated['period_start'])) {
@@ -179,19 +179,22 @@ class VariantAnalyticsController extends Controller
         $analytics = $query->with('variant')->get();
 
         // Group by variant
-        $comparison = $analytics->groupBy('variant_id')->map(function ($variantAnalytics) {
-            $variant = $variantAnalytics->first()->variant;
+        $comparison = $analytics->groupBy('product_variant_id')->map(function ($variantAnalytics) {
+            $variant = $variantAnalytics->first()->productVariant;
+            $totalRevenue = (float) $variantAnalytics->sum('revenue');
+            $totalProfit = (float) $variantAnalytics->sum('profit');
+            
             return [
                 'variant' => new ProductVariantResource($variant),
                 'summary' => [
-                    'total_revenue' => $variantAnalytics->sum('revenue'),
-                    'total_profit' => $variantAnalytics->sum('profit'),
+                    'total_revenue' => $totalRevenue,
+                    'total_profit' => $totalProfit,
                     'total_orders' => $variantAnalytics->sum('total_orders'),
                     'quantity_sold' => $variantAnalytics->sum('quantity_sold'),
-                    'avg_conversion_rate' => round($variantAnalytics->avg('conversion_rate'), 2),
-                    'avg_turnover_rate' => round($variantAnalytics->avg('turnover_rate'), 2),
-                    'avg_profit_margin' => $variantAnalytics->avg('profit') > 0 
-                        ? round(($variantAnalytics->sum('profit') / $variantAnalytics->sum('revenue')) * 100, 2)
+                    'avg_conversion_rate' => round((float) $variantAnalytics->avg('conversion_rate'), 2),
+                    'avg_turnover_rate' => round((float) $variantAnalytics->avg('stock_turnover_rate'), 2),
+                    'avg_profit_margin' => $totalRevenue > 0 
+                        ? round(($totalProfit / $totalRevenue) * 100, 2)
                         : 0,
                 ],
                 'analytics' => VariantAnalyticsResource::collection($variantAnalytics),
@@ -214,21 +217,21 @@ class VariantAnalyticsController extends Controller
         $periodType = $request->get('period_type', 'monthly');
 
         // Get latest analytics for all variants in this tenant
+        // Using join instead of whereHas for better performance
         $latestAnalytics = VariantAnalytics::query()
-            ->whereHas('variant', function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
+            ->join('product_variants', 'variant_analytics.product_variant_id', '=', 'product_variants.id')
+            ->where('product_variants.tenant_id', $tenantId)
+            ->where('variant_analytics.period_type', $periodType)
+            ->select('variant_analytics.*')
+            ->whereIn('variant_analytics.id', function ($query) use ($periodType, $tenantId) {
+                $query->selectRaw('MAX(va.id)')
+                    ->from('variant_analytics as va')
+                    ->join('product_variants as pv', 'va.product_variant_id', '=', 'pv.id')
+                    ->where('pv.tenant_id', $tenantId)
+                    ->where('va.period_type', $periodType)
+                    ->groupBy('va.product_variant_id');
             })
-            ->where('period_type', $periodType)
-            ->whereIn('id', function ($query) use ($periodType, $tenantId) {
-                $query->selectRaw('MAX(id)')
-                    ->from('variant_analytics')
-                    ->whereHas('variant', function ($q) use ($tenantId) {
-                        $q->where('tenant_id', $tenantId);
-                    })
-                    ->where('period_type', $periodType)
-                    ->groupBy('variant_id');
-            })
-            ->with('variant')
+            ->with('productVariant')
             ->get();
 
         // Group by performance status
@@ -257,21 +260,21 @@ class VariantAnalyticsController extends Controller
                 ],
                 'poor' => [
                     'count' => $byStatus->get('poor', collect())->count(),
-                    'total_revenue' => $byStatus->get('poor', collect())->sum('revenue'),
-                    'total_profit' => $byStatus->get('poor', collect())->sum('profit'),
+                    'total_revenue' => (float) $byStatus->get('poor', collect())->sum('revenue'),
+                    'total_profit' => (float) $byStatus->get('poor', collect())->sum('profit'),
                     'variants' => $byStatus->get('poor', collect())->map(function ($analytics) {
                         return [
-                            'variant' => new ProductVariantResource($analytics->variant),
-                            'revenue' => $analytics->revenue,
-                            'profit' => $analytics->profit,
-                            'conversion_rate' => $analytics->getConversionRate(),
+                            'variant' => new ProductVariantResource($analytics->productVariant),
+                            'revenue' => (float) $analytics->revenue,
+                            'profit' => (float) $analytics->profit,
+                            'conversion_rate' => (float) $analytics->conversion_rate,
                         ];
                     }),
                 ],
             ],
             'totals' => [
-                'revenue' => $latestAnalytics->sum('revenue'),
-                'profit' => $latestAnalytics->sum('profit'),
+                'revenue' => (float) $latestAnalytics->sum('revenue'),
+                'profit' => (float) $latestAnalytics->sum('profit'),
                 'orders' => $latestAnalytics->sum('total_orders'),
                 'quantity_sold' => $latestAnalytics->sum('quantity_sold'),
             ],

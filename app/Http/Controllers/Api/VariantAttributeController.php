@@ -30,9 +30,12 @@ class VariantAttributeController extends Controller
 
         // Search filter
         if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'ILIKE', "%{$search}%")
-                    ->orWhere('slug', 'ILIKE', "%{$search}%");
+            $driver = DB::connection()->getDriverName();
+            $operator = $driver === 'pgsql' ? 'ILIKE' : 'LIKE';
+            
+            $query->where(function ($q) use ($search, $operator) {
+                $q->where('name', $operator, "%{$search}%")
+                    ->orWhere('slug', $operator, "%{$search}%");
             });
         }
 

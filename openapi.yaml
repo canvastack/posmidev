@@ -2039,6 +2039,204 @@ paths:
         '200':
           description: Stock released
 
+  # ========== VARIANT IMPORT/EXPORT ==========
+  /tenants/{tenantId}/variants/export:
+    get:
+      tags: [Product Variants]
+      summary: Export variants to Excel/CSV
+      operationId: exportVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: format
+          schema:
+            type: string
+            enum: [xlsx, csv]
+            default: xlsx
+        - in: query
+          name: product_id
+          schema:
+            type: string
+            format: uuid
+          description: Filter by product ID
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search in SKU and name
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Successful export
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Forbidden - Insufficient permissions
+
+  /tenants/{tenantId}/variants/import/template:
+    get:
+      tags: [Product Variants]
+      summary: Download import template
+      operationId: downloadVariantsImportTemplate
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Template downloaded
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Forbidden - Insufficient permissions
+
+  /tenants/{tenantId}/variants/import:
+    post:
+      tags: [Product Variants]
+      summary: Import variants from Excel/CSV
+      operationId: importVariants
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Excel or CSV file (max 10MB)
+                mode:
+                  type: string
+                  enum: [create, update]
+                  default: create
+                  description: Create new variants or update existing ones
+      responses:
+        '200':
+          description: Import completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      total_rows:
+                        type: integer
+                      successful:
+                        type: integer
+                      failed:
+                        type: integer
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            row:
+                              type: integer
+                            errors:
+                              type: array
+                              items:
+                                type: string
+        '422':
+          description: Validation error
+        '413':
+          description: File too large (max 10MB)
+
+  # ========== VARIANT ANALYTICS ==========
+  /tenants/{tenantId}/products/{productId}/variants/analytics:
+    get:
+      tags: [Product Variants]
+      summary: Get analytics for product variants
+      operationId: getVariantAnalytics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+        - in: query
+          name: days
+          schema:
+            type: integer
+            default: 30
+            minimum: 1
+            maximum: 365
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  top_performers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantAnalytics'
+                  underperformers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantAnalytics'
+                  stock_alerts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        variant_id:
+                          type: string
+                          format: uuid
+                        sku:
+                          type: string
+                        name:
+                          type: string
+                        available_stock:
+                          type: integer
+                        low_stock_threshold:
+                          type: integer
+                  recommendations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        variant_id:
+                          type: string
+                          format: uuid
+                        recommendation:
+                          type: string
+                        reason:
+                          type: string
+        '403':
+          description: Forbidden - Insufficient permissions
+
   # ========== VARIANT ATTRIBUTES ==========
   /tenants/{tenantId}/variant-attributes:
     get:

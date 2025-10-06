@@ -27,6 +27,52 @@ class Kernel extends ConsoleKernel
             ->onFailure(function () {
                 \Log::error('Low stock alert check failed');
             });
+
+        // Phase 6: Variant Analytics - Daily Calculation
+        // Runs daily at 02:00 AM (Asia/Jakarta timezone)
+        // Calculates daily analytics for all variants across all tenants
+        // Includes sales, stock, conversion metrics, and performance ranks
+        $schedule->command('variants:calculate-analytics')
+            ->dailyAt('02:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onSuccess(function () {
+                \Log::info('Variant analytics calculation completed successfully');
+            })
+            ->onFailure(function () {
+                \Log::error('Variant analytics calculation failed');
+            });
+
+        // Phase 6: Variant Analytics - Weekly Aggregation
+        // Runs every Monday at 03:00 AM (Asia/Jakarta timezone)
+        // Aggregates daily analytics into weekly summaries
+        $schedule->command('variants:calculate-analytics --aggregate=weekly')
+            ->weeklyOn(1, '03:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onSuccess(function () {
+                \Log::info('Weekly variant analytics aggregation completed');
+            })
+            ->onFailure(function () {
+                \Log::error('Weekly variant analytics aggregation failed');
+            });
+
+        // Phase 6: Variant Analytics - Monthly Aggregation
+        // Runs on the 1st day of each month at 04:00 AM (Asia/Jakarta timezone)
+        // Aggregates daily analytics into monthly summaries
+        $schedule->command('variants:calculate-analytics --aggregate=monthly')
+            ->monthlyOn(1, '04:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onSuccess(function () {
+                \Log::info('Monthly variant analytics aggregation completed');
+            })
+            ->onFailure(function () {
+                \Log::error('Monthly variant analytics aggregation failed');
+            });
     }
 
     /**

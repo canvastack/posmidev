@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductVariantRequest;
 use App\Http\Requests\ProductVariantBulkRequest;
 use App\Http\Resources\ProductVariantResource;
+use App\Exports\VariantsExport;
+use App\Imports\VariantsImport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\Pms\Infrastructure\Models\Product;
 use Src\Pms\Infrastructure\Models\ProductVariant;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ProductVariantController extends Controller
 {
@@ -27,6 +31,9 @@ class ProductVariantController extends Controller
         $perPage = $request->get('per_page', 50);
         $search = $request->get('search');
         $isActive = $request->get('is_active');
+        $minPrice = $request->get('min_price');
+        $maxPrice = $request->get('max_price');
+        $stockStatus = $request->get('stock_status');
         $sortBy = $request->get('sort_by', 'sort_order');
         $sortOrder = $request->get('sort_order', 'asc');
 
@@ -43,6 +50,30 @@ class ProductVariantController extends Controller
         // Active filter
         if ($isActive !== null) {
             $query->where('is_active', filter_var($isActive, FILTER_VALIDATE_BOOLEAN));
+        }
+
+        // Price range filter
+        if ($minPrice !== null) {
+            $query->where('price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        // Stock status filter
+        if ($stockStatus) {
+            switch ($stockStatus) {
+                case 'out_of_stock':
+                    $query->where('stock', '<=', 0);
+                    break;
+                case 'low_stock':
+                    $query->where('stock', '>', 0)
+                          ->whereColumn('stock', '<=', 'reorder_point');
+                    break;
+                case 'in_stock':
+                    $query->where('stock', '>', 0);
+                    break;
+            }
         }
 
         // Sorting
@@ -67,6 +98,14 @@ class ProductVariantController extends Controller
         $this->authorize('update', [Product::class, $tenantId]);
 
         $product = Product::forTenant($tenantId)->findOrFail($productId);
+
+        // Check if product has variants enabled
+        if (!$product->has_variants) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => ['product' => ['Product does not have variants enabled']]
+            ], 422);
+        }
 
         try {
             DB::beginTransaction();
@@ -270,17 +309,21 @@ class ProductVariantController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Bulk operation completed',
-                'created' => count($variants),
-                'failed' => count($errors),
-                'data' => ProductVariantResource::collection($variants),
-                'errors' => $errors,
+                'data' => [
+                    'created' => count($variants),
+                    'failed' => count($errors),
+                    'variants' => ProductVariantResource::collection($variants),
+                    'errors' => $errors,
+                ],
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
+                'success' => false,
                 'message' => 'Bulk operation failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -295,8 +338,8 @@ class ProductVariantController extends Controller
         $this->authorize('update', [Product::class, $tenantId]);
 
         $request->validate([
-            'variants' => 'required|array',
-            'variants.*.id' => 'required|uuid|exists:product_variants,id',
+            'updates' => 'required|array',
+            'updates.*.id' => 'required|uuid|exists:product_variants,id',
         ]);
 
         try {
@@ -305,7 +348,7 @@ class ProductVariantController extends Controller
             $updated = [];
             $errors = [];
 
-            foreach ($request->variants as $index => $variantData) {
+            foreach ($request->updates as $index => $variantData) {
                 try {
                     $variant = ProductVariant::forTenant($tenantId)
                         ->forProduct($productId)
@@ -322,17 +365,21 @@ class ProductVariantController extends Controller
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Bulk update completed',
-                'updated' => count($updated),
-                'failed' => count($errors),
-                'data' => ProductVariantResource::collection($updated),
-                'errors' => $errors,
+                'data' => [
+                    'updated' => count($updated),
+                    'failed' => count($errors),
+                    'variants' => ProductVariantResource::collection($updated),
+                    'errors' => $errors,
+                ],
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
+                'success' => false,
                 'message' => 'Bulk update failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -347,29 +394,51 @@ class ProductVariantController extends Controller
         $this->authorize('delete', [Product::class, $tenantId]);
 
         $request->validate([
-            'variant_ids' => 'required|array',
-            'variant_ids.*' => 'required|uuid|exists:product_variants,id',
+            'ids' => 'required|array',
+            'ids.*' => 'required|uuid|exists:product_variants,id',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $deleted = ProductVariant::forTenant($tenantId)
+            $totalRequested = count($request->ids);
+            
+            $variantsToDelete = ProductVariant::forTenant($tenantId)
                 ->forProduct($productId)
-                ->whereIn('id', $request->variant_ids)
-                ->delete();
+                ->whereIn('id', $request->ids)
+                ->get();
+
+            $deleted = 0;
+            $errors = [];
+
+            foreach ($variantsToDelete as $index => $variant) {
+                try {
+                    $variant->delete();
+                    $deleted++;
+                } catch (\Exception $e) {
+                    $errors[$variant->id] = $e->getMessage();
+                }
+            }
+
+            $failed = $totalRequested - $deleted;
 
             DB::commit();
 
             return response()->json([
+                'success' => true,
                 'message' => 'Bulk delete completed',
-                'deleted' => $deleted,
+                'data' => [
+                    'deleted' => $deleted,
+                    'failed' => $failed,
+                    'errors' => $errors,
+                ],
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
+                'success' => false,
                 'message' => 'Bulk delete failed',
                 'error' => $e->getMessage()
             ], 500);
@@ -384,7 +453,7 @@ class ProductVariantController extends Controller
         $this->authorize('update', [Product::class, $tenantId]);
 
         $request->validate([
-            'quantity' => 'required|integer|min:0',
+            'adjustment' => 'required|integer',
             'reason' => 'nullable|string|max:255',
         ]);
 
@@ -393,7 +462,9 @@ class ProductVariantController extends Controller
             ->findOrFail($variantId);
 
         $oldStock = $variant->stock;
-        $variant->update(['stock' => $request->quantity]);
+        $newStock = max(0, $oldStock + $request->adjustment);
+        
+        $variant->update(['stock' => $newStock]);
 
         // Log activity
         activity('product_variant')
@@ -401,7 +472,8 @@ class ProductVariantController extends Controller
             ->causedBy(auth()->user())
             ->withProperties([
                 'old_stock' => $oldStock,
-                'new_stock' => $request->quantity,
+                'new_stock' => $newStock,
+                'adjustment' => $request->adjustment,
                 'reason' => $request->reason,
             ])
             ->log('Stock updated');
@@ -461,5 +533,177 @@ class ProductVariantController extends Controller
             'released' => $request->quantity,
             'available' => $variant->available_stock,
         ]);
+    }
+
+    /**
+     * Export variants to Excel/CSV
+     * 
+     * IMMUTABLE RULES COMPLIANT:
+     * - Strict tenant isolation via tenant_id
+     * - Authorization via Spatie Permission (guard: api)
+     * - No cross-tenant data access
+     * 
+     * @param Request $request
+     * @param string $tenantId
+     * @return BinaryFileResponse
+     */
+    public function export(Request $request, string $tenantId): BinaryFileResponse
+    {
+        // Authorization: Check 'view' permission for products
+        $this->authorize('view', [Product::class, $tenantId]);
+
+        $request->validate([
+            'format' => 'nullable|in:xlsx,csv',
+            'product_id' => 'nullable|uuid',
+            'status' => 'nullable|in:active,inactive,discontinued',
+        ]);
+
+        $format = $request->get('format', 'xlsx');
+        $productId = $request->get('product_id');
+        $search = $request->get('search');
+        $status = $request->get('status');
+
+        // IMMUTABLE RULE: Pass tenant_id to ensure tenant isolation
+        $export = new VariantsExport(
+            $tenantId,
+            $productId,
+            $search,
+            $status
+        );
+
+        $fileName = 'product_variants_' . now()->format('Y-m-d_His') . '.' . $format;
+
+        return Excel::download($export, $fileName);
+    }
+
+    /**
+     * Download import template
+     * 
+     * IMMUTABLE RULES COMPLIANT:
+     * - Authorization via Spatie Permission (guard: api)
+     * - Tenant-scoped template generation
+     * 
+     * @param Request $request
+     * @param string $tenantId
+     * @return BinaryFileResponse
+     */
+    public function downloadTemplate(Request $request, string $tenantId): BinaryFileResponse
+    {
+        // Authorization: Check 'create' permission for products
+        $this->authorize('create', [Product::class, $tenantId]);
+
+        // Create a sample template with headers and example data
+        $data = [
+            ['Product SKU', 'Variant Name', 'Variant SKU', 'Barcode', 'Price', 'Cost Price', 'Stock', 'Reserved Stock', 'Weight', 'Attributes', 'Status'],
+            ['PROD-001', 'Red - Small', 'PROD-001-RED-S', 'BAR001', '29.99', '15.00', '100', '5', '250', 'Color: Red, Size: Small', 'Active'],
+            ['PROD-001', 'Blue - Medium', 'PROD-001-BLUE-M', 'BAR002', '34.99', '18.00', '75', '3', '300', 'Color: Blue, Size: Medium', 'Active'],
+            ['PROD-002', 'Large', 'PROD-002-L', 'BAR003', '49.99', '25.00', '50', '0', '400', 'Size: Large', 'Active'],
+        ];
+
+        $fileName = 'variant_import_template_' . now()->format('Y-m-d') . '.xlsx';
+
+        return Excel::download(
+            new class($data) implements \Maatwebsite\Excel\Concerns\FromArray {
+                protected $data;
+
+                public function __construct($data)
+                {
+                    $this->data = $data;
+                }
+
+                public function array(): array
+                {
+                    return $this->data;
+                }
+            },
+            $fileName
+        );
+    }
+
+    /**
+     * Import variants from Excel/CSV
+     * 
+     * IMMUTABLE RULES COMPLIANT:
+     * - Strict tenant isolation via tenant_id
+     * - Authorization via Spatie Permission (guard: api)
+     * - All imported data scoped to tenant
+     * - Product references validated within tenant
+     * 
+     * @param Request $request
+     * @param string $tenantId
+     * @return JsonResponse
+     */
+    public function import(Request $request, string $tenantId): JsonResponse
+    {
+        // Authorization: Check 'create' permission for products
+        $this->authorize('create', [Product::class, $tenantId]);
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv,txt,text/csv,text/plain|max:10240', // Max 10MB
+            'update_existing' => 'nullable|boolean',
+        ]);
+
+        try {
+            $updateExisting = $request->boolean('update_existing', false);
+
+            // IMMUTABLE RULE: Pass tenant_id to ensure all imports are tenant-scoped
+            $import = new VariantsImport($tenantId, $updateExisting);
+            
+            Excel::import($import, $request->file('file'));
+
+            $errors = [];
+            foreach ($import->errors() as $error) {
+                $errors[] = [
+                    'row' => $error->row(),
+                    'attribute' => $error->attribute(),
+                    'errors' => $error->errors(),
+                    'values' => $error->values(),
+                ];
+            }
+
+            $totalProcessed = $import->getImportedCount() + $import->getUpdatedCount();
+            $message = $totalProcessed > 0 
+                ? "Successfully processed {$totalProcessed} variants" 
+                : 'No variants were processed';
+
+            if ($import->getImportedCount() > 0 && $import->getUpdatedCount() > 0) {
+                $message = "Imported {$import->getImportedCount()} new variants and updated {$import->getUpdatedCount()} existing variants";
+            } elseif ($import->getImportedCount() > 0) {
+                $message = "Successfully imported {$import->getImportedCount()} variants";
+            } elseif ($import->getUpdatedCount() > 0) {
+                $message = "Successfully updated {$import->getUpdatedCount()} variants";
+            }
+
+            return response()->json([
+                'success' => true,
+                'imported' => $import->getImportedCount(),
+                'updated' => $import->getUpdatedCount(),
+                'skipped' => $import->getSkippedCount(),
+                'total_errors' => count($errors),
+                'errors' => $errors,
+                'message' => $message,
+            ]);
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = [];
+            foreach ($e->failures() as $failure) {
+                $failures[] = [
+                    'row' => $failure->row(),
+                    'attribute' => $failure->attribute(),
+                    'errors' => $failure->errors(),
+                    'values' => $failure->values(),
+                ];
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'failures' => $failures,
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Import failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

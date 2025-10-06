@@ -4,6 +4,7 @@ import { ProtectedRoute } from '@/components/backend/auth/ProtectedRoute'
 import { FrontendLayout } from '@/layouts/frontend/FrontendLayout'
 import { BackendLayout } from '@/layouts/backend/BackendLayout'
 import { ThemeProvider } from './hooks/useTheme'
+import { QueryProvider } from './providers/QueryProvider'
 import { Toaster } from './components/ui/toaster'
 
 // Auth
@@ -33,9 +34,10 @@ const CompanyPage = lazy(() => import('./pages/frontend/company'))
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="system" storageKey="posmid-ui-theme">
-      <Router>
-        <Toaster />
+    <QueryProvider>
+      <ThemeProvider defaultTheme="system" storageKey="posmid-ui-theme">
+        <Router>
+          <Toaster />
         <Suspense fallback={<div className="p-4">Loading...</div>}>
           <Routes>
           {/* Public/Frontend routes */}
@@ -73,7 +75,8 @@ function App() {
         </Routes>
       </Suspense>
     </Router>
-    </ThemeProvider>
+      </ThemeProvider>
+    </QueryProvider>
   )
 }
 

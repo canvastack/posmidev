@@ -141,6 +141,11 @@ Route::prefix('v1')->group(function () {
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             
             // Product Variants (Phase 6)
+            // Export/Import operations (must be before nested routes to avoid conflicts)
+            Route::get('variants/export', [ProductVariantController::class, 'export']);
+            Route::get('variants/import/template', [ProductVariantController::class, 'downloadTemplate']);
+            Route::post('variants/import', [ProductVariantController::class, 'import']);
+            
             Route::prefix('products/{productId}/variants')->group(function () {
                 Route::get('/', [ProductVariantController::class, 'index']);
                 Route::post('/', [ProductVariantController::class, 'store']);

@@ -239,3 +239,6 @@ export * from './history';
 
 // Export stock management types (Phase 5)
 export * from './stock';
+
+// Export variant types (Phase 6)
+export * from './variant';

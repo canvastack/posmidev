@@ -96,7 +96,15 @@ class VariantAnalytics extends Model
      */
     public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+    
+    /**
+     * Alias for productVariant relationship (for backwards compatibility)
+     */
+    public function variant(): BelongsTo
+    {
+        return $this->productVariant();
     }
 
     // ========================================
@@ -349,18 +357,34 @@ class VariantAnalytics extends Model
      * Get top performing variants for a tenant
      */
     public static function getTopPerformers(
-        string $tenantId, 
-        string $startDate, 
-        string $endDate,
+        string $tenantId,
         string $metric = 'revenue',
-        int $limit = 10
+        string $periodType = 'monthly',
+        int $limit = 10,
+        ?string $periodStart = null,
+        ?string $periodEnd = null
     ): \Illuminate\Support\Collection {
-        return static::forTenant($tenantId)
-            ->dateRange($startDate, $endDate)
-            ->with('productVariant')
-            ->selectRaw('product_variant_id, SUM(' . $metric . ') as total_' . $metric)
-            ->groupBy('product_variant_id')
-            ->orderByDesc('total_' . $metric)
+        $query = static::forTenant($tenantId)
+            ->where('period_type', $periodType)
+            ->with('productVariant.product');
+
+        if ($periodStart) {
+            $query->where('period_date', '>=', $periodStart);
+        }
+
+        if ($periodEnd) {
+            $query->where('period_date', '<=', $periodEnd);
+        }
+
+        // Get latest analytics per variant and order by metric
+        return $query->whereIn('id', function ($subquery) use ($tenantId, $periodType) {
+                $subquery->selectRaw('MAX(id)')
+                    ->from('variant_analytics')
+                    ->where('tenant_id', $tenantId)
+                    ->where('period_type', $periodType)
+                    ->groupBy('product_variant_id');
+            })
+            ->orderByDesc($metric)
             ->limit($limit)
             ->get();
     }

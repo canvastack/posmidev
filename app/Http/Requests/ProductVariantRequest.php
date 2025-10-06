@@ -17,6 +17,7 @@ class ProductVariantRequest extends FormRequest
         $tenantId = $this->route('tenantId');
         $productId = $this->route('productId');
         $variantId = $this->route('variantId');
+        $isUpdate = $this->isMethod('PATCH') || $this->isMethod('PUT') || $variantId;
 
         $skuRule = Rule::unique('product_variants', 'sku')
             ->where('tenant_id', $tenantId);
@@ -28,7 +29,7 @@ class ProductVariantRequest extends FormRequest
 
         return [
             'sku' => [
-                'required',
+                $isUpdate ? 'sometimes' : 'required',
                 'string',
                 'max:100',
                 $skuRule
@@ -36,7 +37,7 @@ class ProductVariantRequest extends FormRequest
             'name' => 'nullable|string|max:255',
             'attributes' => 'nullable|array',
             'attributes.*' => 'string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price' => ($isUpdate ? 'sometimes' : 'required') . '|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
             'price_modifier' => 'nullable|numeric',
             'stock' => 'nullable|integer|min:0',

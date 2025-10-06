@@ -105,7 +105,7 @@ class ProductVariant extends Model
      */
     public function analytics(): HasMany
     {
-        return $this->hasMany(VariantAnalytics::class);
+        return $this->hasMany(VariantAnalytics::class, 'product_variant_id');
     }
 
     // ========================================
@@ -263,10 +263,20 @@ class ProductVariant extends Model
      */
     public function scopeSearch(Builder $query, string $search): Builder
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('sku', 'ILIKE', "%{$search}%")
-                ->orWhere('name', 'ILIKE', "%{$search}%")
-                ->orWhereRaw("attributes::text ILIKE ?", ["%{$search}%"]);
+        $driver = $query->getConnection()->getDriverName();
+        
+        return $query->where(function ($q) use ($search, $driver) {
+            if ($driver === 'pgsql') {
+                // PostgreSQL: use ILIKE and JSON casting
+                $q->where('sku', 'ILIKE', "%{$search}%")
+                    ->orWhere('name', 'ILIKE', "%{$search}%")
+                    ->orWhereRaw("attributes::text ILIKE ?", ["%{$search}%"]);
+            } else {
+                // SQLite, MySQL: use LIKE (case-insensitive in SQLite by default)
+                $q->where('sku', 'LIKE', "%{$search}%")
+                    ->orWhere('name', 'LIKE', "%{$search}%")
+                    ->orWhere('attributes', 'LIKE', "%{$search}%");
+            }
         });
     }
 
