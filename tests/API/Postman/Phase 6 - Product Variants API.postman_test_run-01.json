@@ -1,0 +1,748 @@
+{
+	"id": "f9507f6b-5d28-430a-a893-125461925612",
+	"name": "Phase 6 - Product Variants API",
+	"timestamp": "2025-10-06T01:03:01.488Z",
+	"collection_id": "47046790-766f3564-d3c8-4401-9857-512abb3b227e",
+	"folder_id": 0,
+	"environment_id": "47046790-d391cb33-b12e-47c4-b63f-04b3f0b2df00",
+	"totalPass": 0,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-10-06T01:02:34.800Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "0510abc4-b664-4943-9939-d2fed2fd15f5",
+			"name": "List Product Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants?per_page=50&sort_by=sort_order&sort_order=asc",
+			"time": 975,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				975
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "de978118-02fe-4fe6-9029-751b65d7c1cb",
+			"name": "Create Product Variant",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants",
+			"time": 873,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				873
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "75303574-2a81-4570-bd88-824d42e7441c",
+			"name": "Get Single Variant",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/",
+			"time": 1000,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				1000
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "110b2d2d-35a0-4d30-a91c-28cb17cff6ed",
+			"name": "Update Product Variant",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/",
+			"time": 332,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				332
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "fd7cb9a1-7353-467b-958d-bea12936546d",
+			"name": "Delete Product Variant",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/",
+			"time": 334,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				334
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "f6f980e7-e389-4c14-8852-88b4cb0fa81b",
+			"name": "Update Variant Stock",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants//stock",
+			"time": 327,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				327
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "60443668-752a-4b7a-b929-786c63142247",
+			"name": "Reserve Variant Stock",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants//reserve",
+			"time": 384,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				384
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "181b5ed6-24a7-4625-a0aa-b266fc04c4ba",
+			"name": "Release Variant Stock",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants//release",
+			"time": 333,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				333
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "11046181-6e4b-4359-b0bf-47ade3c173a1",
+			"name": "Bulk Create Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/bulk",
+			"time": 836,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				836
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "615d9be0-d0b4-4606-8cd7-65bb6c33b265",
+			"name": "Bulk Update Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/bulk",
+			"time": 759,
+			"responseCode": {
+				"code": 422,
+				"name": "Unprocessable Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				759
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "5d4c4562-f97f-4aca-b1b4-29ff7269d1d6",
+			"name": "Bulk Delete Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/variants/bulk",
+			"time": 756,
+			"responseCode": {
+				"code": 422,
+				"name": "Unprocessable Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				756
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "2869a403-f089-43ec-9ad2-2ee684e50344",
+			"name": "List Variant Attributes",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes",
+			"time": 776,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				776
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8891a845-5663-4457-99de-6c95ce7288a1",
+			"name": "Create Variant Attribute",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes",
+			"time": 853,
+			"responseCode": {
+				"code": 422,
+				"name": "Unprocessable Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				853
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "c141edc8-ff06-4d20-a1b4-177abb063c5e",
+			"name": "Get Popular Variant Attributes",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes/popular?limit=10",
+			"time": 804,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				804
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "8e764925-779f-4c1a-9bf8-02ac16d72e93",
+			"name": "Get Variant Attribute",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes/",
+			"time": 1045,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				1045
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "be12f767-471c-4c4e-91bf-52fe02cfd645",
+			"name": "Update Variant Attribute",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes/",
+			"time": 322,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				322
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "e991a656-c0fe-4404-ac51-56a1eb032adc",
+			"name": "Delete Variant Attribute",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes/",
+			"time": 400,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				400
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "a249a143-a342-4eaa-a874-a4aa491f21b7",
+			"name": "Add Attribute Value",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes//values",
+			"time": 678,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				678
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "54292113-bfa1-4a50-917b-ed76f0021c32",
+			"name": "Remove Attribute Value",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-attributes//values",
+			"time": 480,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				480
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "bdb87554-048b-42e4-b2f1-40f15f69ac77",
+			"name": "List Variant Templates",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates?include_system=true",
+			"time": 963,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				963
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "9865e1c2-e83c-4032-a198-eae0a975ee38",
+			"name": "Create Variant Template",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates",
+			"time": 949,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				949
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1c0e1261-bfee-4120-b58c-f8d1bad8bd84",
+			"name": "Get Variant Template",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates/",
+			"time": 834,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				834
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "83d3237a-a94f-47c8-8f9a-f7e777cd6723",
+			"name": "Update Variant Template",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates/",
+			"time": 292,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				292
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "067caf89-f2c7-4920-88e9-4107802a68d8",
+			"name": "Delete Variant Template",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates/",
+			"time": 278,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				278
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "cc32b5e3-9c75-45cf-a991-15de8fb6fd5d",
+			"name": "Apply Template to Product",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates//apply",
+			"time": 284,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				284
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "1a3b0053-9f17-4122-9f6e-644a03da7198",
+			"name": "Preview Template Application",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variant-templates//preview",
+			"time": 310,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				310
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "effa6acd-54fe-47ec-882e-e0e3e8c9ac00",
+			"name": "Get Variant Analytics",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variants//analytics?period_type=monthly&limit=30",
+			"time": 286,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				286
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "18cafa34-2461-48ab-8c0a-8ec89499e443",
+			"name": "Get Product Variant Analytics",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products/e06a256d-34f5-4914-8f18-985fff478289/analytics?period_type=monthly&period_start=2025-01-01&period_end=2025-12-31",
+			"time": 820,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				820
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "16ee5e99-dac0-49b6-8254-4e3e2dc34811",
+			"name": "Get Top Performing Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variants/analytics/top-performers?metric=revenue&period_type=monthly&limit=10",
+			"time": 885,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				885
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "89621058-48ff-43bb-8f79-9b0d4a7173ff",
+			"name": "Compare Variants",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variants/analytics/compare",
+			"time": 910,
+			"responseCode": {
+				"code": 422,
+				"name": "Unprocessable Content"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				910
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "7b109dd7-5ae3-436f-9aac-7f2b70ff7579",
+			"name": "Get Performance Summary",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/variants/analytics/performance-summary?period_type=monthly",
+			"time": 1176,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				1176
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "d6b02fb1-3358-4cad-88c2-ed767d96fd9e",
+			"name": "Login HQ Super Admin",
+			"url": "http://localhost:8000/api/v1/login",
+			"time": 954,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				954
+			],
+			"allTests": [
+				{}
+			]
+		},
+		{
+			"id": "52faab24-4a82-4509-9d98-42050038b112",
+			"name": "Create Test Product",
+			"url": "http://localhost:8000/api/v1/tenants/11111111-1111-1111-1111-111111111111/products",
+			"time": 1013,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {},
+			"testPassFailCounts": {},
+			"times": [
+				1013
+			],
+			"allTests": [
+				{}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 22221,
+	"collection": {
+		"requests": [
+			{
+				"id": "0510abc4-b664-4943-9939-d2fed2fd15f5",
+				"method": "GET"
+			},
+			{
+				"id": "de978118-02fe-4fe6-9029-751b65d7c1cb",
+				"method": "POST"
+			},
+			{
+				"id": "75303574-2a81-4570-bd88-824d42e7441c",
+				"method": "GET"
+			},
+			{
+				"id": "110b2d2d-35a0-4d30-a91c-28cb17cff6ed",
+				"method": "PATCH"
+			},
+			{
+				"id": "fd7cb9a1-7353-467b-958d-bea12936546d",
+				"method": "DELETE"
+			},
+			{
+				"id": "f6f980e7-e389-4c14-8852-88b4cb0fa81b",
+				"method": "POST"
+			},
+			{
+				"id": "60443668-752a-4b7a-b929-786c63142247",
+				"method": "POST"
+			},
+			{
+				"id": "181b5ed6-24a7-4625-a0aa-b266fc04c4ba",
+				"method": "POST"
+			},
+			{
+				"id": "11046181-6e4b-4359-b0bf-47ade3c173a1",
+				"method": "POST"
+			},
+			{
+				"id": "615d9be0-d0b4-4606-8cd7-65bb6c33b265",
+				"method": "PATCH"
+			},
+			{
+				"id": "5d4c4562-f97f-4aca-b1b4-29ff7269d1d6",
+				"method": "DELETE"
+			},
+			{
+				"id": "2869a403-f089-43ec-9ad2-2ee684e50344",
+				"method": "GET"
+			},
+			{
+				"id": "8891a845-5663-4457-99de-6c95ce7288a1",
+				"method": "POST"
+			},
+			{
+				"id": "c141edc8-ff06-4d20-a1b4-177abb063c5e",
+				"method": "GET"
+			},
+			{
+				"id": "8e764925-779f-4c1a-9bf8-02ac16d72e93",
+				"method": "GET"
+			},
+			{
+				"id": "be12f767-471c-4c4e-91bf-52fe02cfd645",
+				"method": "PATCH"
+			},
+			{
+				"id": "e991a656-c0fe-4404-ac51-56a1eb032adc",
+				"method": "DELETE"
+			},
+			{
+				"id": "a249a143-a342-4eaa-a874-a4aa491f21b7",
+				"method": "POST"
+			},
+			{
+				"id": "54292113-bfa1-4a50-917b-ed76f0021c32",
+				"method": "DELETE"
+			},
+			{
+				"id": "bdb87554-048b-42e4-b2f1-40f15f69ac77",
+				"method": "GET"
+			},
+			{
+				"id": "9865e1c2-e83c-4032-a198-eae0a975ee38",
+				"method": "POST"
+			},
+			{
+				"id": "1c0e1261-bfee-4120-b58c-f8d1bad8bd84",
+				"method": "GET"
+			},
+			{
+				"id": "83d3237a-a94f-47c8-8f9a-f7e777cd6723",
+				"method": "PATCH"
+			},
+			{
+				"id": "067caf89-f2c7-4920-88e9-4107802a68d8",
+				"method": "DELETE"
+			},
+			{
+				"id": "cc32b5e3-9c75-45cf-a991-15de8fb6fd5d",
+				"method": "POST"
+			},
+			{
+				"id": "1a3b0053-9f17-4122-9f6e-644a03da7198",
+				"method": "POST"
+			},
+			{
+				"id": "effa6acd-54fe-47ec-882e-e0e3e8c9ac00",
+				"method": "GET"
+			},
+			{
+				"id": "18cafa34-2461-48ab-8c0a-8ec89499e443",
+				"method": "GET"
+			},
+			{
+				"id": "16ee5e99-dac0-49b6-8254-4e3e2dc34811",
+				"method": "GET"
+			},
+			{
+				"id": "89621058-48ff-43bb-8f79-9b0d4a7173ff",
+				"method": "POST"
+			},
+			{
+				"id": "7b109dd7-5ae3-436f-9aac-7f2b70ff7579",
+				"method": "GET"
+			},
+			{
+				"id": "d6b02fb1-3358-4cad-88c2-ed767d96fd9e",
+				"method": "POST"
+			},
+			{
+				"id": "52faab24-4a82-4509-9d98-42050038b112",
+				"method": "POST"
+			}
+		]
+	}
+}

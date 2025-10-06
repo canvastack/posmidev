@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -163,6 +164,43 @@ class Product extends Model
     public function defaultVariant(): HasMany
     {
         return $this->hasMany(ProductVariant::class)->where('is_default', true);
+    }
+
+    // ========================================
+    // Query Scopes
+    // ========================================
+
+    /**
+     * Scope query to specific tenant
+     */
+    public function scopeForTenant(Builder $query, string $tenantId): Builder
+    {
+        return $query->where('tenant_id', $tenantId);
+    }
+
+    /**
+     * Scope query to active products
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope query to low stock products
+     */
+    public function scopeLowStock(Builder $query): Builder
+    {
+        return $query->where('low_stock_alert_enabled', true)
+            ->whereColumn('stock', '<=', 'reorder_point');
+    }
+
+    /**
+     * Scope query to out of stock products
+     */
+    public function scopeOutOfStock(Builder $query): Builder
+    {
+        return $query->where('stock', '<=', 0);
     }
 
     // ========================================

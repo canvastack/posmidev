@@ -151,16 +151,27 @@ $productId = $productResult['id'];
     /** @test */
     public function test_cannot_generate_barcode_for_product_from_different_tenant(): void
     {
-        // Create another tenant with product
+        // Create another tenant
         $otherTenant = $this->createOtherTenant();
-        $productResult = $this->createTestProduct();
-        $productId = $productResult['id'];
+        
+        // Create product directly in database for other tenant (not via API)
+        $product = \Src\Pms\Infrastructure\Models\Product::create([
+            'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
+            'tenant_id' => $otherTenant->id,
+            'name' => 'Other Tenant Product',
+            'sku' => 'OTHER-SKU-' . uniqid(),
+            'price' => 100.00,
+            'stock' => 50,
+            'cost_price' => 80.00,
+        ]);
 
+        // Try to access product from other tenant using current tenant's route
         $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode",
+            "/api/v1/tenants/{$this->tenant->id}/products/{$product->id}/barcode",
             $this->authenticatedRequest()['headers']
         );
 
+        // Should return 404 because product doesn't belong to current tenant
         $response->assertNotFound();
     }
 
@@ -384,16 +395,22 @@ $productId = $productResult['id'];
     public function test_barcode_endpoints_require_authentication(): void
     {
         $productResult = $this->createTestProduct();
-$productId = $productResult['id'];
+        $productId = $productResult['id'];
 
-        // Test single barcode endpoint
-        $response = $this->getJson(
-            "/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode"
-        );
+        // Clear any lingering authentication from setUp
+        $this->app['auth']->forgetGuards();
+
+        // Test single barcode endpoint without authentication
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->get("/api/v1/tenants/{$this->tenant->id}/products/{$productId}/barcode");
+        
         $response->assertUnauthorized();
 
-        // Test bulk barcode endpoint
-        $response = $this->postJson(
+        // Test bulk barcode endpoint without authentication
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(
             "/api/v1/tenants/{$this->tenant->id}/products/barcode/bulk",
             [
                 'product_ids' => [$productId],

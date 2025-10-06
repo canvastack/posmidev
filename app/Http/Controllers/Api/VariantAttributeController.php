@@ -101,6 +101,7 @@ class VariantAttributeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:variant_attributes,slug,NULL,id,tenant_id,' . $tenantId,
+            'description' => 'nullable|string|max:500',
             'display_type' => 'required|in:select,radio,button,swatch,color_swatch',
             'values' => 'required|array|min:1',
             'values.*' => 'required|string|max:255',
@@ -119,6 +120,7 @@ class VariantAttributeController extends Controller
                 'tenant_id' => $tenantId,
                 'name' => $validated['name'],
                 'slug' => $validated['slug'] ?? Str::slug($validated['name']),
+                'description' => $validated['description'] ?? null,
                 'display_type' => $validated['display_type'],
                 'values' => $validated['values'],
                 'price_modifiers' => $validated['price_modifiers'] ?? [],
@@ -156,6 +158,7 @@ class VariantAttributeController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:variant_attributes,slug,' . $id . ',id,tenant_id,' . $tenantId,
+            'description' => 'nullable|string|max:500',
             'display_type' => 'sometimes|required|in:select,radio,button,swatch,color_swatch',
             'values' => 'sometimes|required|array|min:1',
             'values.*' => 'required|string|max:255',

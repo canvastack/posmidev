@@ -168,10 +168,15 @@ class ProductAuditHistoryTest extends TestCase
                         'created_at',
                     ]
                 ],
+                'pagination' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ],
                 'meta' => [
                     'product_id',
                     'product_name',
-                    'total',
                 ]
             ]);
 
@@ -218,12 +223,17 @@ class ProductAuditHistoryTest extends TestCase
                         'changed_at',
                     ]
                 ],
+                'pagination' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ],
                 'meta' => [
                     'product_id',
                     'product_name',
                     'current_price',
                     'current_cost_price',
-                    'total',
                 ]
             ]);
 
@@ -269,11 +279,16 @@ class ProductAuditHistoryTest extends TestCase
                         'changed_at',
                     ]
                 ],
+                'pagination' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ],
                 'meta' => [
                     'product_id',
                     'product_name',
                     'current_stock',
-                    'total',
                 ]
             ]);
 

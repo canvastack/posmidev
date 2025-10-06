@@ -1,0 +1,1121 @@
+{
+	"info": {
+		"_postman_id": "phase6-variants-api-2025",
+		"name": "Phase 6 - Product Variants API",
+		"description": "Comprehensive test collection for Product Variants feature (31 endpoints)\n\n**Prerequisites:**\n1. Set environment variables: `baseUrl`, `tenantId`, `bearerToken`\n2. Create a product first and set `productId` variable\n3. All endpoints require valid Bearer authentication token\n\n**Required Permissions:**\n- products.view\n- products.create\n- products.update\n- products.delete\n\n**Testing Order:**\n1. Product Variants → Create variants\n2. Variant Attributes → Create attributes for templates\n3. Variant Templates → Create and apply templates\n4. Bulk Operations → Test batch processing\n5. Variant Analytics → Review performance data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Product Variants",
+			"description": "Core variant CRUD operations and stock management",
+			"item": [
+				{
+					"name": "List Product Variants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants?per_page=50&sort_by=sort_order&sort_order=asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants"],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "50",
+									"description": "Items per page (1-500)"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in SKU and name",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"description": "Filter by active status",
+									"disabled": true
+								},
+								{
+									"key": "sort_by",
+									"value": "sort_order",
+									"description": "sort_order|sku|name|price|stock|created_at"
+								},
+								{
+									"key": "sort_order",
+									"value": "asc",
+									"description": "asc|desc"
+								}
+							]
+						},
+						"description": "**Purpose:** Retrieve paginated list of variants for a product\n\n**Permission:** products.view\n\n**Expected:** 200 OK with paginated variant list\n\n**Query Options:**\n- Search by SKU/name\n- Filter by active status\n- Sort by multiple fields"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product Variant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"PROD-001-RED-M\",\n  \"barcode\": \"1234567890123\",\n  \"name\": \"Red - Medium\",\n  \"attributes\": {\n    \"color\": \"Red\",\n    \"size\": \"M\"\n  },\n  \"price\": 150000,\n  \"cost_price\": 100000,\n  \"price_modifier\": 0,\n  \"stock\": 50,\n  \"reorder_point\": 10,\n  \"reorder_quantity\": 30,\n  \"low_stock_alert_enabled\": true,\n  \"image_path\": null,\n  \"thumbnail_path\": null,\n  \"is_active\": true,\n  \"is_default\": false,\n  \"sort_order\": 1,\n  \"notes\": \"Initial variant\",\n  \"metadata\": {}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants"]
+						},
+						"description": "**Purpose:** Create a new product variant\n\n**Permission:** products.create\n\n**Expected:** 201 Created with variant data\n\n**Required Fields:**\n- sku (unique)\n- name\n- price\n- stock\n\n**Auto-calculated:**\n- profit_margin\n- available_stock\n- is_low_stock\n- display_name"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Variant",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}"]
+						},
+						"description": "**Purpose:** Retrieve detailed information for a single variant\n\n**Permission:** products.view\n\n**Expected:** 200 OK with full variant details including:\n- Stock levels (total, reserved, available)\n- Pricing and profit margins\n- Attributes and images\n- Parent product reference"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product Variant",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Red - Medium (Updated)\",\n  \"price\": 175000,\n  \"cost_price\": 110000,\n  \"stock\": 75,\n  \"reorder_point\": 15,\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}"]
+						},
+						"description": "**Purpose:** Update existing variant (partial update)\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated variant\n\n**Note:** All fields are optional (partial update)\n\n**Auto-recalculated:**\n- profit_margin (when price/cost changes)\n- available_stock (when stock/reserved changes)\n- is_low_stock"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product Variant",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}"]
+						},
+						"description": "**Purpose:** Soft delete a variant (sets deleted_at timestamp)\n\n**Permission:** products.delete\n\n**Expected:** 200 OK with success message\n\n**Note:** \n- This is a soft delete\n- Variant can be restored from database\n- Does not affect existing orders\n- Stock remains reserved"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Variant Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 100,\n  \"reason\": \"Stock replenishment from supplier\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}/stock",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}", "stock"]
+						},
+						"description": "**Purpose:** Set absolute stock quantity (not increment/decrement)\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated variant\n\n**Use Cases:**\n- Stock replenishment\n- Inventory adjustment\n- Physical count correction\n\n**Activity Log:** Creates audit trail entry"
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve Variant Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}/reserve",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}", "reserve"]
+						},
+						"description": "**Purpose:** Reserve stock for a pending order\n\n**Permission:** products.update\n\n**Expected:** 200 OK with reservation confirmation\n\n**Validation:**\n- Must have sufficient available stock\n- Quantity must be at least 1\n- Increments reserved_stock\n- Decrements available_stock\n\n**Use Cases:**\n- Shopping cart checkout\n- Order creation\n- Stock hold for payment\n\n**Response:**\n```json\n{\n  \"message\": \"Stock reserved successfully\",\n  \"reserved\": 3,\n  \"available\": 47\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Release Variant Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/{{variantId}}/release",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "{{variantId}}", "release"]
+						},
+						"description": "**Purpose:** Release previously reserved stock\n\n**Permission:** products.update\n\n**Expected:** 200 OK with release confirmation\n\n**Use Cases:**\n- Order cancellation\n- Payment timeout\n- Cart abandonment\n- Order refund\n\n**Process:**\n- Decrements reserved_stock\n- Increments available_stock\n\n**Response:**\n```json\n{\n  \"message\": \"Reserved stock released\",\n  \"released\": 3,\n  \"available\": 50\n}\n```"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Bulk Operations",
+			"description": "Batch processing for creating, updating, and deleting multiple variants",
+			"item": [
+				{
+					"name": "Bulk Create Variants",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"variants\": [\n    {\n      \"sku\": \"PROD-001-RED-S\",\n      \"name\": \"Red - Small\",\n      \"attributes\": {\"color\": \"Red\", \"size\": \"S\"},\n      \"price\": 140000,\n      \"cost_price\": 95000,\n      \"stock\": 30,\n      \"is_active\": true,\n      \"sort_order\": 1\n    },\n    {\n      \"sku\": \"PROD-001-RED-M\",\n      \"name\": \"Red - Medium\",\n      \"attributes\": {\"color\": \"Red\", \"size\": \"M\"},\n      \"price\": 150000,\n      \"cost_price\": 100000,\n      \"stock\": 50,\n      \"is_active\": true,\n      \"sort_order\": 2\n    },\n    {\n      \"sku\": \"PROD-001-RED-L\",\n      \"name\": \"Red - Large\",\n      \"attributes\": {\"color\": \"Red\", \"size\": \"L\"},\n      \"price\": 160000,\n      \"cost_price\": 105000,\n      \"stock\": 40,\n      \"is_active\": true,\n      \"sort_order\": 3\n    },\n    {\n      \"sku\": \"PROD-001-BLUE-S\",\n      \"name\": \"Blue - Small\",\n      \"attributes\": {\"color\": \"Blue\", \"size\": \"S\"},\n      \"price\": 140000,\n      \"cost_price\": 95000,\n      \"stock\": 25,\n      \"is_active\": true,\n      \"sort_order\": 4\n    },\n    {\n      \"sku\": \"PROD-001-BLUE-M\",\n      \"name\": \"Blue - Medium\",\n      \"attributes\": {\"color\": \"Blue\", \"size\": \"M\"},\n      \"price\": 150000,\n      \"cost_price\": 100000,\n      \"stock\": 45,\n      \"is_active\": true,\n      \"sort_order\": 5\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/bulk",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "bulk"]
+						},
+						"description": "**Purpose:** Create up to 500 variants in a single request\n\n**Permission:** products.create\n\n**Expected:** 201 Created with success/error summary\n\n**Limits:** 1-500 variants per request\n\n**Validation:** \n- Individual validation per variant\n- Returns errors with index and SKU\n- Continues processing on validation errors\n\n**Response:**\n```json\n{\n  \"message\": \"Bulk creation completed\",\n  \"success_count\": 5,\n  \"error_count\": 0,\n  \"errors\": []\n}\n```\n\n**Performance:** Uses database transactions for atomicity"
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Update Variants",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"variants\": [\n    {\n      \"id\": \"{{variantId}}\",\n      \"is_active\": true,\n      \"reorder_point\": 20,\n      \"low_stock_alert_enabled\": true\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/bulk",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "bulk"]
+						},
+						"description": "**Purpose:** Update multiple variants at once\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated count\n\n**Use Cases:**\n- Activate/deactivate multiple variants\n- Adjust reorder points\n- Change stock alert settings\n- Update sort order\n\n**Updatable Fields:**\n- name, attributes, price, cost_price\n- stock, reorder_point, reorder_quantity\n- low_stock_alert_enabled\n- is_active, is_default, sort_order\n- image_path, thumbnail_path, barcode\n- notes, metadata\n\n**Note:** Each variant must include its ID. Cannot bulk update SKU (must be unique)."
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Delete Variants",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"variant_ids\": [\n    \"00000000-0000-0000-0000-000000000001\",\n    \"00000000-0000-0000-0000-000000000002\"\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/variants/bulk",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "variants", "bulk"]
+						},
+						"description": "**Purpose:** Soft delete multiple variants at once\n\n**Permission:** products.delete\n\n**Expected:** 200 OK with deleted count\n\n**Safety:**\n- All deletes are soft deletes\n- Variants can be restored\n- Existing orders are not affected\n\n**Use Cases:**\n- Clear discontinued variants\n- Season change cleanup\n- Inventory reset"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Variant Attributes",
+			"description": "Manage reusable attribute definitions (Size, Color, Material, etc.)",
+			"item": [
+				{
+					"name": "List Variant Attributes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes"],
+							"query": [
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search in name",
+									"disabled": true
+								},
+								{
+									"key": "is_active",
+									"value": "true",
+									"description": "Filter by active status",
+									"disabled": true
+								},
+								{
+									"key": "display_type",
+									"value": "",
+									"description": "select|radio|button|swatch|color_swatch",
+									"disabled": true
+								}
+							]
+						},
+						"description": "**Purpose:** Get all tenant-specific variant attributes\n\n**Permission:** products.view\n\n**Expected:** 200 OK with attribute list\n\n**Attributes Include:**\n- Name and slug\n- Display type (UI widget)\n- Available values\n- Price modifiers per value\n- Usage statistics\n\n**Display Types:**\n- select: Dropdown\n- radio: Radio buttons\n- button: Button group\n- swatch: Visual swatches\n- color_swatch: Color picker"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Variant Attribute",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Size\",\n  \"slug\": \"size\",\n  \"display_type\": \"button\",\n  \"values\": [\"S\", \"M\", \"L\", \"XL\", \"XXL\"],\n  \"price_modifiers\": {\n    \"XL\": 10000,\n    \"XXL\": 20000\n  },\n  \"visual_settings\": {\n    \"show_label\": true,\n    \"layout\": \"horizontal\"\n  },\n  \"sort_order\": 1,\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes"]
+						},
+						"description": "**Purpose:** Create reusable variant attribute definition\n\n**Permission:** products.create\n\n**Expected:** 201 Created with attribute data\n\n**Required Fields:**\n- name\n- display_type\n- values (array, min 1)\n\n**Optional:**\n- slug (auto-generated if empty)\n- price_modifiers (per value)\n- visual_settings (UI customization)\n- sort_order\n\n**Example Use Cases:**\n- Size: S, M, L, XL\n- Color: Red, Blue, Green\n- Material: Cotton, Polyester\n- Storage: 64GB, 128GB, 256GB"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Popular Variant Attributes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/popular?limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "popular"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results"
+								}
+							]
+						},
+						"description": "**Purpose:** Get most frequently used attributes (ordered by usage_count)\n\n**Permission:** products.view\n\n**Expected:** 200 OK with top attributes\n\n**Sorting:** By usage_count DESC\n\n**Use Case:** \n- Quick attribute picker in UI\n- Suggest common attributes\n- Template creation assistance"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Variant Attribute",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/{{attributeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "{{attributeId}}"]
+						},
+						"description": "**Purpose:** Get detailed information for a single attribute\n\n**Permission:** products.view\n\n**Expected:** 200 OK with full attribute details\n\n**Includes:**\n- All values and price modifiers\n- Usage statistics\n- Total combinations possible\n- Visual settings"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Variant Attribute",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Size (Updated)\",\n  \"values\": [\"XS\", \"S\", \"M\", \"L\", \"XL\", \"XXL\", \"XXXL\"],\n  \"price_modifiers\": {\n    \"XL\": 15000,\n    \"XXL\": 25000,\n    \"XXXL\": 35000\n  },\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/{{attributeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "{{attributeId}}"]
+						},
+						"description": "**Purpose:** Update attribute definition (partial update)\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated attribute\n\n**Updatable Fields:**\n- name\n- values (replace all)\n- price_modifiers\n- visual_settings\n- display_type\n- is_active\n\n**Warning:** Changing values affects existing variants using this attribute"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Variant Attribute",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/{{attributeId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "{{attributeId}}"]
+						},
+						"description": "**Purpose:** Delete an attribute definition\n\n**Permission:** products.delete\n\n**Expected:** 200 OK\n\n**Safety Check:** \n- Cannot delete if used in active templates\n- Existing variants using this attribute are not affected\n\n**Recommendation:** Deactivate instead of delete if widely used"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Attribute Value",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"XXXL\",\n  \"price_modifier\": 35000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/{{attributeId}}/values",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "{{attributeId}}", "values"]
+						},
+						"description": "**Purpose:** Add a single value to existing attribute\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated attribute\n\n**Use Case:** \n- Add new size option\n- Add new color variant\n- Extend existing attribute\n\n**Note:** Updates value_count and total_combinations"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Attribute Value",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"value\": \"XXXL\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-attributes/{{attributeId}}/values",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-attributes", "{{attributeId}}", "values"]
+						},
+						"description": "**Purpose:** Remove a value from attribute\n\n**Permission:** products.update\n\n**Expected:** 200 OK\n\n**Safety:** \n- Validates that variants exist with this value\n- Warning if value is in use\n\n**Use Case:**\n- Discontinue size option\n- Remove unavailable color"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Variant Templates",
+			"description": "Pre-configured variant setups for rapid product configuration",
+			"item": [
+				{
+					"name": "List Variant Templates",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates?include_system=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates"],
+							"query": [
+								{
+									"key": "include_system",
+									"value": "true",
+									"description": "Include system templates"
+								}
+							]
+						},
+						"description": "**Purpose:** List both system and tenant-specific templates\n\n**Permission:** products.view\n\n**Expected:** 200 OK with template list\n\n**Templates Include:**\n- System templates (is_system=true, read-only)\n- Tenant templates (is_system=false)\n\n**Template Types:**\n- Clothing (Size + Color)\n- Electronics (Storage + Color)\n- Shoes (Size + Width)\n- Custom tenant templates\n\n**Metadata:**\n- usage_count\n- total_combinations\n- last_used_at\n- can_delete flag"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Variant Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"T-Shirt Variants\",\n  \"slug\": \"tshirt-variants\",\n  \"description\": \"Standard t-shirt size and color combinations\",\n  \"configuration\": {\n    \"attributes\": [\n      {\n        \"name\": \"Size\",\n        \"values\": [\"S\", \"M\", \"L\", \"XL\", \"XXL\"]\n      },\n      {\n        \"name\": \"Color\",\n        \"values\": [\"Black\", \"White\", \"Red\", \"Blue\", \"Green\"]\n      }\n    ],\n    \"sku_pattern\": \"{PRODUCT}-{SIZE}-{COLOR}\",\n    \"price_modifiers\": {\n      \"Size\": {\n        \"XL\": 10000,\n        \"XXL\": 20000\n      }\n    },\n    \"default_values\": {\n      \"stock\": 20,\n      \"reorder_point\": 5,\n      \"reorder_quantity\": 15\n    }\n  },\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates"]
+						},
+						"description": "**Purpose:** Create custom variant template for reuse\n\n**Permission:** products.create\n\n**Expected:** 201 Created with template data\n\n**Required:**\n- name\n- configuration.attributes (min 1)\n\n**Configuration Options:**\n\n**sku_pattern:** Template tokens:\n- {parent_sku}\n- {attribute_name} (any attribute)\n- {increment}\n\n**price_calculation:**\n- base: Use parent product price\n- base_plus_modifiers: Add attribute price modifiers\n- custom: Manual per variant\n\n**Generates:** Size(5) × Color(5) = 25 variants"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Variant Template",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates/{{templateId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates", "{{templateId}}"]
+						},
+						"description": "**Purpose:** Get detailed template configuration\n\n**Permission:** products.view\n\n**Expected:** 200 OK with full template\n\n**Details Include:**\n- Complete attribute configuration\n- SKU pattern formula\n- Price calculation rules\n- Stock default settings\n- Usage statistics"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Variant Template",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"T-Shirt Variants (Updated)\",\n  \"description\": \"Enhanced t-shirt template with more options\",\n  \"configuration\": {\n    \"attributes\": [\n      {\n        \"name\": \"Size\",\n        \"values\": [\"XS\", \"S\", \"M\", \"L\", \"XL\", \"XXL\", \"XXXL\"]\n      },\n      {\n        \"name\": \"Color\",\n        \"values\": [\"Black\", \"White\", \"Red\", \"Blue\", \"Green\", \"Yellow\", \"Purple\"]\n      }\n    ],\n    \"sku_pattern\": \"{PRODUCT}-{SIZE}-{COLOR}\",\n    \"price_modifiers\": {\n      \"Size\": {\n        \"XL\": 15000,\n        \"XXL\": 25000,\n        \"XXXL\": 35000\n      }\n    },\n    \"default_values\": {\n      \"stock\": 30,\n      \"reorder_point\": 10,\n      \"reorder_quantity\": 20\n    }\n  },\n  \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates/{{templateId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates", "{{templateId}}"]
+						},
+						"description": "**Purpose:** Update tenant-specific template\n\n**Permission:** products.update\n\n**Expected:** 200 OK with updated template\n\n**Restriction:** \n- System templates (is_system=true) cannot be modified\n- Returns 403 if attempting to modify system template\n\n**Note:** Does not affect previously created variants"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Variant Template",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates/{{templateId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates", "{{templateId}}"]
+						},
+						"description": "**Purpose:** Delete custom template\n\n**Permission:** products.delete\n\n**Expected:** 200 OK\n\n**Restrictions:**\n- System templates cannot be deleted\n- Check can_delete flag before attempting\n\n**Safety:** \n- Does not affect existing variants\n- Template usage history preserved"
+					},
+					"response": []
+				},
+				{
+					"name": "Apply Template to Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"00000000-0000-0000-0000-000000000001\",\n  \"override_existing\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates/{{templateId}}/apply",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates", "{{templateId}}", "apply"]
+						},
+						"description": "**Purpose:** Generate and create all variants from template\n\n**Permission:** products.create\n\n**Expected:** 201 Created with created variants\n\n**Process:**\n1. Calculate all attribute combinations (Cartesian product)\n2. Generate SKUs using pattern\n3. Calculate prices with modifiers\n4. Apply stock settings\n5. Create all variants in bulk\n\n**Options:**\n- override_existing: Skip if variants already exist\n\n**Example:** \nSize(7) × Color(7) = 49 variants created\n\n**Performance:** Uses bulk insert for efficiency\n\n**Updates:**\n- template.usage_count++\n- template.last_used_at"
+					},
+					"response": []
+				},
+				{
+					"name": "Preview Template Application",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": \"00000000-0000-0000-0000-000000000001\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variant-templates/{{templateId}}/preview",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variant-templates", "{{templateId}}", "preview"]
+						},
+						"description": "**Purpose:** Preview variants WITHOUT creating them\n\n**Permission:** products.view\n\n**Expected:** 200 OK with variant preview data\n\n**Returns:**\n- List of variants that would be created\n- Generated SKUs\n- Calculated prices\n- Total count\n- No database changes\n\n**Use Case:**\n- Verify template configuration\n- Check SKU patterns\n- Review price calculations\n- Confirm before bulk create"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Variant Analytics",
+			"description": "Performance metrics and insights for product variants",
+			"item": [
+				{
+					"name": "Get Variant Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variants/{{variantId}}/analytics?period_type=monthly&limit=30",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variants", "{{variantId}}", "analytics"],
+							"query": [
+								{
+									"key": "period_type",
+									"value": "monthly",
+									"description": "daily|weekly|monthly"
+								},
+								{
+									"key": "limit",
+									"value": "30",
+									"description": "Number of periods"
+								}
+							]
+						},
+						"description": "**Purpose:** Get performance analytics for single variant\n\n**Permission:** products.view\n\n**Expected:** 200 OK with analytics data\n\n**Metrics Include:**\n\n**Sales:**\n- total_orders\n- quantity_sold\n- revenue\n- profit\n- profit_margin_percent\n\n**Inventory:**\n- stock_start/end\n- stock_change\n- turnover_rate\n- days_of_stock\n\n**Engagement:**\n- view_count\n- add_to_cart_count\n- conversion_rate\n- cart_abandonment_rate\n\n**Benchmarking:**\n- revenue_percentile\n- profit_percentile\n- turnover_percentile\n- performance_status (excellent|good|average|poor)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Variant Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/products/{{productId}}/analytics?period_type=monthly&period_start=2025-01-01&period_end=2025-12-31",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "products", "{{productId}}", "analytics"],
+							"query": [
+								{
+									"key": "period_type",
+									"value": "monthly",
+									"description": "daily|weekly|monthly"
+								},
+								{
+									"key": "period_start",
+									"value": "2025-01-01",
+									"description": "Start date (YYYY-MM-DD)"
+								},
+								{
+									"key": "period_end",
+									"value": "2025-12-31",
+									"description": "End date (YYYY-MM-DD)"
+								}
+							]
+						},
+						"description": "**Purpose:** Compare all variants of a product\n\n**Permission:** products.view\n\n**Expected:** 200 OK with comparative analytics\n\n**Use Cases:**\n- Compare variant performance\n- Identify best/worst sellers\n- Stock optimization\n- Pricing analysis\n\n**Returns:**\n- Analytics for each variant\n- Aggregated product totals\n- Variant rankings\n- Performance distribution"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Top Performing Variants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variants/analytics/top-performers?metric=revenue&period_type=monthly&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variants", "analytics", "top-performers"],
+							"query": [
+								{
+									"key": "metric",
+									"value": "revenue",
+									"description": "revenue|profit|quantity_sold|conversion_rate|turnover_rate"
+								},
+								{
+									"key": "period_type",
+									"value": "monthly",
+									"description": "daily|weekly|monthly"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Number of results"
+								}
+							]
+						},
+						"description": "**Purpose:** Get top performers across all variants\n\n**Permission:** products.view\n\n**Expected:** 200 OK with ranked variants\n\n**Metrics:**\n- revenue: Top grossing\n- profit: Most profitable\n- quantity_sold: Best sellers (volume)\n- conversion_rate: Highest conversion\n- turnover_rate: Fastest moving\n\n**Use Cases:**\n- Dashboard insights\n- Inventory planning\n- Marketing focus\n- Promotional targeting"
+					},
+					"response": []
+				},
+				{
+					"name": "Compare Variants",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"variant_ids\": [\n    \"00000000-0000-0000-0000-000000000001\",\n    \"00000000-0000-0000-0000-000000000002\",\n    \"00000000-0000-0000-0000-000000000003\"\n  ],\n  \"period_type\": \"monthly\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variants/analytics/compare",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variants", "analytics", "compare"]
+						},
+						"description": "**Purpose:** Side-by-side comparison of 2-10 variants\n\n**Permission:** products.view\n\n**Expected:** 200 OK with comparison matrix\n\n**Limits:** 2-10 variants per request\n\n**Returns:**\n- Metrics for each variant\n- Comparative percentages\n- Winner/loser per metric\n- Trends over time\n\n**Use Cases:**\n- A/B testing results\n- Color/size preference analysis\n- Price point testing\n- Regional performance"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Performance Summary",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearerToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/tenants/{{tenantId}}/variants/analytics/performance-summary?period_type=monthly",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "tenants", "{{tenantId}}", "variants", "analytics", "performance-summary"],
+							"query": [
+								{
+									"key": "period_type",
+									"value": "monthly",
+									"description": "daily|weekly|monthly"
+								}
+							]
+						},
+						"description": "**Purpose:** High-level summary of all variant performance\n\n**Permission:** products.view\n\n**Expected:** 200 OK with aggregate metrics\n\n**Summary Includes:**\n\n**Totals:**\n- Total variants\n- Total revenue\n- Total profit\n- Total quantity sold\n\n**Averages:**\n- Average conversion rate\n- Average profit margin\n- Average turnover rate\n\n**Distribution:**\n- Performance status breakdown\n- Top/bottom performers\n- Stock health overview\n\n**Use Case:** Executive dashboard overview"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "default"
+		},
+		{
+			"key": "tenantId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "productId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "variantId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "attributeId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "templateId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "bearerToken",
+			"value": "",
+			"type": "secret"
+		}
+	]
+}

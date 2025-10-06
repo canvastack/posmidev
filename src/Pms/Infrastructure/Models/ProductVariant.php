@@ -18,6 +18,14 @@ class ProductVariant extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
+    /**
+     * Create a new factory instance for the model
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\ProductVariantFactory::new();
+    }
+
     protected $fillable = [
         'id',
         'tenant_id',
@@ -161,6 +169,19 @@ class ProductVariant extends Model
         }
 
         return asset('storage/' . $this->thumbnail_path);
+    }
+
+    /**
+     * Get profit margin as accessor
+     * Profit Margin = ((price - cost) / price) * 100
+     */
+    public function getProfitMarginAttribute(): ?float
+    {
+        if (!$this->price || $this->price == 0 || !$this->cost_price) {
+            return null;
+        }
+
+        return round((($this->price - $this->cost_price) / $this->price) * 100, 2);
     }
 
     // ========================================
@@ -317,9 +338,14 @@ class ProductVariant extends Model
     /**
      * Release reserved stock
      */
-    public function releaseStock(int $quantity): void
+    public function releaseStock(int $quantity): bool
     {
+        if ($quantity <= 0 || $this->reserved_stock <= 0) {
+            return false;
+        }
+
         $this->decrement('reserved_stock', min($quantity, $this->reserved_stock));
+        return true;
     }
 
     /**
@@ -366,21 +392,25 @@ class ProductVariant extends Model
     }
 
     /**
-     * Get attribute value by key
+     * Get variant attribute (from JSON 'attributes' column) by key
      */
-    public function getAttribute(string $key): mixed
+    public function getVariantAttributeValue(string $key, mixed $default = null): mixed
     {
-        return $this->attributes[$key] ?? null;
+        $attrs = $this->getAttribute('attributes') ?? [];
+        return is_array($attrs) ? ($attrs[$key] ?? $default) : $default;
     }
 
     /**
-     * Set attribute value
+     * Set variant attribute (writes into JSON 'attributes' column)
      */
-    public function setAttribute(string $key, mixed $value): void
+    public function setVariantAttributeValue(string $key, mixed $value): void
     {
-        $attributes = $this->attributes ?? [];
-        $attributes[$key] = $value;
-        $this->attributes = $attributes;
+        $attrs = $this->getAttribute('attributes') ?? [];
+        if (!is_array($attrs)) {
+            $attrs = [];
+        }
+        $attrs[$key] = $value;
+        parent::setAttribute('attributes', $attrs);
     }
 
     /**

@@ -384,8 +384,8 @@ class ProductVariantController extends Controller
         $this->authorize('update', [Product::class, $tenantId]);
 
         $request->validate([
-            'stock' => 'required|integer|min:0',
-            'notes' => 'nullable|string',
+            'quantity' => 'required|integer|min:0',
+            'reason' => 'nullable|string|max:255',
         ]);
 
         $variant = ProductVariant::forTenant($tenantId)
@@ -393,7 +393,7 @@ class ProductVariantController extends Controller
             ->findOrFail($variantId);
 
         $oldStock = $variant->stock;
-        $variant->update(['stock' => $request->stock]);
+        $variant->update(['stock' => $request->quantity]);
 
         // Log activity
         activity('product_variant')
@@ -401,8 +401,8 @@ class ProductVariantController extends Controller
             ->causedBy(auth()->user())
             ->withProperties([
                 'old_stock' => $oldStock,
-                'new_stock' => $request->stock,
-                'notes' => $request->notes,
+                'new_stock' => $request->quantity,
+                'reason' => $request->reason,
             ])
             ->log('Stock updated');
 

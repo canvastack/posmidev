@@ -39,12 +39,12 @@ class VariantAttributeResource extends JsonResource
             // Usage tracking
             'usage_count' => $this->usage_count,
             
+            // Description
+            'description' => $this->description,
+            
             // Timestamps
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
-            
-            // Computed fields
-            'total_combinations' => $this->calculateCombinations(),
         ];
     }
 }

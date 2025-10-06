@@ -88,7 +88,9 @@ return new class extends Migration
         // GIN index for JSONB attributes (PostgreSQL-specific for fast attribute searches)
         // This allows efficient queries like: WHERE attributes @> '{"color": "Red"}'
         // Must be created after the table exists
-        DB::statement('CREATE INDEX product_variants_attributes_gin ON product_variants USING gin (attributes)');
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('CREATE INDEX product_variants_attributes_gin ON product_variants USING gin (attributes)');
+        }
     }
 
     /**
@@ -96,6 +98,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Drop GIN index if exists (PostgreSQL only)
+        if (DB::connection()->getDriverName() === 'pgsql') {
+            DB::statement('DROP INDEX IF EXISTS product_variants_attributes_gin');
+        }
+        
         Schema::dropIfExists('product_variants');
     }
 };

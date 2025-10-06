@@ -15,6 +15,14 @@ class VariantAnalytics extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
+    /**
+     * Create a new factory instance for the model
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\VariantAnalyticsFactory::new();
+    }
+
     protected $fillable = [
         'id',
         'tenant_id',
