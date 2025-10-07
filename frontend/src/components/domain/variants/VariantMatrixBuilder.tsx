@@ -123,6 +123,8 @@ export function VariantMatrixBuilder({
     removeAttribute,
     updateAttributeValues,
     generateMatrix,
+    updateCell,
+    bulkUpdateCells,
     getVariantInputs,
     validateMatrix,
     canUndo,

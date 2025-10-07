@@ -384,26 +384,25 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
 
     // Convert to matrix cells
     const cells: VariantMatrixCell[] = combinations.map((combination, index) => {
-      const sku = generateVariantSKU(combination, baseSKU, index + 1);
-      const price = calculateVariantPrice(combination, basePrice);
+      const sku = generateVariantSKU(baseSKU, combination);
+      const priceResult = calculateVariantPrice(basePrice, combination);
 
       return {
-        id: `cell-${Date.now()}-${index}`,
-        attributes: combination,
+        combination,
+        isNew: true,
+        isDirty: false,
         sku,
-        price,
-        stock_quantity: 0,
-        is_active: true,
+        price: priceResult.price,
+        stock: 0,
       };
     });
 
     // Initialize matrix in store
     initializeMatrix({
-      tenantId,
-      productId,
-      baseSKU,
-      basePrice,
-    }, attributes, cells);
+      attributes: attributes,
+      basePrice: basePrice,
+      baseStock: 0,
+    }, cells);
 
     // Save to history
     saveToHistory();
@@ -498,10 +497,12 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
       }
     });
 
-    // Check for duplicate SKUs
-    const skuErrors = checkDuplicateSKUs(inputs.map(v => v.sku));
-    if (skuErrors.length > 0) {
-      errors['duplicate-skus'] = skuErrors;
+    // Check for duplicate SKUs - pass full objects, not just SKU strings
+    const skuCheck = checkDuplicateSKUs(inputs);
+    if (skuCheck.hasDuplicates) {
+      errors['duplicate-skus'] = skuCheck.duplicateSKUs.map(
+        sku => `Duplicate SKU found: ${sku.toUpperCase()} (used in ${skuCheck.duplicates[sku].length} variants)`
+      );
     }
 
     setValidationErrors(errors);

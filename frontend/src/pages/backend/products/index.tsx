@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/Modal';
@@ -14,7 +15,7 @@ import { productApi, type ProductStats } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon, ClockIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { BulkActionToolbar } from '@/components/domain/products/BulkActionToolbar';
 import { BulkDeleteModal } from '@/components/domain/products/BulkDeleteModal';
 import { BulkUpdateStatusModal } from '@/components/domain/products/BulkUpdateStatusModal';
@@ -27,6 +28,7 @@ import { BulkBarcodePrintModal } from '@/components/domain/products/BulkBarcodeP
 import { ProductHistoryModal } from '@/components/domain/products/ProductHistoryModal';
 
 export default function ProductsPage() {
+  const navigate = useNavigate();
   const { tenantId } = useAuth();
   const { hasPermission } = usePermissions();
   const { toast } = useToast();
@@ -1127,6 +1129,16 @@ export default function ProductsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
+                          {hasPermission('products.view') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => navigate(`/admin/products/${product.id}`)}
+                              title="View Details"
+                            >
+                              <EyeIcon className="h-4 w-4" />
+                            </Button>
+                          )}
                           {hasPermission('products.update') && (
                             <Button
                               variant="ghost"
@@ -1220,6 +1232,16 @@ export default function ProductsPage() {
 
                       {/* Actions */}
                       <div className="flex flex-col space-y-2">
+                        {hasPermission('products.view') && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigate(`/admin/products/${product.id}`)}
+                            title="View Details"
+                          >
+                            <EyeIcon className="h-5 w-5" />
+                          </Button>
+                        )}
                         {hasPermission('products.update') && (
                           <Button
                             variant="ghost"

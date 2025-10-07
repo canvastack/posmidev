@@ -75,14 +75,16 @@ export {
 
 // Variant analytics
 export {
-  useVariantAnalytics,
   useProductVariantAnalytics,
   useTopPerformers,
   useVariantComparison,
   useVariantPerformanceSummary,
-  useRecentAnalytics,
-  useHasAnalyticsData,
-  analyticsKeys,
+  variantAnalyticsKeys,
+  transformAnalyticsForChart,
+  transformTopPerformersForChart,
+  calculateStockHeatmap,
+  generateRecommendations,
+  calculateOverviewMetrics,
 } from './useVariantAnalytics';
 
 // Variant import/export

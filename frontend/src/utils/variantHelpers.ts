@@ -482,31 +482,44 @@ export function validateVariantInput(input: ProductVariantInput): {
 
 /**
  * Check for duplicate SKUs
+ * Accepts both ProductVariant and ProductVariantInput
  */
-export function checkDuplicateSKUs(variants: ProductVariant[]): {
+export function checkDuplicateSKUs(
+  variants: Array<{ sku?: string; id?: string }>
+): {
   hasDuplicates: boolean;
-  duplicates: Record<string, string[]>;
+  duplicates: Record<string, number[]>;
+  duplicateSKUs: string[];
 } {
-  const skuMap: Record<string, string[]> = {};
+  const skuMap: Record<string, number[]> = {};
   
-  for (const variant of variants) {
-    const sku = variant.sku.toLowerCase();
+  for (let i = 0; i < variants.length; i++) {
+    const variant = variants[i];
+    const sku = variant.sku?.trim().toLowerCase();
+    
+    // Skip if SKU is empty or undefined
+    if (!sku) continue;
+    
     if (!skuMap[sku]) {
       skuMap[sku] = [];
     }
-    skuMap[sku].push(variant.id);
+    skuMap[sku].push(i);
   }
   
-  const duplicates: Record<string, string[]> = {};
-  for (const [sku, ids] of Object.entries(skuMap)) {
-    if (ids.length > 1) {
-      duplicates[sku] = ids;
+  const duplicates: Record<string, number[]> = {};
+  const duplicateSKUs: string[] = [];
+  
+  for (const [sku, indices] of Object.entries(skuMap)) {
+    if (indices.length > 1) {
+      duplicates[sku] = indices;
+      duplicateSKUs.push(sku);
     }
   }
   
   return {
-    hasDuplicates: Object.keys(duplicates).length > 0,
+    hasDuplicates: duplicateSKUs.length > 0,
     duplicates,
+    duplicateSKUs,
   };
 }
 

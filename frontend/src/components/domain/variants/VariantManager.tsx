@@ -17,10 +17,14 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/Switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/Badge';
-import { AlertCircle, CheckCircle, Package, Plus, Settings } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertCircle, CheckCircle, Package, Plus, Settings, BarChart3 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { VariantSetupChoice } from './VariantSetupChoice';
 import { VariantList } from './VariantList';
+import { VariantTemplateGallery } from './VariantTemplateGallery';
+import { VariantMatrixBuilder } from './VariantMatrixBuilder';
+import { VariantAnalyticsDashboard } from './VariantAnalyticsDashboard';
 import { useProductVariants } from '@/hooks';
 import { toast } from 'sonner';
 
@@ -127,6 +131,24 @@ export function VariantManager({
     setShowSetupChoice(true);
   };
   
+  /**
+   * Handle template applied successfully
+   */
+  const handleTemplateApplied = () => {
+    setSetupMethod(null);
+    // Variants will auto-reload via the useProductVariants hook
+    toast.success('Template applied successfully!');
+  };
+  
+  /**
+   * Handle variants created via matrix builder
+   */
+  const handleVariantsCreated = () => {
+    setSetupMethod(null);
+    // Variants will auto-reload via the useProductVariants hook
+    toast.success('Variants created successfully!');
+  };
+  
   return (
     <div className="space-y-6">
       {/* Enable Variants Toggle */}
@@ -195,14 +217,38 @@ export function VariantManager({
             />
           )}
           
-          {/* Variant List */}
+          {/* Template Gallery */}
+          {setupMethod === 'template' && (
+            <VariantTemplateGallery
+              tenantId={tenantId}
+              productId={productId}
+              productName={productName}
+              productPrice={productPrice}
+              onTemplateApplied={handleTemplateApplied}
+              onCancel={() => setSetupMethod(null)}
+            />
+          )}
+          
+          {/* Matrix Builder */}
+          {setupMethod === 'custom' && (
+            <VariantMatrixBuilder
+              tenantId={tenantId}
+              productId={productId}
+              productSku={productSku}
+              productPrice={productPrice}
+              onVariantsCreated={handleVariantsCreated}
+              onCancel={() => setSetupMethod(null)}
+            />
+          )}
+          
+          {/* Variant List & Analytics */}
           {hasExistingVariants ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Manage Variants</h3>
                   <p className="text-sm text-muted-foreground">
-                    View, edit, and manage product variants
+                    View, edit, and analyze product variants
                   </p>
                 </div>
                 
@@ -212,12 +258,35 @@ export function VariantManager({
                 </Button>
               </div>
               
-              <VariantList
-                tenantId={tenantId}
-                productId={productId}
-                productSku={productSku}
-                productPrice={productPrice}
-              />
+              <Tabs defaultValue="variants" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="variants" className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Variants
+                  </TabsTrigger>
+                  <TabsTrigger value="analytics" className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4" />
+                    Analytics
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="variants" className="space-y-4">
+                  <VariantList
+                    tenantId={tenantId}
+                    productId={productId}
+                    productSku={productSku}
+                    productPrice={productPrice}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="analytics">
+                  <VariantAnalyticsDashboard
+                    tenantId={tenantId}
+                    productId={productId}
+                    productName={productName}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           ) : (
             !showSetupChoice && (

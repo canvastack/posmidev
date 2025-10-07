@@ -51,17 +51,17 @@ export const productApi = {
 
   getProduct: async (tenantId: string, productId: string): Promise<Product> => {
     const response = await apiClient.get(`/tenants/${tenantId}/products/${productId}`);
-    return response.data;
+    return response.data.data;
   },
 
   createProduct: async (tenantId: string, data: ProductForm): Promise<Product> => {
     const response = await apiClient.post(`/tenants/${tenantId}/products`, data);
-    return response.data;
+    return response.data.data || response.data;
   },
 
   updateProduct: async (tenantId: string, productId: string, data: ProductForm): Promise<Product> => {
     const response = await apiClient.put(`/tenants/${tenantId}/products/${productId}`, data);
-    return response.data;
+    return response.data.data || response.data;
   },
 
   deleteProduct: async (tenantId: string, productId: string): Promise<void> => {

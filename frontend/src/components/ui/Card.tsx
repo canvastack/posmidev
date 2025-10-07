@@ -1,7 +1,7 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
 }
@@ -27,8 +27,8 @@ interface CardDescriptionProps {
 }
 
 // Updated to use glass utilities and tokens
-export const Card: React.FC<CardProps> = ({ children, className }) => (
-  <div className={cn('card', className)}>
+export const Card: React.FC<CardProps> = ({ children, className, ...props }) => (
+  <div className={cn('card', className)} {...props}>
     {children}
   </div>
 );

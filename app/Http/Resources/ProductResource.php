@@ -41,6 +41,16 @@ class ProductResource extends JsonResource
                         'name' => $this->resource->category->name,
                     ] : null;
                 })),
+            // Variant-related fields
+            'has_variants' => $isDomainEntity 
+                ? false 
+                : ($this->resource->has_variants ?? false),
+            'manage_stock_by_variant' => $isDomainEntity 
+                ? false 
+                : ($this->resource->manage_stock_by_variant ?? false),
+            'variant_count' => $isDomainEntity 
+                ? 0 
+                : ($this->resource->variants_count ?? $this->resource->variants()->count() ?? 0),
         ];
     }
 }

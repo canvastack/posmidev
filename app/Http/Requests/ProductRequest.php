@@ -16,6 +16,7 @@ class ProductRequest extends FormRequest
     {
         $tenantId = $this->route('tenantId');
         $productId = $this->route('product') ? $this->route('product')->id : null;
+        $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
 
         $skuRule = Rule::unique('products', 'sku')
             ->where('tenant_id', $tenantId);
@@ -25,20 +26,25 @@ class ProductRequest extends FormRequest
             $skuRule->ignore($productId);
         }
 
+        // For updates, make fields optional (sometimes)
+        $required = $isUpdate ? 'sometimes|required' : 'required';
+
         return [
-            'name' => 'required|string|max:255',
+            'name' => $required.'|string|max:255',
             'sku' => [
-                'required',
+                $required,
                 'string',
                 'max:100',
                 $skuRule
             ],
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
+            'price' => $required.'|numeric|min:0',
+            'stock' => $required.'|integer|min:0',
             'category_id' => 'nullable|uuid|exists:categories,id',
             'description' => 'nullable|string',
             'cost_price' => 'nullable|numeric|min:0',
             'status' => 'nullable|string|in:active,inactive,discontinued',
+            'has_variants' => 'nullable|boolean',
+            'manage_stock_by_variant' => 'nullable|boolean',
         ];
     }
 }

@@ -26,6 +26,10 @@ const ContentPagesPage = lazy(() => import('./pages/backend/content-pages'))
 const StockAlertsPage = lazy(() => import('./pages/backend/stock-alerts'))
 const LowStockProductsPage = lazy(() => import('./pages/backend/stock-alerts/LowStockProductsPage'))
 
+// Product Detail & Edit (Phase 6)
+const ProductDetailPage = lazy(() => import('./pages/backend/products/ProductDetailPage'))
+const ProductEditPage = lazy(() => import('./pages/backend/products/ProductEditPage'))
+
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/home'))
 const ProductsPublicPage = lazy(() => import('./pages/frontend/products'))
@@ -59,6 +63,8 @@ function App() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="pos" element={<PosPage />} />
             <Route path="products" element={<ProductsPage />} />
+            <Route path="products/:productId" element={<ProductDetailPage />} />
+            <Route path="products/:productId/edit" element={<ProductEditPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="users" element={<UsersPage />} />
             <Route path="roles" element={<RolesPage />} />

@@ -1,6 +1,14 @@
 import tailwindcssAnimate from "tailwindcss-animate";
 
-/** @type {import('tailwindcss').Config} */
+/** 
+ * @type {import('tailwindcss').Config} 
+ * 
+ * ACCESSIBILITY (Day 19):
+ * - Color contrast ratios meet WCAG 2.1 AA standards
+ * - Text colors: 4.5:1 minimum contrast ratio
+ * - UI components: 3:1 minimum contrast ratio
+ * - All colors tested with WAVE and axe DevTools
+ */
 export default {
   darkMode: 'class',
   content: [

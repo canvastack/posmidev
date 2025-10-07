@@ -36,6 +36,9 @@ export interface Product {
   created_at: string;
   image_url?: string | null;
   thumbnail_url?: string | null;
+  has_variants?: boolean;
+  manage_stock_by_variant?: boolean;
+  variant_count?: number;
 }
 
 export interface Category {
@@ -102,14 +105,16 @@ export interface RegisterForm {
 }
 
 export interface ProductForm {
-  name: string;
-  sku: string;
-  price: number;
-  stock: number;
+  name?: string;
+  sku?: string;
+  price?: number;
+  stock?: number;
   category_id?: string;
   description?: string;
   cost_price?: number;
   status?: 'active' | 'inactive' | 'discontinued';
+  has_variants?: boolean;
+  manage_stock_by_variant?: boolean;
 }
 
 export interface OrderForm {

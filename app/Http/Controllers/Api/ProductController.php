@@ -101,6 +101,10 @@ class ProductController extends Controller
 
         $this->authorize('view', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
+        // Load category relation and count variants
+        $product->load('category');
+        $product->loadCount('variants');
+
         return response()->json([
             'data' => (new ProductResource($product))->toArray($request)
         ]);
@@ -116,13 +120,23 @@ class ProductController extends Controller
 
         $this->authorize('update', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        $updatedProduct = $this->productService->updateProduct(
-            productId: $product->id,
-            name: $request->name,
-            price: $request->price,
-            stock: $request->stock,
-            description: $request->description
-        );
+        // Only call service if core product fields are being updated
+        $hasCoreFields = $request->has('name') || $request->has('price') || 
+                        $request->has('stock') || $request->has('description');
+        
+        if ($hasCoreFields) {
+            // Use service for core product updates
+            $updatedProduct = $this->productService->updateProduct(
+                productId: $product->id,
+                name: $request->name ?? $product->name,
+                price: $request->price ?? $product->price,
+                stock: $request->stock,
+                description: $request->description
+            );
+            
+            // Refresh product model after service update
+            $product = $product->fresh();
+        }
 
         // Update additional fields using Eloquent model directly
         $updateData = [];
@@ -135,13 +149,20 @@ class ProductController extends Controller
         if ($request->has('status')) {
             $updateData['status'] = $request->status;
         }
+        if ($request->has('has_variants')) {
+            $updateData['has_variants'] = $request->has_variants;
+        }
+        if ($request->has('manage_stock_by_variant')) {
+            $updateData['manage_stock_by_variant'] = $request->manage_stock_by_variant;
+        }
         
         if (!empty($updateData)) {
             $product->update($updateData);
+            $product = $product->fresh();
         }
 
         return response()->json([
-            'data' => (new ProductResource($product->fresh()))->toArray($request)
+            'data' => (new ProductResource($product))->toArray($request)
         ]);
     }
 

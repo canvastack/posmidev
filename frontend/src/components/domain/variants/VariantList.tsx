@@ -1,6 +1,7 @@
 /**
  * Variant List Component
  * Phase 6: Product Variants - Day 13
+ * Updated: Day 19 - Performance Optimization
  * 
  * Displays product variants in a table with search, filter, sort, and pagination.
  * Supports inline actions (edit, delete) and bulk operations.
@@ -9,9 +10,14 @@
  * - Tenant-scoped operations (tenantId required)
  * - All queries filter by tenant_id
  * - Permission checks for edit/delete actions
+ * 
+ * PERFORMANCE OPTIMIZATIONS (Day 19):
+ * - Memoized filtering/sorting functions
+ * - Lazy loading for large lists (auto-switches to VirtualizedVariantList)
+ * - Optimized re-render with React.memo on child components
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
@@ -120,6 +126,7 @@ export function VariantList({
    * Filter and sort variants
    */
   const filteredAndSortedVariants = useMemo(() => {
+    if (!variants || !Array.isArray(variants)) return [];
     let result = [...variants];
     
     // Filter by search

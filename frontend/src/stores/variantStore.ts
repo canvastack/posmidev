@@ -140,7 +140,7 @@ interface VariantState {
   /**
    * Initialize matrix builder with config
    */
-  initializeMatrix: (config: VariantMatrixConfig) => void;
+  initializeMatrix: (config: VariantMatrixConfig, cells?: VariantMatrixCell[]) => void;
   
   /**
    * Update matrix cell
@@ -355,12 +355,12 @@ export const useVariantStore = create<VariantState>()(
       // MATRIX BUILDER
       // ========================================
       
-      initializeMatrix: (config) => {
-        // Generate all combinations
-        const cells = generateMatrixCells(config);
+      initializeMatrix: (config, cells) => {
+        // Use provided cells or generate from config
+        const matrixCells = cells || generateMatrixCells(config);
         set({
           matrixConfig: config,
-          matrixCells: cells,
+          matrixCells,
           isDirty: false,
         });
       },
