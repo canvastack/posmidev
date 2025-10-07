@@ -389,9 +389,10 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
       attributes.map(attr => ({ name: attr.name, values: attr.values }))
     );
 
-    // Convert to matrix cells
+    // Convert to matrix cells with unique SKUs
     const cells: VariantMatrixCell[] = combinations.map((combination, index) => {
-      const sku = generateVariantSKU(baseSKU, combination);
+      // Generate SKU with incremental number (1-based index)
+      const sku = generateVariantSKU(baseSKU, combination, '{BASE}-{ATTR:all}', index + 1);
       const priceResult = calculateVariantPrice(basePrice, combination);
 
       return {

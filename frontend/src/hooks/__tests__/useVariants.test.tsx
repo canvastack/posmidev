@@ -571,10 +571,10 @@ describe('useVariants Hooks', () => {
 
   describe('useBulkCreateVariants', () => {
     it('creates multiple variants successfully', async () => {
-      const mockResponse = { created: 3, failed: 0, variants: mockVariants };
+      const mockResponse = { created_count: 3, failed: 0, variants: mockVariants };
       vi.spyOn(variantsApi, 'bulkCreateVariants').mockResolvedValue(mockResponse);
 
-      const { result } = renderHook(() => useBulkCreateVariants(), {
+      const { result } = renderHook(() => useBulkCreateVariants(mockTenantId(), mockProductId()), {
         wrapper: createWrapper(),
       });
 
@@ -585,7 +585,6 @@ describe('useVariants Hooks', () => {
           price: 100,
           stock: 10,
           attributes: { color: 'Red' },
-          status: 'active' as const,
         },
         {
           sku: 'BULK-002',
@@ -593,16 +592,11 @@ describe('useVariants Hooks', () => {
           price: 120,
           stock: 15,
           attributes: { color: 'Blue' },
-          status: 'active' as const,
         },
       ];
 
       act(() => {
-        result.current.mutate({
-          tenantId: mockTenantId(),
-          productId: mockProductId(),
-          data: { variants: variantInputs },
-        });
+        result.current.mutate({ variants: variantInputs });
       });
 
       await waitFor(() => {
@@ -610,27 +604,23 @@ describe('useVariants Hooks', () => {
       });
 
       expect(result.current.data).toEqual(mockResponse);
-      expect(variantsApi.bulkCreateVariants).toHaveBeenCalledWith({
-        tenantId: mockTenantId(),
-        productId: mockProductId(),
-        data: { variants: variantInputs },
-      });
+      expect(variantsApi.bulkCreateVariants).toHaveBeenCalledWith(
+        mockTenantId(),
+        mockProductId(),
+        { variants: variantInputs }
+      );
     });
 
     it('handles bulk create error', async () => {
       const mockError = new Error('Bulk operation failed');
       vi.spyOn(variantsApi, 'bulkCreateVariants').mockRejectedValue(mockError);
 
-      const { result } = renderHook(() => useBulkCreateVariants(), {
+      const { result } = renderHook(() => useBulkCreateVariants(mockTenantId(), mockProductId()), {
         wrapper: createWrapper(),
       });
 
       act(() => {
-        result.current.mutate({
-          tenantId: mockTenantId(),
-          productId: mockProductId(),
-          data: { variants: [] },
-        });
+        result.current.mutate({ variants: [] });
       });
 
       await waitFor(() => {
@@ -639,7 +629,7 @@ describe('useVariants Hooks', () => {
     });
 
     it('validates bulk limit (max 500)', async () => {
-      const { result } = renderHook(() => useBulkCreateVariants(), {
+      const { result } = renderHook(() => useBulkCreateVariants(mockTenantId(), mockProductId()), {
         wrapper: createWrapper(),
       });
 
@@ -650,15 +640,10 @@ describe('useVariants Hooks', () => {
         price: 100,
         stock: 10,
         attributes: {},
-        status: 'active' as const,
       }));
 
       act(() => {
-        result.current.mutate({
-          tenantId: mockTenantId(),
-          productId: mockProductId(),
-          data: { variants: tooManyVariants },
-        });
+        result.current.mutate({ variants: tooManyVariants });
       });
 
       // Should show error (either from validation or API)
@@ -668,7 +653,7 @@ describe('useVariants Hooks', () => {
     });
 
     it('invalidates cache after bulk create', async () => {
-      const mockResponse = { created: 2, failed: 0, variants: mockVariants };
+      const mockResponse = { created_count: 2, failed: 0, variants: mockVariants };
       vi.spyOn(variantsApi, 'bulkCreateVariants').mockResolvedValue(mockResponse);
 
       const queryClient = new QueryClient({
@@ -680,24 +665,19 @@ describe('useVariants Hooks', () => {
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       );
 
-      const { result } = renderHook(() => useBulkCreateVariants(), { wrapper });
+      const { result } = renderHook(() => useBulkCreateVariants(mockTenantId(), mockProductId()), { wrapper });
 
       act(() => {
         result.current.mutate({
-          tenantId: mockTenantId(),
-          productId: mockProductId(),
-          data: {
-            variants: [
-              {
-                sku: 'BULK-001',
-                name: 'Variant 1',
-                price: 100,
-                stock: 10,
-                attributes: {},
-                status: 'active',
-              },
-            ],
-          },
+          variants: [
+            {
+              sku: 'BULK-001',
+              name: 'Variant 1',
+              price: 100,
+              stock: 10,
+              attributes: {},
+            },
+          ],
         });
       });
 

@@ -22,6 +22,8 @@ class VariantAnalyticsResource extends JsonResource
             // Time period
             'period_type' => $this->period_type,
             'period_date' => $this->period_date?->format('Y-m-d'),
+            'period_start' => $this->period_start?->format('Y-m-d'),
+            'period_end' => $this->period_end?->format('Y-m-d'),
             
             // Sales metrics
             'total_orders' => $this->total_orders,

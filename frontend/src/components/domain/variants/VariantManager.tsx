@@ -25,9 +25,10 @@ import { VariantList } from './VariantList';
 import { VariantTemplateGallery } from './VariantTemplateGallery';
 import { VariantMatrixBuilder } from './VariantMatrixBuilder';
 import { VariantAnalyticsDashboard } from './VariantAnalyticsDashboard';
-import { useProductVariants, variantKeys } from '@/hooks';
+import { useProductVariants, variantKeys, useBulkCreateVariants } from '@/hooks';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import type { ProductVariantInput } from '@/types/variant';
 
 export interface VariantManagerProps {
   /** Tenant ID (required for IMMUTABLE RULES compliance) */
@@ -146,12 +147,30 @@ export function VariantManager({
   };
   
   /**
+   * Bulk create variants mutation
+   */
+  const { mutate: createVariantsBulk, isPending: isCreatingVariants } = useBulkCreateVariants(tenantId, productId);
+  
+  /**
    * Handle variants created via matrix builder
    */
-  const handleVariantsCreated = () => {
-    setSetupMethod(null);
-    // Variants will auto-reload via the useProductVariants hook
-    toast.success('Variants created successfully!');
+  const handleVariantsCreated = (variantInputs: ProductVariantInput[]) => {
+    if (!variantInputs || variantInputs.length === 0) {
+      toast.error('No variants to create');
+      return;
+    }
+
+    // Call bulk create API
+    createVariantsBulk(
+      { variants: variantInputs },
+      {
+        onSuccess: () => {
+          setSetupMethod(null);
+          // Cache invalidation is handled by the mutation hook
+          // Variants will auto-reload via the useProductVariants hook
+        },
+      }
+    );
   };
   
   return (
@@ -239,10 +258,12 @@ export function VariantManager({
             <VariantMatrixBuilder
               tenantId={tenantId}
               productId={productId}
-              productSku={productSku}
-              productPrice={productPrice}
+              baseSKU={productSku}
+              basePrice={productPrice}
+              productName={productName}
               onVariantsCreated={handleVariantsCreated}
               onCancel={() => setSetupMethod(null)}
+              isLoading={isCreatingVariants}
             />
           )}
           

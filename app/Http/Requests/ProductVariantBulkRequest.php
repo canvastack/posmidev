@@ -25,7 +25,7 @@ class ProductVariantBulkRequest extends FormRequest
             ],
             'variants.*.name' => 'nullable|string|max:255',
             'variants.*.attributes' => 'nullable|array',
-            'variants.*.attributes.*' => 'string|max:255',
+            // Attributes is a key-value object (JSONB), validate each value
             'variants.*.price' => 'nullable|numeric|min:0',
             'variants.*.cost_price' => 'nullable|numeric|min:0',
             'variants.*.price_modifier' => 'nullable|numeric',
@@ -58,12 +58,34 @@ class ProductVariantBulkRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // Check if variants array exists and is not empty
+            if (!isset($this->variants) || !is_array($this->variants)) {
+                return;
+            }
+            
             $skus = collect($this->variants)->pluck('sku')->filter();
             $duplicates = $skus->duplicates();
             
             if ($duplicates->count() > 0) {
-                $validator->errors()->add('variants', 'Duplicate SKUs found in request: ' . $duplicates->implode(', '));
+                $validator->errors()->add(
+                    'variants', 
+                    'Duplicate SKUs found in the request: ' . $duplicates->unique()->implode(', ')
+                );
             }
         });
+    }
+    
+    /**
+     * Handle a failed validation attempt.
+     */
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        // Log validation errors for debugging
+        \Illuminate\Support\Facades\Log::error('ProductVariantBulkRequest validation failed', [
+            'errors' => $validator->errors()->toArray(),
+            'request_data' => $this->all(),
+        ]);
+        
+        parent::failedValidation($validator);
     }
 }

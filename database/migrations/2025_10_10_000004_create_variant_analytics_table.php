@@ -20,7 +20,9 @@ return new class extends Migration
             $table->uuid('product_variant_id');
             
             // Time period for this analytics snapshot
-            $table->date('period_date'); // Daily snapshot
+            $table->date('period_date'); // Daily snapshot (for reference)
+            $table->date('period_start'); // Period start date
+            $table->date('period_end'); // Period end date
             $table->string('period_type')->default('daily'); // daily, weekly, monthly
             
             // Sales metrics
@@ -75,7 +77,7 @@ return new class extends Migration
             $table->index(['tenant_id', 'period_type', 'period_date']); // Period type queries
             
             // Unique constraint (one record per variant per period)
-            $table->unique(['tenant_id', 'product_variant_id', 'period_date', 'period_type'], 'va_tenant_variant_period_unique');
+            $table->unique(['tenant_id', 'product_variant_id', 'period_start', 'period_type'], 'va_tenant_variant_period_unique');
         });
     }
 

@@ -65,6 +65,9 @@ export interface VariantMatrixBuilderProps {
   /** Callback when variants are saved */
   onSave?: (variantInputs: any[]) => void;
   
+  /** Callback when variants are created (alias for onSave) */
+  onVariantsCreated?: (variantInputs: any[]) => void;
+  
   /** Callback when cancelled */
   onCancel?: () => void;
   
@@ -105,6 +108,7 @@ export function VariantMatrixBuilder({
   basePrice = 0,
   productName = 'Product',
   onSave,
+  onVariantsCreated,
   onCancel,
   isLoading = false,
 }: VariantMatrixBuilderProps) {
@@ -500,8 +504,10 @@ export function VariantMatrixBuilder({
     }
     
     const variantInputs = getVariantInputs(opts);
+    // Support both callback names for backward compatibility
     onSave?.(variantInputs);
-  }, [validateMatrix, getVariantInputs, onSave, selectedCellIds, matrixCells.length]);
+    onVariantsCreated?.(variantInputs);
+  }, [validateMatrix, getVariantInputs, onSave, onVariantsCreated, selectedCellIds, matrixCells.length]);
   
   /**
    * Cancel and reset

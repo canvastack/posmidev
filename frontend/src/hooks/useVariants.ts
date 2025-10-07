@@ -289,10 +289,9 @@ export function useDeleteVariant(tenantId: string) {
  * 
  * @example
  * ```tsx
- * const { mutate: bulkCreate } = useBulkCreateVariants(tenantId);
+ * const { mutate: bulkCreate } = useBulkCreateVariants(tenantId, productId);
  * 
  * bulkCreate({
- *   product_id: 'xxx',
  *   variants: [
  *     { sku: 'V1', attributes: {...}, price: 10 },
  *     { sku: 'V2', attributes: {...}, price: 12 },
@@ -300,15 +299,18 @@ export function useDeleteVariant(tenantId: string) {
  * });
  * ```
  */
-export function useBulkCreateVariants(tenantId: string) {
+export function useBulkCreateVariants(tenantId: string, productId: string) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (data: BulkVariantCreateInput) => bulkCreateVariants(tenantId, data),
+    mutationFn: (data: BulkVariantCreateInput) => bulkCreateVariants(tenantId, productId, data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: variantKeys.lists() });
       queryClient.invalidateQueries({ queryKey: variantKeys.all });
+      queryClient.invalidateQueries({ 
+        queryKey: variantKeys.productVariants(tenantId, productId) 
+      });
       
       toast({
         title: 'Variants created',

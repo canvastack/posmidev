@@ -152,6 +152,10 @@ Route::prefix('v1')->group(function () {
                 Route::post('/bulk', [ProductVariantController::class, 'bulkStore']);
                 Route::patch('/bulk', [ProductVariantController::class, 'bulkUpdate']);
                 Route::delete('/bulk', [ProductVariantController::class, 'bulkDestroy']);
+                // Analytics routes MUST be before /{variantId} to avoid route conflicts
+                Route::get('/analytics', [VariantAnalyticsController::class, 'productAnalytics']);
+                Route::get('/{variantId}/analytics', [VariantAnalyticsController::class, 'show']);
+                // Parameterized routes come last
                 Route::get('/{variantId}', [ProductVariantController::class, 'show']);
                 Route::patch('/{variantId}', [ProductVariantController::class, 'update']);
                 Route::delete('/{variantId}', [ProductVariantController::class, 'destroy']);
@@ -179,9 +183,7 @@ Route::prefix('v1')->group(function () {
             Route::post('variant-templates/{id}/apply', [VariantTemplateController::class, 'applyToProduct']);
             Route::post('variant-templates/{id}/preview', [VariantTemplateController::class, 'preview']);
             
-            // Variant Analytics (Phase 6)
-            Route::get('variants/{variantId}/analytics', [VariantAnalyticsController::class, 'show']);
-            Route::get('products/{productId}/analytics', [VariantAnalyticsController::class, 'productAnalytics']);
+            // Variant Analytics (Phase 6) - Global analytics endpoints
             Route::get('variants/analytics/top-performers', [VariantAnalyticsController::class, 'topPerformers']);
             Route::post('variants/analytics/compare', [VariantAnalyticsController::class, 'compare']);
             Route::get('variants/analytics/performance-summary', [VariantAnalyticsController::class, 'performanceSummary']);

@@ -129,19 +129,32 @@ export function isReasonableCombinationCount(count: number): {
  * 
  * Patterns:
  * - {BASE} - Base product SKU
- * - {ATTR:name} - Attribute value (first 3 chars, uppercase)
+ * - {ATTR:name} - Attribute value (converted to slug)
  * - {SEQ} - Sequential number
  * 
  * @example
- * generateVariantSKU("TSHIRT-001", { Size: "M", Color: "Red" }, "{BASE}-{ATTR:Size}-{ATTR:Color}")
- * // Returns: "TSHIRT-001-M-RED"
+ * generateVariantSKU("TSHIRT-001", { Size: "M", Color: "Red" }, "{BASE}-{ATTR:Size}-{ATTR:Color}", 1)
+ * // Returns: "TSHIRT-001-M-RED-001"
+ * 
+ * generateVariantSKU("TEA-001", { Variant: "V A D" }, "{BASE}-{ATTR:all}", 2)
+ * // Returns: "TEA-001-V-A-D-002"
  */
 export function generateVariantSKU(
   baseSKU: string,
   attributes: Record<string, string>,
-  pattern: string = '{BASE}-{ATTR:all}'
+  pattern: string = '{BASE}-{ATTR:all}',
+  sequenceNumber?: number
 ): string {
   let sku = pattern;
+  
+  // Helper: Convert attribute value to SKU-safe format
+  const toSKUFormat = (value: string): string => {
+    return value
+      .trim()                          // Remove leading/trailing spaces
+      .replace(/\s+/g, '-')           // Replace spaces with dashes
+      .replace(/[^a-zA-Z0-9-]/g, '')  // Remove special chars
+      .toUpperCase();
+  };
   
   // Replace {BASE}
   sku = sku.replace(/{BASE}/g, baseSKU);
@@ -153,11 +166,11 @@ export function generateVariantSKU(
     if (attrName === 'all') {
       // Replace with all attributes concatenated
       const attrString = Object.values(attributes)
-        .map((v) => v.substring(0, 3).toUpperCase())
+        .map((v) => toSKUFormat(v))
         .join('-');
       sku = sku.replace(/{ATTR:all}/g, attrString);
     } else if (attributes[attrName]) {
-      const value = attributes[attrName].substring(0, 3).toUpperCase();
+      const value = toSKUFormat(attributes[attrName]);
       sku = sku.replace(new RegExp(`{ATTR:${attrName}}`, 'g'), value);
     }
   }
@@ -170,6 +183,12 @@ export function generateVariantSKU(
   
   // Remove leading/trailing hyphens
   sku = sku.replace(/^-|-$/g, '');
+  
+  // Add sequence number if provided
+  if (sequenceNumber !== undefined) {
+    const paddedNumber = String(sequenceNumber).padStart(3, '0');
+    sku = `${sku}-${paddedNumber}`;
+  }
   
   return sku.toUpperCase();
 }
