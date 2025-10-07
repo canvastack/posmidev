@@ -15,6 +15,7 @@ import { productApi, type ProductStats } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { getImageUrl } from '@/utils/imageHelpers';
 import { PlusIcon, PencilIcon, TrashIcon, ArchiveBoxIcon, MagnifyingGlassIcon, XMarkIcon, CubeIcon, CurrencyDollarIcon, ExclamationTriangleIcon, ChartBarIcon, ArrowUpIcon, ArrowDownIcon, ShieldExclamationIcon, ClockIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { BulkActionToolbar } from '@/components/domain/products/BulkActionToolbar';
 import { BulkDeleteModal } from '@/components/domain/products/BulkDeleteModal';
@@ -530,64 +531,6 @@ export default function ProductsPage() {
       style: 'currency',
       currency: 'IDR',
     }).format(amount);
-  };
-
-  // Helper function to handle image URLs properly
-  const getImageUrl = (imageUrl: string | null | undefined): string | null => {
-    if (!imageUrl) {
-      console.log('Image URL is null or undefined');
-      return null;
-    }
-
-    console.log('Processing image URL:', imageUrl);
-
-    // If it's already a local storage path, return as is
-    if (imageUrl.startsWith('/storage/') || imageUrl.startsWith('storage/')) {
-      const result = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-      console.log('Local storage path:', result);
-      return result;
-    }
-
-    // Check if it's a local app URL (localhost:9000) - this should be displayed
-    if (imageUrl.startsWith('http://localhost:9000') || imageUrl.startsWith('https://localhost:9000')) {
-      // Special case: if URL contains /storage/https://... extract the external URL
-      if (imageUrl.includes('/storage/https://') || imageUrl.includes('/storage/http://')) {
-        const parts = imageUrl.split('/storage/');
-        const extractedUrl = parts.length > 1 ? parts[1] : imageUrl;
-        console.log('✅ Extracted external URL from malformed path, displaying image:', extractedUrl);
-        return extractedUrl;
-      }
-
-      console.log('✅ Local app URL detected, displaying image:', imageUrl);
-      return imageUrl;
-    }
-
-    // Check if it's a full external URL - display it directly (including valid external images)
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      // Only treat as no-image if it's a known placeholder/demo domain
-      const placeholderDomains = ['via.placeholder.com', 'picsum.photos', 'loremflickr.com', 'dummyimage.com'];
-      const isPlaceholder = placeholderDomains.some(domain => imageUrl.includes(domain));
-
-      if (isPlaceholder) {
-        console.log('❌ Placeholder/demo image detected, using default icon instead:', imageUrl);
-        return null;
-      }
-
-      // Valid external URLs (including unsplash and other image services) should be displayed
-      console.log('✅ Valid external URL detected, displaying image:', imageUrl);
-      return imageUrl;
-    }
-
-    // Handle paths that start with 'products/' or 'products/thumb_'
-    if (imageUrl.startsWith('products/') || imageUrl.startsWith('products/thumb_')) {
-      console.log('Products path detected, keeping as is:', imageUrl);
-      return imageUrl;
-    }
-
-    // For any other format, assume it's a filename and prepend storage path
-    const result = imageUrl ? `/storage/${imageUrl}` : null;
-    console.log('Processed image URL:', result);
-    return result;
   };
 
   return (

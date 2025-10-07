@@ -9,6 +9,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { useToast } from '@/hooks/use-toast';
 import { productApi } from '@/api/productApi';
 import type { Product } from '@/types';
+import { getImageUrl } from '@/utils/imageHelpers';
 import { 
   ArrowLeftIcon, 
   PencilIcon, 
@@ -218,12 +219,16 @@ export default function ProductDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Product Image */}
-                {product.image_url && (
+                {getImageUrl(product.image_url) && (
                   <div className="flex justify-center">
                     <img
-                      src={product.image_url}
+                      src={getImageUrl(product.image_url) || ''}
                       alt={product.name}
                       className="max-w-xs rounded-lg shadow-md"
+                      onError={(e) => {
+                        // Hide image if it fails to load
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   </div>
                 )}

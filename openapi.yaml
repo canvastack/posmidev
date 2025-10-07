@@ -1958,6 +1958,172 @@ paths:
         '200':
           description: Variant deleted
 
+  # ========== VARIANT ANALYTICS ==========
+  /tenants/{tenantId}/products/{productId}/variants/analytics:
+    get:
+      tags: [Product Variants, Analytics]
+      summary: Get analytics for all variants of a product
+      description: |
+        Returns aggregated analytics data for all variants of a specific product.
+        Supports filtering by period type (daily, weekly, monthly) and date range.
+        **Required Permission:** `products.view`
+      operationId: getProductVariantsAnalytics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+          description: Type of period aggregation
+        - in: query
+          name: period_start
+          schema:
+            type: string
+            format: date
+          description: Start date for analytics range (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema:
+            type: string
+            format: date
+          description: End date for analytics range (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      variant_count:
+                        type: integer
+                  period_type:
+                    type: string
+                    enum: [daily, weekly, monthly]
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        variant:
+                          $ref: '#/components/schemas/ProductVariant'
+                        analytics:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/VariantAnalytics'
+                        summary:
+                          type: object
+                          properties:
+                            total_revenue:
+                              type: number
+                              format: float
+                            total_orders:
+                              type: integer
+                            total_quantity_sold:
+                              type: integer
+                            total_profit:
+                              type: number
+                              format: float
+                  overall_summary:
+                    type: object
+                    properties:
+                      total_revenue:
+                        type: number
+                        format: float
+                      total_orders:
+                        type: integer
+                      total_quantity_sold:
+                        type: integer
+                      total_profit:
+                        type: number
+                        format: float
+                      avg_conversion_rate:
+                        type: number
+                        format: float
+        '403':
+          description: Forbidden - Insufficient permissions
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/analytics:
+    get:
+      tags: [Product Variants, Analytics]
+      summary: Get analytics for a specific variant
+      description: |
+        Returns time-series analytics data for a single product variant.
+        Includes revenue, orders, stock movements, and performance metrics.
+        **Required Permission:** `products.view`
+      operationId: getProductVariantAnalytics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - $ref: '#/components/parameters/VariantId'
+        - in: query
+          name: period_type
+          schema:
+            type: string
+            enum: [daily, weekly, monthly]
+            default: daily
+          description: Type of period aggregation
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 365
+            default: 30
+          description: Number of periods to return
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variant:
+                    $ref: '#/components/schemas/ProductVariant'
+                  analytics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantAnalytics'
+                  summary:
+                    type: object
+                    properties:
+                      total_revenue:
+                        type: number
+                        format: float
+                      total_orders:
+                        type: integer
+                      total_quantity_sold:
+                        type: integer
+                      total_profit:
+                        type: number
+                        format: float
+                      avg_conversion_rate:
+                        type: number
+                        format: float
+                      avg_turnover_rate:
+                        type: number
+                        format: float
+        '403':
+          description: Forbidden - Insufficient permissions
+        '404':
+          description: Variant not found
+
   /tenants/{tenantId}/products/{productId}/variants/{variantId}/stock:
     post:
       tags: [Product Variants]

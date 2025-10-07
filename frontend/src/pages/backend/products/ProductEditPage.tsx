@@ -23,6 +23,7 @@ import { productApi } from '@/api/productApi';
 import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { getImageUrl } from '@/utils/imageHelpers';
 import { ArrowLeftIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function ProductEditPage() {
@@ -89,10 +90,7 @@ export default function ProductEditPage() {
         
         // Set image preview if exists
         if (productData.image_url) {
-          setImagePreview(productData.image_url.startsWith('http') 
-            ? productData.image_url 
-            : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:9000'}${productData.image_url}`
-          );
+          setImagePreview(getImageUrl(productData.image_url));
         }
         
         // Fetch categories
