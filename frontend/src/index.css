@@ -126,7 +126,7 @@
 @layer base {
   :root {
     /* HSL design tokens for Tailwind v4 color functions */
-    --background: 0 0% 100%;
+    --background: 214 88% 97%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -153,7 +153,7 @@
     --chart-5: 27 87% 67%;
   }
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 219 36% 16%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;

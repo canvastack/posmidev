@@ -409,33 +409,54 @@ export const deleteVariantTemplate = async (
 };
 
 /**
- * Preview template application
+ * Preview template application (spec-aligned)
+ * Maps FE params to backend: uses data.template_id as path param and sends { product_id }
  */
 export const previewTemplate = async (
   tenantId: string,
   productId: string,
   data: ApplyTemplateInput
 ): Promise<ApplyTemplatePreview> => {
+  const templateId = data.template_id;
   const response = await apiClient.post(
-    `/tenants/${tenantId}/products/${productId}/variants/template/preview`,
-    data
+    `/tenants/${tenantId}/variant-templates/${templateId}/preview`,
+    { product_id: productId }
   );
-  return response.data;
+
+  const preview = response.data?.preview;
+  return {
+    expected_count: preview?.variant_count ?? 0,
+    variants: preview?.variants ?? [],
+    warnings: [],
+  };
 };
 
 /**
- * Apply template to product
+ * Apply template to product (spec-aligned)
+ * Maps FE params to backend: uses data.template_id as path param and sends { product_id, override_existing }
  */
 export const applyTemplate = async (
   tenantId: string,
   productId: string,
   data: ApplyTemplateInput
 ): Promise<BulkCreateResponse> => {
+  const templateId = data.template_id;
   const response = await apiClient.post(
-    `/tenants/${tenantId}/products/${productId}/variants/template/apply`,
-    data
+    `/tenants/${tenantId}/variant-templates/${templateId}/apply`,
+    {
+      product_id: productId,
+      ...(data.override_existing !== undefined ? { override_existing: data.override_existing } : {}),
+    }
   );
-  return response.data;
+
+  // Adapt backend response to BulkCreateResponse shape expected by UI
+  const createdCount: number = response.data?.variants_created ?? 0;
+  return {
+    success: true,
+    created_count: createdCount,
+    failed_count: 0,
+    variants: [],
+  };
 };
 
 // ========================================

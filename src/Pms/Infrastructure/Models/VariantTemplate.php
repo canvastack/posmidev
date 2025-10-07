@@ -282,6 +282,15 @@ class VariantTemplate extends Model
     }
 
     /**
+     * Calculate total combinations (alias to estimated variant count)
+     */
+    public function calculateTotalCombinations(): int
+    {
+        // Keep lightweight by using the precomputed logic
+        return $this->calculateEstimatedVariantCount();
+    }
+
+    /**
      * Update estimated variant count
      */
     public function updateEstimatedVariantCount(): void

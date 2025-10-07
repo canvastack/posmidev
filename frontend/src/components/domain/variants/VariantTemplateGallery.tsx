@@ -205,12 +205,10 @@ export function VariantTemplateGallery({
     try {
       const result = await applyTemplate(tenantId, productId, {
         template_id: selectedTemplate.id,
-        base_price: productPrice,
-        base_stock: baseStock,
-        override_pricing: true,
+        override_existing: true,
       });
       
-      toast.success(`Successfully created ${result.success_count} variants`);
+      toast.success(`Successfully created ${result.created_count} variants`);
       onTemplateApplied();
     } catch (error) {
       console.error('Failed to apply template:', error);
@@ -221,7 +219,7 @@ export function VariantTemplateGallery({
   
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+      <DialogContent className="w-[96vw] sm:w-[90vw] md:w-[85vw] lg:w-[80vw] max-w-6xl h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle>Choose a Variant Template</DialogTitle>
           <DialogDescription>
@@ -264,7 +262,7 @@ export function VariantTemplateGallery({
             </div>
             
             {/* Template Grid */}
-            <ScrollArea className="h-[500px] pr-4">
+            <ScrollArea className="h-[50vh] md:h-[55vh] lg:h-[60vh] pr-4">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -425,7 +423,7 @@ export function VariantTemplateGallery({
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Base Price:</span>
                         <span className="font-semibold">
-                          ${productPrice.toFixed(2)}
+                          ${Number(productPrice ?? 0).toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -493,7 +491,7 @@ export function VariantTemplateGallery({
                         <div className="space-y-1">
                           {preview.variants.slice(0, 10).map((variant, idx) => (
                             <p key={idx} className="text-xs">
-                              {variant.sku} - ${variant.price.toFixed(2)}
+                              {variant.sku} - ${Number((variant as any).price ?? 0).toFixed(2)}
                             </p>
                           ))}
                           {preview.variants.length > 10 && (

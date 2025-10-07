@@ -25,8 +25,9 @@ import { VariantList } from './VariantList';
 import { VariantTemplateGallery } from './VariantTemplateGallery';
 import { VariantMatrixBuilder } from './VariantMatrixBuilder';
 import { VariantAnalyticsDashboard } from './VariantAnalyticsDashboard';
-import { useProductVariants } from '@/hooks';
+import { useProductVariants, variantKeys } from '@/hooks';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export interface VariantManagerProps {
   /** Tenant ID (required for IMMUTABLE RULES compliance) */
@@ -74,7 +75,7 @@ export function VariantManager({
     data: variants,
     isLoading,
     error,
-  } = useProductVariants(tenantId, productId, {
+  } = useProductVariants(tenantId, productId, undefined, {
     enabled: variantsEnabled,
   });
   
@@ -134,9 +135,13 @@ export function VariantManager({
   /**
    * Handle template applied successfully
    */
+  const queryClient = useQueryClient();
+
   const handleTemplateApplied = () => {
     setSetupMethod(null);
-    // Variants will auto-reload via the useProductVariants hook
+    // Explicitly invalidate product variants cache to refresh list immediately
+    queryClient.invalidateQueries({ queryKey: variantKeys.productVariants(tenantId, productId) });
+    queryClient.invalidateQueries({ queryKey: variantKeys.all });
     toast.success('Template applied successfully!');
   };
   

@@ -115,7 +115,11 @@ export function useProductVariants(
 ) {
   return useQuery<ProductVariant[]>({
     queryKey: variantKeys.productVariants(tenantId, productId, params),
-    queryFn: () => getProductVariants(tenantId, productId, params),
+    // Unwrap API response shape { data: ProductVariant[], meta, links } to just the array for consumers
+    queryFn: async () => {
+      const res = await getProductVariants(tenantId, productId, params);
+      return res.data;
+    },
     enabled: !!tenantId && !!productId,
     staleTime: 30000,
     ...options,

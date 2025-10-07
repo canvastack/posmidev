@@ -125,6 +125,8 @@ export function VariantMatrixBuilder({
     generateMatrix,
     updateCell,
     bulkUpdateCells,
+    removeCell,
+    removeCells,
     getVariantInputs,
     validateMatrix,
     canUndo,
@@ -182,9 +184,9 @@ export function VariantMatrixBuilder({
   const stepStatus = useMemo(() => {
     return {
       step1Complete: hasAttributes && combinationCount > 0,
-      step2Complete: hasMatrix && validateMatrix(),
+      step2Complete: hasMatrix, // validate on save only to avoid side effects in render
     };
-  }, [hasAttributes, combinationCount, hasMatrix, validateMatrix]);
+  }, [hasAttributes, combinationCount, hasMatrix]);
   
   // Selection computed values
   const selectedCount = selectedCellIds.size;
@@ -314,7 +316,7 @@ export function VariantMatrixBuilder({
     } else if (editingField === 'stock') {
       const parsed = parseInt(editValue);
       if (isNaN(parsed) || parsed < 0) return; // Don't save invalid stock
-      updates.stock_quantity = parsed;
+      updates.stock = parsed;
     }
     
     updateCell(editingCell, updates);
@@ -395,15 +397,11 @@ export function VariantMatrixBuilder({
     
     if (!confirmed) return;
     
-    // Remove selected cells from matrix
-    const cellsToKeep = matrixCells.filter(cell => !selectedCellIds.has(cell.id));
-    
-    // Update matrix through hook (this would need to be added to useVariantMatrix)
-    // For now, we'll just clear selection
-    // TODO: Add removeCell/removeCells method to useVariantMatrix hook
-    
+    // Remove selected cells through hook
+    const ids = Array.from(selectedCellIds);
+    removeCells(ids);
     setSelectedCellIds(new Set());
-  }, [selectedCellIds, matrixCells]);
+  }, [selectedCellIds, removeCells]);
   
   /**
    * Delete individual variant
@@ -412,14 +410,13 @@ export function VariantMatrixBuilder({
     const confirmed = window.confirm('Are you sure you want to delete this variant?');
     if (!confirmed) return;
     
-    // TODO: Add removeCell method to useVariantMatrix hook
-    // For now, just clear from selection if selected
+    removeCell(cellId);
     setSelectedCellIds(prev => {
       const newSet = new Set(prev);
       newSet.delete(cellId);
       return newSet;
     });
-  }, []);
+  }, [removeCell]);
   
   /**
    * Apply bulk price update
@@ -472,7 +469,7 @@ export function VariantMatrixBuilder({
     const selectedCells = Array.from(selectedCellIds);
     if (selectedCells.length === 0) return;
     
-    bulkUpdateCells(selectedCells, { stock_quantity: value });
+    bulkUpdateCells(selectedCells, { stock: value });
     setShowBulkStockModal(false);
     setBulkStockValue('');
   }, [bulkStockValue, selectedCellIds, bulkUpdateCells]);
@@ -483,15 +480,28 @@ export function VariantMatrixBuilder({
   
   /**
    * Save variants
+   * Scope rules:
+   * - If any rows are selected → save only selected
+   * - If none selected → save all
+   * Validation follows the same scope
    */
   const handleSave = useCallback(() => {
-    if (!validateMatrix()) {
+    const selectedIds = Array.from(selectedCellIds);
+    const total = matrixCells.length;
+    const hasSelection = selectedIds.length > 0;
+    const isAllSelected = hasSelection && selectedIds.length === total;
+
+    const opts = isAllSelected || !hasSelection
+      ? { mode: 'all' as const }
+      : { mode: 'selected' as const, selectedIds };
+
+    if (!validateMatrix(opts)) {
       return;
     }
     
-    const variantInputs = getVariantInputs();
+    const variantInputs = getVariantInputs(opts);
     onSave?.(variantInputs);
-  }, [validateMatrix, getVariantInputs, onSave]);
+  }, [validateMatrix, getVariantInputs, onSave, selectedCellIds, matrixCells.length]);
   
   /**
    * Cancel and reset
@@ -516,7 +526,7 @@ export function VariantMatrixBuilder({
   const renderCombinationBadge = () => {
     if (combinationCount === 0) {
       return (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Info className="h-4 w-4" />
           <span>Add attributes to see variant count</span>
         </div>
@@ -569,7 +579,7 @@ export function VariantMatrixBuilder({
           
           <button
             onClick={handleClearSelection}
-            className="text-sm text-gray-600 hover:text-gray-900 underline"
+            className="text-sm text-muted-foreground hover:text-foreground underline"
           >
             Clear
           </button>
@@ -578,7 +588,7 @@ export function VariantMatrixBuilder({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowBulkPriceModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
           >
             <DollarSign className="h-4 w-4" />
             <span>Update Price</span>
@@ -586,7 +596,7 @@ export function VariantMatrixBuilder({
           
           <button
             onClick={() => setShowBulkStockModal(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-card border border-border text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
           >
             <Package className="h-4 w-4" />
             <span>Update Stock</span>
@@ -594,7 +604,7 @@ export function VariantMatrixBuilder({
           
           <button
             onClick={handleDeleteSelected}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-red-50 border border-red-200 text-red-700 hover:bg-red-100 active:bg-red-200 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-destructive/10 border border-destructive text-destructive hover:bg-destructive/15 active:bg-destructive/20 transition-colors"
           >
             <Trash2 className="h-4 w-4" />
             <span>Delete</span>
@@ -613,20 +623,20 @@ export function VariantMatrixBuilder({
     
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowBulkPriceModal(false)}>
-        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-card rounded-lg shadow-xl p-6 w-full max-w-md border border-border" onClick={(e) => e.stopPropagation()}>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Bulk Update Price
           </h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Operation
               </label>
               <select
                 value={bulkPriceOperation}
                 onChange={(e) => setBulkPriceOperation(e.target.value as 'set' | 'increase' | 'decrease')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg bg-background text-foreground border border-border focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value="set">Set to</option>
                 <option value="increase">Increase by</option>
@@ -635,7 +645,7 @@ export function VariantMatrixBuilder({
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Price Amount
               </label>
               <input
@@ -645,12 +655,12 @@ export function VariantMatrixBuilder({
                 value={bulkPriceValue}
                 onChange={(e) => setBulkPriceValue(e.target.value)}
                 placeholder="0.00"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg bg-background text-foreground border border-border focus:ring-2 focus:ring-primary focus:border-transparent"
                 autoFocus
               />
             </div>
             
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               This will update {selectedCount} variant{selectedCount !== 1 ? 's' : ''}.
             </p>
           </div>
@@ -658,7 +668,7 @@ export function VariantMatrixBuilder({
           <div className="flex items-center gap-3 mt-6">
             <button
               onClick={() => setShowBulkPriceModal(false)}
-              className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-foreground bg-card border border-border hover:bg-muted transition-colors"
             >
               Cancel
             </button>
@@ -684,14 +694,14 @@ export function VariantMatrixBuilder({
     
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowBulkStockModal(false)}>
-        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-card rounded-lg shadow-xl p-6 w-full max-w-md border border-border" onClick={(e) => e.stopPropagation()}>
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Bulk Update Stock
           </h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Stock Quantity
               </label>
               <input
@@ -701,12 +711,12 @@ export function VariantMatrixBuilder({
                 value={bulkStockValue}
                 onChange={(e) => setBulkStockValue(e.target.value)}
                 placeholder="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg bg-background text-foreground border border-border focus:ring-2 focus:ring-primary focus:border-transparent"
                 autoFocus
               />
             </div>
             
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               This will set stock to {bulkStockValue || 0} for {selectedCount} variant{selectedCount !== 1 ? 's' : ''}.
             </p>
           </div>
@@ -714,7 +724,7 @@ export function VariantMatrixBuilder({
           <div className="flex items-center gap-3 mt-6">
             <button
               onClick={() => setShowBulkStockModal(false)}
-              className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-foreground bg-card border border-border hover:bg-muted transition-colors"
             >
               Cancel
             </button>
@@ -732,12 +742,59 @@ export function VariantMatrixBuilder({
   };
 
   // ============================================================================
+  // RENDER: FLOATING SELECTION TOOLBAR (follows scroll)
+  // ============================================================================
+  
+  const renderFloatingSelectionToolbar = () => {
+    if (selectedCount === 0 || currentStep !== 2) return null;
+    
+    return (
+      <div className="fixed bottom-6 right-6 z-50">
+        <div className="flex items-center gap-2 px-3 py-2 bg-card border border-border shadow-lg rounded-full">
+          <div className="flex items-center gap-2 text-sm font-medium text-primary px-2">
+            <Check className="h-4 w-4" />
+            <span>{selectedCount} selected</span>
+          </div>
+          <button
+            onClick={() => setShowBulkPriceModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-muted text-foreground hover:bg-muted/80 border border-border"
+            title="Update Price"
+          >
+            <DollarSign className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => setShowBulkStockModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-muted text-foreground hover:bg-muted/80 border border-border"
+            title="Update Stock"
+          >
+            <Package className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleDeleteSelected}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm bg-destructive/10 text-destructive hover:bg-destructive/15 border border-destructive"
+            title="Delete Selected"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleClearSelection}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground"
+            title="Clear Selection"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // ============================================================================
   // RENDER: QUICK ACTIONS BAR
   // ============================================================================
   
   const renderQuickActions = () => {
     return (
-      <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 border-t border-b border-gray-200">
+      <div className="flex items-center justify-between gap-4 p-4 bg-background border-t border-b border-border">
         {/* Left: Undo/Redo */}
         <div className="flex items-center gap-2">
           <button
@@ -746,8 +803,8 @@ export function VariantMatrixBuilder({
             className={cn(
               "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
               canUndo
-                ? "text-gray-700 hover:bg-gray-200 active:bg-gray-300"
-                : "text-gray-400 cursor-not-allowed"
+                ? "text-foreground/80 hover:bg-muted active:bg-muted/80"
+                : "text-muted-foreground cursor-not-allowed"
             )}
             title="Undo (Ctrl+Z)"
           >
@@ -761,8 +818,8 @@ export function VariantMatrixBuilder({
             className={cn(
               "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
               canRedo
-                ? "text-gray-700 hover:bg-gray-200 active:bg-gray-300"
-                : "text-gray-400 cursor-not-allowed"
+                ? "text-foreground/80 hover:bg-muted active:bg-muted/80"
+                : "text-muted-foreground cursor-not-allowed"
             )}
             title="Redo (Ctrl+Y)"
           >
@@ -785,8 +842,8 @@ export function VariantMatrixBuilder({
               className={cn(
                 "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                 canGenerate && !isLoading
-                  ? "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  ? "bg-card border border-border text-foreground hover:bg-muted active:bg-muted/80"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
               )}
             >
               <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
@@ -802,7 +859,7 @@ export function VariantMatrixBuilder({
                 "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                 canGenerate && !isLoading
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
               )}
             >
               <Sparkles className="h-4 w-4" />
@@ -823,20 +880,20 @@ export function VariantMatrixBuilder({
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             Step 1: Define Attributes
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Add attributes (like Size, Color, Material) and their values to generate variant combinations.
           </p>
         </div>
         
         {/* New Attribute Input */}
-        <div className="space-y-4 p-4 bg-white border border-gray-200 rounded-lg">
+        <div className="space-y-4 p-4 bg-card border border-border rounded-lg">
           <div className="space-y-3">
             {/* Attribute Name Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Attribute Name
               </label>
               <input
@@ -845,13 +902,13 @@ export function VariantMatrixBuilder({
                 value={newAttribute.name}
                 onChange={(e) => setNewAttribute(prev => ({ ...prev, name: e.target.value }))}
                 onKeyPress={(e) => handleKeyPress(e, 'attribute')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 rounded-lg bg-background text-foreground border border-border focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
             
             {/* Attribute Values Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Values
               </label>
               <div className="flex gap-2">
@@ -861,7 +918,7 @@ export function VariantMatrixBuilder({
                   value={newAttribute.currentValue}
                   onChange={(e) => setNewAttribute(prev => ({ ...prev, currentValue: e.target.value }))}
                   onKeyPress={(e) => handleKeyPress(e, 'value')}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                 />
                 <button
                   onClick={handleAddValue}
@@ -869,8 +926,8 @@ export function VariantMatrixBuilder({
                   className={cn(
                     "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                     newAttribute.currentValue.trim()
-                      ? "bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300"
-                      : "bg-gray-50 text-gray-400 cursor-not-allowed"
+                      ? "bg-muted text-foreground hover:bg-muted/70 active:bg-muted/60"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
                   )}
                 >
                   Add
@@ -884,12 +941,12 @@ export function VariantMatrixBuilder({
                 {newAttribute.values.map((value) => (
                   <span
                     key={value}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-muted text-foreground rounded-full text-sm"
                   >
                     <span>{value}</span>
                     <button
                       onClick={() => handleRemoveValue(value)}
-                      className="text-gray-500 hover:text-gray-700 transition-colors"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -906,7 +963,7 @@ export function VariantMatrixBuilder({
                 "w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                 newAttribute.name.trim() && newAttribute.values.length > 0
                   ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-muted text-muted-foreground cursor-not-allowed"
               )}
             >
               <Plus className="h-4 w-4" />
@@ -918,7 +975,7 @@ export function VariantMatrixBuilder({
         {/* Existing Attributes List */}
         {attributes.length > 0 && (
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-900">
+            <h4 className="text-sm font-semibold text-foreground">
               Defined Attributes ({attributes.length})
             </h4>
             
@@ -926,12 +983,12 @@ export function VariantMatrixBuilder({
               {attributes.map((attr) => (
                 <div
                   key={attr.name}
-                  className="flex items-start justify-between gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+                  className="flex items-start justify-between gap-4 p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{attr.name}</span>
-                      <span className="text-xs text-gray-500">
+                      <span className="font-medium text-foreground">{attr.name}</span>
+                      <span className="text-xs text-muted-foreground">
                         ({attr.values.length} value{attr.values.length !== 1 ? 's' : ''})
                       </span>
                     </div>
@@ -950,7 +1007,7 @@ export function VariantMatrixBuilder({
                   
                   <button
                     onClick={() => removeAttribute(attr.name)}
-                    className="text-gray-400 hover:text-red-600 transition-colors"
+                    className="text-muted-foreground hover:text-destructive transition-colors"
                     title={`Remove ${attr.name}`}
                   >
                     <X className="h-5 w-5" />
@@ -963,8 +1020,8 @@ export function VariantMatrixBuilder({
         
         {/* Empty State */}
         {attributes.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <Sparkles className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+          <div className="text-center py-8 text-muted-foreground">
+            <Sparkles className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
             <p className="text-sm">
               No attributes defined yet. Add your first attribute above to get started.
             </p>
@@ -981,8 +1038,8 @@ export function VariantMatrixBuilder({
   const renderVariantTable = () => {
     if (!hasMatrix) {
       return (
-        <div className="p-6 text-center text-gray-500">
-          <Info className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+        <div className="p-6 text-center text-muted-foreground">
+          <Info className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
           <p className="text-sm">
             Click "Generate Variants" to create the matrix.
           </p>
@@ -995,10 +1052,10 @@ export function VariantMatrixBuilder({
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-foreground">
               Step 2: Review & Edit Variants
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {matrixCells.length} variant{matrixCells.length !== 1 ? 's' : ''} generated. 
               Click any field to edit.
             </p>
@@ -1006,17 +1063,17 @@ export function VariantMatrixBuilder({
           
           <button
             onClick={() => setCurrentStep(1)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <span>Back to Attributes</span>
           </button>
         </div>
         
         {/* Variant Table with Inline Editing */}
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-muted/50 border-b border-border">
                 <tr>
                   {/* Select All Checkbox */}
                   <th className="px-4 py-3 w-12">
@@ -1027,30 +1084,30 @@ export function VariantMatrixBuilder({
                         if (el) el.indeterminate = someSelected;
                       }}
                       onChange={handleToggleSelectAll}
-                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                      className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     SKU
                   </th>
                   {attributes.map((attr) => (
                     <th
                       key={attr.name}
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
                     >
                       {attr.name}
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Price
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Stock
                   </th>
                   <th className="px-4 py-3 w-12"></th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {matrixCells.map((cell) => {
                   const isSelected = selectedCellIds.has(cell.id);
                   const isEditingSKU = editingCell === cell.id && editingField === 'sku';
@@ -1062,7 +1119,7 @@ export function VariantMatrixBuilder({
                       key={cell.id} 
                       className={cn(
                         "transition-colors",
-                        isSelected ? "bg-primary/5" : "hover:bg-gray-50"
+                        isSelected ? "bg-primary/5" : "hover:bg-muted/50"
                       )}
                     >
                       {/* Selection Checkbox */}
@@ -1071,12 +1128,12 @@ export function VariantMatrixBuilder({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelect(cell.id)}
-                          className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                          className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
                         />
                       </td>
                       
                       {/* SKU (Editable) */}
-                      <td className="px-4 py-3 text-sm font-mono text-gray-900">
+                      <td className="px-4 py-3 text-sm font-mono text-foreground">
                         {isEditingSKU ? (
                           <div className="flex items-center gap-2">
                             <input
@@ -1085,7 +1142,7 @@ export function VariantMatrixBuilder({
                               onChange={(e) => setEditValue(e.target.value)}
                               onKeyDown={handleEditKeyPress}
                               onBlur={handleSaveEdit}
-                              className="w-full px-2 py-1 border border-primary rounded focus:ring-2 focus:ring-primary focus:border-transparent"
+                              className="w-full px-2 py-1 border border-primary rounded focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                               autoFocus
                             />
                           </div>
@@ -1102,15 +1159,15 @@ export function VariantMatrixBuilder({
                       
                       {/* Attributes (Read-only) */}
                       {attributes.map((attr) => (
-                        <td key={attr.name} className="px-4 py-3 text-sm text-gray-700">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-gray-100 text-gray-800">
-                            {cell.attributes[attr.name] || '-'}
+                        <td key={attr.name} className="px-4 py-3 text-sm text-foreground">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded bg-muted text-foreground">
+                            {cell.combination?.[attr.name] ?? '-'}
                           </span>
                         </td>
                       ))}
                       
                       {/* Price (Editable) */}
-                      <td className="px-4 py-3 text-sm text-right text-gray-900 font-medium">
+                      <td className="px-4 py-3 text-sm text-right text-foreground font-medium">
                         {isEditingPrice ? (
                           <div className="flex items-center justify-end gap-2">
                             <input
@@ -1121,7 +1178,7 @@ export function VariantMatrixBuilder({
                               onChange={(e) => setEditValue(e.target.value)}
                               onKeyDown={handleEditKeyPress}
                               onBlur={handleSaveEdit}
-                              className="w-24 px-2 py-1 border border-primary rounded text-right focus:ring-2 focus:ring-primary focus:border-transparent"
+                              className="w-24 px-2 py-1 border border-primary rounded text-right focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                               autoFocus
                             />
                           </div>
@@ -1137,7 +1194,7 @@ export function VariantMatrixBuilder({
                       </td>
                       
                       {/* Stock (Editable) */}
-                      <td className="px-4 py-3 text-sm text-center text-gray-700">
+                      <td className="px-4 py-3 text-sm text-center text-foreground">
                         {isEditingStock ? (
                           <div className="flex items-center justify-center gap-2">
                             <input
@@ -1148,16 +1205,16 @@ export function VariantMatrixBuilder({
                               onChange={(e) => setEditValue(e.target.value)}
                               onKeyDown={handleEditKeyPress}
                               onBlur={handleSaveEdit}
-                              className="w-20 px-2 py-1 border border-primary rounded text-center focus:ring-2 focus:ring-primary focus:border-transparent"
+                              className="w-20 px-2 py-1 border border-primary rounded text-center focus:ring-2 focus:ring-primary focus:border-transparent bg-background text-foreground"
                               autoFocus
                             />
                           </div>
                         ) : (
                           <button
-                            onClick={() => handleStartEdit(cell.id, 'stock', cell.stock_quantity)}
+                            onClick={() => handleStartEdit(cell.id, 'stock', cell.stock ?? 0)}
                             className="group w-full text-center flex items-center justify-center gap-2 hover:text-primary transition-colors"
                           >
-                            <span>{cell.stock_quantity}</span>
+                            <span>{cell.stock ?? 0}</span>
                             <Edit2 className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                           </button>
                         )}
@@ -1167,7 +1224,7 @@ export function VariantMatrixBuilder({
                       <td className="px-4 py-3">
                         <button
                           onClick={() => handleDeleteVariant(cell.id)}
-                          className="text-gray-400 hover:text-red-600 transition-colors"
+                          className="text-muted-foreground hover:text-destructive transition-colors"
                           title="Delete variant"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -1182,8 +1239,8 @@ export function VariantMatrixBuilder({
         </div>
         
         {/* Info Message */}
-        <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-4 py-3 rounded-lg border border-blue-200">
-          <Info className="h-5 w-5 flex-shrink-0" />
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-4 py-3 rounded-lg border border-border">
+          <Info className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
           <span>
             💡 Tip: Click any SKU, price, or stock value to edit. Press Enter to save, Escape to cancel.
           </span>
@@ -1198,15 +1255,15 @@ export function VariantMatrixBuilder({
   
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-card text-foreground rounded-lg shadow-sm border border-border overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Variant Matrix Builder
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Creating variants for: <span className="font-medium">{productName}</span>
               </p>
             </div>
@@ -1219,13 +1276,13 @@ export function VariantMatrixBuilder({
                   ? "bg-primary text-primary-foreground"
                   : stepStatus.step1Complete
                   ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-gray-100 text-gray-600"
+                  : "bg-muted text-muted-foreground"
               )}>
                 <span>1. Attributes</span>
                 {stepStatus.step1Complete && <CheckCircle2 className="h-4 w-4" />}
               </div>
               
-              <ChevronRight className="h-5 w-5 text-gray-400" />
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
               
               <div className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium",
@@ -1233,7 +1290,7 @@ export function VariantMatrixBuilder({
                   ? "bg-primary text-primary-foreground"
                   : stepStatus.step2Complete
                   ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-gray-100 text-gray-600"
+                  : "bg-muted text-muted-foreground"
               )}>
                 <span>2. Review & Edit</span>
                 {stepStatus.step2Complete && <CheckCircle2 className="h-4 w-4" />}
@@ -1247,6 +1304,8 @@ export function VariantMatrixBuilder({
         
         {/* Bulk Action Toolbar */}
         {renderBulkActionToolbar()}
+        {/* Floating Selection Toolbar */}
+        {renderFloatingSelectionToolbar()}
         
         {/* Content */}
         <div className="min-h-[400px]">
@@ -1254,11 +1313,11 @@ export function VariantMatrixBuilder({
         </div>
       
       {/* Footer Actions */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-4">
+      <div className="px-6 py-4 bg-muted/50 border-t border-border flex items-center justify-between gap-4">
         <button
           onClick={handleCancel}
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors disabled:opacity-50"
+          className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
         >
           Cancel
         </button>
@@ -1268,7 +1327,7 @@ export function VariantMatrixBuilder({
             <button
               onClick={() => setCurrentStep(1)}
               disabled={isLoading}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-foreground bg-card border border-border hover:bg-muted active:bg-muted/80 transition-colors disabled:opacity-50"
             >
               Back
             </button>

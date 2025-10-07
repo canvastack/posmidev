@@ -185,14 +185,15 @@ export interface VariantTemplateInput {
 // Apply template to product
 export interface ApplyTemplateInput {
   template_id: string;
-  base_price?: number;
-  base_stock?: number;
-  override_pricing?: boolean;
+  base_price?: number; // reserved for future use (backend computes based on product price now)
+  base_stock?: number; // reserved for future use
+  override_pricing?: boolean; // reserved for future use
+  override_existing?: boolean; // maps to backend apply { override_existing }
 }
 
 export interface ApplyTemplatePreview {
-  expected_count: number;
-  variants: ProductVariantInput[];
+  expected_count: number; // maps from backend preview.preview.variant_count
+  variants: ProductVariantInput[]; // maps from backend preview.preview.variants
   warnings?: string[];
 }
 
@@ -381,6 +382,7 @@ export interface TemplateQueryParams {
 
 // For matrix builder
 export interface VariantMatrixCell {
+  id: string; // stable identifier derived from combination
   combination: Record<string, string>;
   variant?: ProductVariant;
   isNew: boolean;

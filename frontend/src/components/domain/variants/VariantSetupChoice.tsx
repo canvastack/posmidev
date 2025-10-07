@@ -84,15 +84,15 @@ export function VariantSetupChoice({
   
   return (
     <Dialog open={true} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
+      <DialogContent className="w-[96vw] sm:w-[90vw] md:w-[85vw] lg:w-[80vw] max-w-5xl h-[90vh] overflow-y-auto p-0">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle>Create Product Variants</DialogTitle>
           <DialogDescription>
             Choose how you want to create variants for "{productName}"
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 p-6">
           {/* Template Option */}
           <Card
             className={cn(

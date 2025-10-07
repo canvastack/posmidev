@@ -75,13 +75,15 @@ interface UseVariantMatrixReturn {
   generateMatrix: () => void;
   updateCell: (cellId: string, updates: Partial<VariantMatrixCell>) => void;
   bulkUpdateCells: (cellIds: string[], updates: Partial<VariantMatrixCell>) => void;
+  removeCell: (cellId: string) => void;
+  removeCells: (cellIds: string[]) => void;
   resetMatrix: () => void;
   
   // Variant generation
-  getVariantInputs: () => ProductVariantInput[];
+  getVariantInputs: (opts?: { mode?: 'changed' | 'all' | 'selected'; selectedIds?: string[] }) => ProductVariantInput[];
   
   // Validation
-  validateMatrix: () => boolean;
+  validateMatrix: (opts?: { mode?: 'changed' | 'all' | 'selected'; selectedIds?: string[] }) => boolean;
   
   // Undo/Redo
   canUndo: boolean;
@@ -144,6 +146,8 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     initializeMatrix,
     updateMatrixCell,
     bulkUpdateMatrixCells,
+    removeMatrixCell,
+    removeMatrixCells,
     resetMatrix: storeResetMatrix,
     setDirty,
     getMatrixVariantInputs,
@@ -194,11 +198,16 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
   // ============================================================================
 
   /**
-   * Save current state to history
+   * Save current state to history (snapshot latest store state)
    */
   const saveToHistory = useCallback(() => {
+    // Read the freshest matrixCells from the store
+    const latestCells = useVariantStore.getState().matrixCells;
+    // Deep-ish clone to avoid accidental mutations affecting history
+    const cloned = latestCells.map(c => ({ ...c, combination: { ...c.combination } }));
+
     const newState: HistoryState = {
-      matrixCells: [...matrixCells],
+      matrixCells: cloned,
       timestamp: Date.now(),
     };
 
@@ -216,7 +225,7 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     }
     
     setHistory(newHistory);
-  }, [matrixCells, history, historyIndex, maxHistorySteps]);
+  }, [history, historyIndex, maxHistorySteps]);
 
   /**
    * Undo last action
@@ -228,11 +237,10 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     if (previousState) {
       // Restore previous state to store
       initializeMatrix({
-        tenantId,
-        productId,
-        baseSKU,
-        basePrice,
-      }, attributes, previousState.matrixCells);
+        attributes: attributes.map(a => ({ name: a.name, values: a.values })),
+        basePrice: basePrice ?? (matrixConfig?.basePrice ?? 0),
+        baseStock: matrixConfig?.baseStock ?? 0,
+      }, previousState.matrixCells);
       
       setHistoryIndex(prev => prev - 1);
       setDirty(true);
@@ -254,11 +262,10 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     if (nextState) {
       // Restore next state to store
       initializeMatrix({
-        tenantId,
-        productId,
-        baseSKU,
-        basePrice,
-      }, attributes, nextState.matrixCells);
+        attributes: attributes.map(a => ({ name: a.name, values: a.values })),
+        basePrice: basePrice ?? (matrixConfig?.basePrice ?? 0),
+        baseStock: matrixConfig?.baseStock ?? 0,
+      }, nextState.matrixCells);
       
       setHistoryIndex(prev => prev + 1);
       setDirty(true);
@@ -388,6 +395,7 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
       const priceResult = calculateVariantPrice(basePrice, combination);
 
       return {
+        id: Object.keys(combination).sort().map(k => `${k}=${combination[k]}`).join('|'),
         combination,
         isNew: true,
         isDirty: false,
@@ -467,6 +475,26 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     });
   }, [storeResetMatrix, toast]);
 
+  /**
+   * Remove a single cell
+   */
+  const removeCell = useCallback((cellId: string) => {
+    removeMatrixCell(cellId);
+    setDirty(true);
+    // snapshot updated state into history
+    saveToHistory();
+  }, [removeMatrixCell, setDirty, saveToHistory]);
+
+  /**
+   * Remove multiple cells
+   */
+  const removeCells = useCallback((cellIds: string[]) => {
+    removeMatrixCells(cellIds);
+    setDirty(true);
+    // snapshot updated state into history
+    saveToHistory();
+  }, [removeMatrixCells, setDirty, saveToHistory]);
+
   // ============================================================================
   // VARIANT GENERATION
   // ============================================================================
@@ -474,8 +502,8 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
   /**
    * Get variant inputs for API submission
    */
-  const getVariantInputs = useCallback((): ProductVariantInput[] => {
-    return getMatrixVariantInputs();
+  const getVariantInputs = useCallback((opts?: { mode?: 'changed' | 'all' | 'selected'; selectedIds?: string[] }): ProductVariantInput[] => {
+    return getMatrixVariantInputs(opts);
   }, [getMatrixVariantInputs]);
 
   // ============================================================================
@@ -485,11 +513,11 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
   /**
    * Validate all matrix cells
    */
-  const validateMatrix = useCallback((): boolean => {
-    const inputs = getVariantInputs();
+  const validateMatrix = useCallback((opts?: { mode?: 'changed' | 'all' | 'selected'; selectedIds?: string[] }): boolean => {
+    const inputs = getVariantInputs(opts);
     const errors: Record<string, string[]> = {};
     
-    // Validate each variant
+    // Validate each variant within selected scope
     inputs.forEach((input, index) => {
       const validationResult = validateVariantInput(input);
       if (validationResult.length > 0) {
@@ -497,7 +525,7 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
       }
     });
 
-    // Check for duplicate SKUs - pass full objects, not just SKU strings
+    // Check for duplicate SKUs only within the scoped inputs
     const skuCheck = checkDuplicateSKUs(inputs);
     if (skuCheck.hasDuplicates) {
       errors['duplicate-skus'] = skuCheck.duplicateSKUs.map(
@@ -554,6 +582,8 @@ export function useVariantMatrix(options: UseVariantMatrixOptions): UseVariantMa
     generateMatrix,
     updateCell,
     bulkUpdateCells,
+    removeCell,
+    removeCells,
     resetMatrix,
     
     // Variant generation

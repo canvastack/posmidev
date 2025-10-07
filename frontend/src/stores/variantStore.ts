@@ -143,17 +143,27 @@ interface VariantState {
   initializeMatrix: (config: VariantMatrixConfig, cells?: VariantMatrixCell[]) => void;
   
   /**
-   * Update matrix cell
+   * Update matrix cell by id
    */
   updateMatrixCell: (
-    combination: Record<string, string>,
+    id: string,
     updates: Partial<VariantMatrixCell>
   ) => void;
   
   /**
-   * Bulk update matrix cells
+   * Bulk update matrix cells by ids
    */
-  bulkUpdateMatrixCells: (updates: Partial<VariantMatrixCell>) => void;
+  bulkUpdateMatrixCells: (ids: string[], updates: Partial<VariantMatrixCell>) => void;
+  
+  /**
+   * Remove a single matrix cell by id
+   */
+  removeMatrixCell: (id: string) => void;
+  
+  /**
+   * Remove multiple matrix cells by ids
+   */
+  removeMatrixCells: (ids: string[]) => void;
   
   /**
    * Reset matrix builder
@@ -357,7 +367,10 @@ export const useVariantStore = create<VariantState>()(
       
       initializeMatrix: (config, cells) => {
         // Use provided cells or generate from config
-        const matrixCells = cells || generateMatrixCells(config);
+        const matrixCells = (cells || generateMatrixCells(config)).map((cell) => ({
+          ...cell,
+          id: cell.id ?? generateCellId(cell.combination),
+        }));
         set({
           matrixConfig: config,
           matrixCells,
@@ -365,23 +378,36 @@ export const useVariantStore = create<VariantState>()(
         });
       },
       
-      updateMatrixCell: (combination, updates) =>
+      updateMatrixCell: (id, updates) =>
         set((state) => ({
           matrixCells: state.matrixCells.map((cell) =>
-            isSameCombination(cell.combination, combination)
+            cell.id === id
               ? { ...cell, ...updates, isDirty: true }
               : cell
           ),
           isDirty: true,
         })),
       
-      bulkUpdateMatrixCells: (updates) =>
+      bulkUpdateMatrixCells: (ids, updates) =>
         set((state) => ({
           matrixCells: state.matrixCells.map((cell) => ({
             ...cell,
-            ...updates,
-            isDirty: true,
+            ...(ids.includes(cell.id) ? { ...updates, isDirty: true } : {}),
           })),
+          isDirty: true,
+        })),
+      
+      // Remove a single matrix cell by id
+      removeMatrixCell: (id) =>
+        set((state) => ({
+          matrixCells: state.matrixCells.filter((cell) => cell.id !== id),
+          isDirty: true,
+        })),
+      
+      // Remove multiple matrix cells by ids
+      removeMatrixCells: (ids) =>
+        set((state) => ({
+          matrixCells: state.matrixCells.filter((cell) => !ids.includes(cell.id)),
           isDirty: true,
         })),
       
@@ -395,20 +421,28 @@ export const useVariantStore = create<VariantState>()(
       setDirty: (isDirty) =>
         set({ isDirty }),
       
-      getMatrixVariantInputs: () => {
+      getMatrixVariantInputs: (opts?: { mode?: 'changed' | 'all' | 'selected'; selectedIds?: string[] }) => {
         const { matrixCells, matrixConfig } = get();
         if (!matrixConfig) return [];
-        
-        return matrixCells
-          .filter((cell) => cell.isNew || cell.isDirty)
-          .map((cell) => ({
-            sku: cell.sku || '',
-            name: generateVariantName(cell.combination),
-            attributes: cell.combination,
-            price: cell.price || matrixConfig.basePrice,
-            stock: cell.stock || matrixConfig.baseStock,
-            is_active: true,
-          }));
+
+        const mode = opts?.mode ?? 'changed';
+        const selectedSet = new Set(opts?.selectedIds ?? []);
+
+        const cells = matrixCells.filter((cell) => {
+          if (mode === 'all') return true; // all rows
+          if (mode === 'selected') return selectedSet.has(cell.id); // only selected rows
+          // default: only new or dirty rows
+          return cell.isNew || cell.isDirty;
+        });
+
+        return cells.map((cell) => ({
+          sku: cell.sku || '',
+          name: generateVariantName(cell.combination),
+          attributes: cell.combination,
+          price: cell.price ?? matrixConfig.basePrice,
+          stock: cell.stock ?? matrixConfig.baseStock,
+          is_active: true,
+        }));
       },
       
       // ========================================
@@ -501,6 +535,7 @@ function generateMatrixCells(config: VariantMatrixConfig): VariantMatrixCell[] {
   );
   
   return combinations.map((combination) => ({
+    id: generateCellId(combination),
     combination,
     isNew: true,
     isDirty: false,
@@ -553,6 +588,16 @@ function isSameCombination(
   }
   
   return true;
+}
+
+/**
+ * Generate a stable cell id from combination (sorted key=value pairs)
+ */
+function generateCellId(combination: Record<string, string>): string {
+  const parts = Object.keys(combination)
+    .sort()
+    .map((k) => `${k}=${combination[k]}`);
+  return parts.join('|');
 }
 
 /**
