@@ -21,6 +21,17 @@ export interface AuthResponse {
   token: string;
 }
 
+// Phase 7: Multi-Image Gallery
+export interface ProductImage {
+  id: string;
+  product_id: string;
+  tenant_id: string;
+  image_url: string;
+  thumbnail_url: string | null;
+  is_primary: boolean;
+  sort_order: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -39,6 +50,8 @@ export interface Product {
   has_variants?: boolean;
   manage_stock_by_variant?: boolean;
   variant_count?: number;
+  images?: ProductImage[]; // Phase 7: Multi-image support
+  primary_image?: ProductImage; // Phase 7: Primary image relationship
 }
 
 export interface Category {

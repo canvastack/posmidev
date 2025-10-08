@@ -18,7 +18,12 @@ interface ProductRepositoryInterface
         ?string $sortOrder = 'asc',
         ?string $stockFilter = null,
         ?float $minPrice = null,
-        ?float $maxPrice = null
+        ?float $maxPrice = null,
+        ?string $createdFrom = null,
+        ?string $createdTo = null,
+        ?string $updatedFrom = null,
+        ?string $updatedTo = null,
+        ?array $statuses = null
     );
     public function findBySku(string $sku, string $tenantId): ?Product;
     public function save(Product $product): void;

@@ -32,6 +32,7 @@ export function ProductHistoryModal({
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityPage, setActivityPage] = useState(1);
   const [activityHasMore, setActivityHasMore] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState<string>('');
   
   // State for price history
   const [priceHistory, setPriceHistory] = useState<PriceHistory[]>([]);
@@ -42,12 +43,20 @@ export function ProductHistoryModal({
   const [stockLoading, setStockLoading] = useState(false);
 
   // Fetch activity log
-  const fetchActivityLog = async (page: number = 1) => {
+  const fetchActivityLog = async (page: number = 1, event?: string) => {
     if (!tenantId || !product.id) return;
     
     setActivityLoading(true);
     try {
-      const response = await historyApi.getActivityLog(tenantId, product.id, page);
+      const response = await historyApi.getActivityLog(
+        tenantId, 
+        product.id, 
+        page, 
+        20, 
+        undefined, 
+        undefined, 
+        event || undefined
+      );
 
       if (page === 1) {
         setActivityLog(response.data);
@@ -109,6 +118,14 @@ export function ProductHistoryModal({
     }
   };
 
+  // Handle event filter change
+  const handleEventFilterChange = (event: string) => {
+    setSelectedEvent(event);
+    setActivityPage(1);
+    setActivityHasMore(true);
+    fetchActivityLog(1, event || undefined);
+  };
+
   // Load data based on active tab
   useEffect(() => {
     if (!isOpen) return;
@@ -116,7 +133,7 @@ export function ProductHistoryModal({
     switch (activeTab) {
       case 'all':
         if (activityLog.length === 0) {
-          fetchActivityLog(1);
+          fetchActivityLog(1, selectedEvent || undefined);
         }
         break;
       case 'price':
@@ -141,6 +158,7 @@ export function ProductHistoryModal({
       setStockHistory([]);
       setActivityPage(1);
       setActivityHasMore(true);
+      setSelectedEvent('');
     }
   }, [isOpen]);
 
@@ -190,6 +208,34 @@ export function ProductHistoryModal({
             </TabsTrigger>
           </TabsList>
 
+          {/* Event Type Filter (only for "all" tab) */}
+          {activeTab === 'all' && (
+            <div className="mb-4 flex items-center gap-2">
+              <label htmlFor="event-filter" className="text-sm font-medium text-muted-foreground">
+                Filter by:
+              </label>
+              <select
+                id="event-filter"
+                value={selectedEvent}
+                onChange={(e) => handleEventFilterChange(e.target.value)}
+                className="px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                disabled={activityLoading}
+              >
+                <option value="">All Events</option>
+                <option value="created">Created</option>
+                <option value="updated">Updated</option>
+                <option value="deleted">Deleted</option>
+                <option value="restored">Restored</option>
+                <option value="archived">Archived</option>
+                <option value="price_changed">Price Changed</option>
+                <option value="stock_adjusted">Stock Adjusted</option>
+                <option value="variant_added">Variant Added</option>
+                <option value="variant_updated">Variant Updated</option>
+                <option value="variant_deleted">Variant Deleted</option>
+              </select>
+            </div>
+          )}
+
           <div className="max-h-[600px] overflow-y-auto">
             <TabsContent value="all" className="mt-0">
               <ProductHistoryTimeline 
@@ -200,7 +246,7 @@ export function ProductHistoryModal({
                 <div className="text-center mt-6">
                   <Button
                     variant="outline"
-                    onClick={() => fetchActivityLog(activityPage + 1)}
+                    onClick={() => fetchActivityLog(activityPage + 1, selectedEvent || undefined)}
                     disabled={activityLoading}
                   >
                     Load More

@@ -25,6 +25,7 @@ import type { Product, ProductForm, Category } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { getImageUrl } from '@/utils/imageHelpers';
 import { ArrowLeftIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import ProductImageGallery from '@/components/domain/products/ProductImageGallery';
 
 export default function ProductEditPage() {
   const navigate = useNavigate();
@@ -37,8 +38,6 @@ export default function ProductEditPage() {
   const [submitting, setSubmitting] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState<ProductForm>({
@@ -87,11 +86,6 @@ export default function ProductEditPage() {
           category_id: productData.category_id,
           status: productData.status || 'active',
         });
-        
-        // Set image preview if exists
-        if (productData.image_url) {
-          setImagePreview(getImageUrl(productData.image_url));
-        }
         
         // Fetch categories
         const categoriesData = await categoryApi.getCategories(tenantId);
@@ -149,53 +143,6 @@ export default function ProductEditPage() {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle image file selection
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: 'Error',
-          description: 'Please select an image file',
-          variant: 'destructive',
-        });
-        return;
-      }
-      
-      // Validate file size (2MB max)
-      if (file.size > 2 * 1024 * 1024) {
-        toast({
-          title: 'Error',
-          description: 'Image size must be less than 2MB',
-          variant: 'destructive',
-        });
-        return;
-      }
-      
-      setImageFile(file);
-      
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Handle image upload
-  const handleImageUpload = async (productId: string) => {
-    if (!imageFile || !tenantId) return;
-    
-    try {
-      await productApi.uploadImage(tenantId, productId, imageFile);
-    } catch (error) {
-      console.error('Failed to upload image:', error);
-      throw error;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenantId || !productId) return;
@@ -214,28 +161,10 @@ export default function ProductEditPage() {
     try {
       await productApi.updateProduct(tenantId, productId, form);
       
-      // Upload image if selected
-      if (imageFile) {
-        try {
-          await handleImageUpload(productId);
-          toast({
-            title: 'Success',
-            description: 'Product and image updated successfully.',
-          });
-        } catch (imgError) {
-          console.error('Failed to upload image:', imgError);
-          toast({
-            title: 'Warning',
-            description: 'Product updated but image upload failed.',
-            variant: 'destructive',
-          });
-        }
-      } else {
-        toast({
-          title: 'Success',
-          description: 'Product updated successfully.',
-        });
-      }
+      toast({
+        title: 'Success',
+        description: 'Product updated successfully.',
+      });
       
       // Navigate back to detail page
       navigate(`/admin/products/${productId}`);
@@ -450,31 +379,14 @@ export default function ProductEditPage() {
               </CardContent>
             </Card>
 
-            {/* Product Image */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Image</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {imagePreview && (
-                  <div className="mb-4">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded-md"
-                    />
-                  </div>
-                )}
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Max size: 2MB. Supported: JPG, PNG, WebP
-                </p>
-              </CardContent>
-            </Card>
+            {/* Product Images - Phase 7: Multi-Image Gallery */}
+            {productId && tenantId && (
+              <ProductImageGallery
+                tenantId={tenantId}
+                productId={productId}
+                images={product?.images}
+              />
+            )}
 
             {/* Action Buttons */}
             <div className="space-y-2">

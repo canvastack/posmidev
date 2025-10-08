@@ -129,6 +129,9 @@ Route::prefix('v1')->group(function () {
             Route::get('products/import/template', [ProductController::class, 'downloadTemplate']);
             Route::post('products/import', [ProductController::class, 'import']);
             
+            // Product duplication (Phase 8)
+            Route::post('products/{product}/duplicate', [ProductController::class, 'duplicate']);
+            
             // Barcode operations
             Route::post('products/barcode/bulk', [BarcodeController::class, 'bulkGenerate']);
             Route::get('products/{productId}/barcode', [BarcodeController::class, 'generate']);
@@ -145,10 +148,21 @@ Route::prefix('v1')->group(function () {
                 Route::get('profit', [ProductAnalyticsController::class, 'profitMetrics']);
                 Route::get('variants', [ProductAnalyticsController::class, 'variantPerformance']);
                 Route::get('overview', [ProductAnalyticsController::class, 'overview']);
+                Route::get('export/csv', [ProductAnalyticsController::class, 'exportCsv']);
+                Route::get('export/pdf', [ProductAnalyticsController::class, 'exportPdf']);
             });
             
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
+            
+            // Product Images (Phase 7: Multi-Image Gallery)
+            Route::prefix('products/{productId}/images')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Api\ProductImageController::class, 'index']);
+                Route::post('/', [\App\Http\Controllers\Api\ProductImageController::class, 'upload']);
+                Route::delete('/{imageId}', [\App\Http\Controllers\Api\ProductImageController::class, 'delete']);
+                Route::patch('/{imageId}/primary', [\App\Http\Controllers\Api\ProductImageController::class, 'setPrimary']);
+                Route::patch('/reorder', [\App\Http\Controllers\Api\ProductImageController::class, 'reorder']);
+            });
             
             // Product Variants (Phase 6)
             // Export/Import operations (must be before nested routes to avoid conflicts)

@@ -25,6 +25,7 @@ import { VariantManager } from '@/components/domain/variants/VariantManager';
 import { ActivityTimeline } from '@/components/domain/products/ActivityTimeline';
 import { ProductAnalytics } from '@/components/domain/products/ProductAnalytics';
 import { useProductActivity } from '@/hooks/useProductActivity';
+import ProductImageGallery from '@/components/domain/products/ProductImageGallery';
 
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -247,15 +248,26 @@ export default function ProductDetailPage() {
                 <CardTitle>Product Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Product Image */}
-                {getImageUrl(product.image_url) && (
-                  <div className="flex justify-center">
+                {/* Product Images - Phase 7: Multi-Image Gallery */}
+                {tenantId && productId && hasPermission('products.update') && (
+                  <div className="mb-6">
+                    <ProductImageGallery
+                      tenantId={tenantId}
+                      productId={productId}
+                      images={product.images}
+                      onImagesChange={fetchProduct}
+                    />
+                  </div>
+                )}
+
+                {/* Fallback: Show old single image if no multi-image gallery permission */}
+                {(!hasPermission('products.update') && getImageUrl(product.image_url)) && (
+                  <div className="flex justify-center mb-4">
                     <img
                       src={getImageUrl(product.image_url) || ''}
                       alt={product.name}
                       className="max-w-xs rounded-lg shadow-md"
                       onError={(e) => {
-                        // Hide image if it fails to load
                         e.currentTarget.style.display = 'none';
                       }}
                     />

@@ -19,7 +19,8 @@ export const historyApi = {
     page: number = 1,
     perPage: number = 20,
     dateFrom?: string,
-    dateTo?: string
+    dateTo?: string,
+    event?: string
   ): Promise<HistoryPaginationResponse<ActivityLog>> => {
     const params: any = { page, per_page: perPage };
     
@@ -29,6 +30,10 @@ export const historyApi = {
     
     if (dateTo) {
       params.date_to = dateTo;
+    }
+    
+    if (event) {
+      params.event = event;
     }
     
     const response = await apiClient.get(

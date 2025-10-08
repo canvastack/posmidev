@@ -166,6 +166,22 @@ class Product extends Model
         return $this->hasMany(ProductVariant::class)->where('is_default', true);
     }
 
+    /**
+     * Product images relationship (Phase 7: Multi-Image Gallery)
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('sort_order', 'asc');
+    }
+
+    /**
+     * Primary image only (Phase 7)
+     */
+    public function primaryImage(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->where('is_primary', true);
+    }
+
     // ========================================
     // Query Scopes
     // ========================================

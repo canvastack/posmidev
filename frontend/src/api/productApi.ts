@@ -11,6 +11,12 @@ interface PaginationParams {
   stock_filter?: 'all' | 'in_stock' | 'low_stock' | 'out_of_stock';
   min_price?: number;
   max_price?: number;
+  // Phase 8A: Advanced Filters
+  created_from?: string; // YYYY-MM-DD
+  created_to?: string; // YYYY-MM-DD
+  updated_from?: string; // YYYY-MM-DD
+  updated_to?: string; // YYYY-MM-DD
+  statuses?: string; // Comma-separated: "active,draft"
 }
 
 interface PaginatedResponse<T> {
@@ -89,6 +95,44 @@ export const productApi = {
     return response.data.data;
   },
 
+  // Phase 7: Multi-Image Gallery APIs
+  getProductImages: async (tenantId: string, productId: string): Promise<any[]> => {
+    const response = await apiClient.get(`/tenants/${tenantId}/products/${productId}/images`);
+    return response.data.data;
+  },
+
+  uploadProductImages: async (tenantId: string, productId: string, files: File[]): Promise<any> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images[]', file);
+    });
+    
+    const response = await apiClient.post(
+      `/tenants/${tenantId}/products/${productId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  deleteProductImage: async (tenantId: string, productId: string, imageId: string): Promise<void> => {
+    await apiClient.delete(`/tenants/${tenantId}/products/${productId}/images/${imageId}`);
+  },
+
+  setProductImagePrimary: async (tenantId: string, productId: string, imageId: string): Promise<void> => {
+    await apiClient.patch(`/tenants/${tenantId}/products/${productId}/images/${imageId}/primary`);
+  },
+
+  reorderProductImages: async (tenantId: string, productId: string, imageIds: string[]): Promise<void> => {
+    await apiClient.patch(`/tenants/${tenantId}/products/${productId}/images/reorder`, {
+      order: imageIds,
+    });
+  },
+
   // Bulk Operations
   bulkDelete: async (tenantId: string, productIds: string[]): Promise<{ success: number; errors: number }> => {
     const response = await apiClient.delete(`/tenants/${tenantId}/products/bulk`, {
@@ -129,5 +173,11 @@ export const productApi = {
       value: adjustment.value,
     });
     return response.data;
+  },
+
+  // Phase 8E: Product Duplication
+  duplicateProduct: async (tenantId: string, productId: string): Promise<Product> => {
+    const response = await apiClient.post(`/tenants/${tenantId}/products/${productId}/duplicate`);
+    return response.data.data;
   },
 };

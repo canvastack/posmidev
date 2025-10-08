@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Src\Pms\Core\Services\ProductAnalyticsService;
+use Src\Pms\Core\Services\ProductAnalyticsExportService;
 use Src\Pms\Infrastructure\Models\Product;
 
 /**
@@ -23,10 +24,14 @@ use Src\Pms\Infrastructure\Models\Product;
 class ProductAnalyticsController extends Controller
 {
     protected ProductAnalyticsService $analyticsService;
+    protected ProductAnalyticsExportService $exportService;
     
-    public function __construct(ProductAnalyticsService $analyticsService)
-    {
+    public function __construct(
+        ProductAnalyticsService $analyticsService,
+        ProductAnalyticsExportService $exportService
+    ) {
         $this->analyticsService = $analyticsService;
+        $this->exportService = $exportService;
     }
     
     /**
@@ -179,5 +184,55 @@ class ProductAnalyticsController extends Controller
             'success' => true,
             'data' => $overview,
         ]);
+    }
+    
+    /**
+     * Export analytics to CSV
+     * 
+     * @param Request $request
+     * @param string $tenantId
+     * @param string $productId
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function exportCsv(Request $request, string $tenantId, string $productId)
+    {
+        $this->authorize('view', [Product::class, $tenantId]);
+        
+        $validated = $request->validate([
+            'period_start' => 'nullable|date',
+            'period_end' => 'nullable|date|after_or_equal:period_start',
+        ]);
+        
+        return $this->exportService->exportToCsv(
+            $productId,
+            $tenantId,
+            $validated['period_start'] ?? null,
+            $validated['period_end'] ?? null
+        );
+    }
+    
+    /**
+     * Export analytics to PDF
+     * 
+     * @param Request $request
+     * @param string $tenantId
+     * @param string $productId
+     * @return \Illuminate\Http\Response
+     */
+    public function exportPdf(Request $request, string $tenantId, string $productId)
+    {
+        $this->authorize('view', [Product::class, $tenantId]);
+        
+        $validated = $request->validate([
+            'period_start' => 'nullable|date',
+            'period_end' => 'nullable|date|after_or_equal:period_start',
+        ]);
+        
+        return $this->exportService->exportToPdf(
+            $productId,
+            $tenantId,
+            $validated['period_start'] ?? null,
+            $validated['period_end'] ?? null
+        );
     }
 }

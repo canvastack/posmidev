@@ -34,6 +34,16 @@ class ProductController extends Controller
         $stockFilter = $request->get('stock_filter');
         $minPrice = $request->get('min_price');
         $maxPrice = $request->get('max_price');
+        $createdFrom = $request->get('created_from');
+        $createdTo = $request->get('created_to');
+        $updatedFrom = $request->get('updated_from');
+        $updatedTo = $request->get('updated_to');
+        $statuses = $request->get('statuses'); // Can be comma-separated string or array
+        
+        // Parse statuses if it's a comma-separated string
+        if ($statuses && is_string($statuses)) {
+            $statuses = array_filter(explode(',', $statuses));
+        }
         
         $products = $this->productService->getProductsByTenantPaginated(
             $tenantId, 
@@ -44,7 +54,12 @@ class ProductController extends Controller
             $sortOrder,
             $stockFilter,
             $minPrice,
-            $maxPrice
+            $maxPrice,
+            $createdFrom,
+            $createdTo,
+            $updatedFrom,
+            $updatedTo,
+            $statuses
         );
 
         return response()->json([
@@ -561,6 +576,71 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Import failed: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Duplicate an existing product
+     * Creates a copy with "(Copy)" appended to name and new SKU
+     */
+    public function duplicate(Request $request, string $tenantId, \Src\Pms\Infrastructure\Models\Product $product): JsonResponse
+    {
+        // Verify product belongs to tenant
+        if ($product->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $this->authorize('create', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
+
+        try {
+            // Generate new SKU (add -COPY suffix and ensure uniqueness)
+            $baseSku = $product->sku;
+            $newSku = $baseSku . '-COPY';
+            $counter = 1;
+            
+            while (\Src\Pms\Infrastructure\Models\Product::where('tenant_id', $tenantId)
+                ->where('sku', $newSku)
+                ->exists()) {
+                $newSku = $baseSku . '-COPY' . $counter;
+                $counter++;
+            }
+
+            // Create duplicate product
+            $duplicate = $product->replicate();
+            $duplicate->id = \Ramsey\Uuid\Uuid::uuid4()->toString();
+            $duplicate->name = $product->name . ' (Copy)';
+            $duplicate->sku = $newSku;
+            $duplicate->status = 'draft'; // Set as draft by default
+            $duplicate->created_at = now();
+            $duplicate->updated_at = now();
+            $duplicate->save();
+
+            // Copy product images if any
+            if ($product->images && $product->images->count() > 0) {
+                foreach ($product->images as $image) {
+                    $duplicateImage = $image->replicate();
+                    $duplicateImage->id = \Ramsey\Uuid\Uuid::uuid4()->toString();
+                    $duplicateImage->product_id = $duplicate->id;
+                    $duplicateImage->created_at = now();
+                    $duplicateImage->save();
+                }
+            }
+
+            // Load relationships for response
+            $duplicate->load('category', 'images');
+            $duplicate->loadCount('variants');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Product duplicated successfully',
+                'data' => (new ProductResource($duplicate))->toArray($request)
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to duplicate product: ' . $e->getMessage(),
             ], 500);
         }
     }

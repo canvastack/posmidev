@@ -27,6 +27,10 @@ import { ImportButton } from '@/components/domain/products/ImportButton';
 import { BarcodeGenerateButton } from '@/components/domain/products/BarcodeGenerateButton';
 import { BulkBarcodePrintModal } from '@/components/domain/products/BulkBarcodePrintModal';
 import { ProductHistoryModal } from '@/components/domain/products/ProductHistoryModal';
+import { AdvancedFiltersPanel } from '@/components/domain/products/AdvancedFiltersPanel';
+import { ColumnCustomizationModal } from '@/components/domain/products/ColumnCustomizationModal';
+import { useColumnCustomization } from '@/hooks/useColumnCustomization';
+import { DocumentDuplicateIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -63,6 +67,13 @@ export default function ProductsPage() {
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   
+  // Phase 8A: Advanced Filters state
+  const [createdFrom, setCreatedFrom] = useState<string>('');
+  const [createdTo, setCreatedTo] = useState<string>('');
+  const [updatedFrom, setUpdatedFrom] = useState<string>('');
+  const [updatedTo, setUpdatedTo] = useState<string>('');
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -86,6 +97,10 @@ export default function ProductsPage() {
   // History modal state
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
+  
+  // Column customization
+  const { columns, saveColumns, isColumnVisible } = useColumnCustomization();
+  const [columnModalOpen, setColumnModalOpen] = useState(false);
   
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -145,6 +160,23 @@ export default function ProductsPage() {
         params.max_price = parseFloat(maxPrice);
       }
       
+      // Phase 8A: Add advanced filters
+      if (createdFrom) {
+        params.created_from = createdFrom;
+      }
+      if (createdTo) {
+        params.created_to = createdTo;
+      }
+      if (updatedFrom) {
+        params.updated_from = updatedFrom;
+      }
+      if (updatedTo) {
+        params.updated_to = updatedTo;
+      }
+      if (selectedStatuses.length > 0) {
+        params.statuses = selectedStatuses.join(',');
+      }
+      
       const response = await productApi.getProducts(tenantId, params);
 
       console.log('Products loaded:', response.data?.length || 0, 'items');
@@ -168,7 +200,7 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, [tenantId, currentPage, perPage, debouncedSearchQuery, selectedCategory, sortBy, sortOrder, stockFilter, minPrice, maxPrice, toast]);
+  }, [tenantId, currentPage, perPage, debouncedSearchQuery, selectedCategory, sortBy, sortOrder, stockFilter, minPrice, maxPrice, createdFrom, createdTo, updatedFrom, updatedTo, selectedStatuses, toast]);
 
   const fetchCategories = useCallback(async () => {
     if (!tenantId) return;
@@ -511,6 +543,35 @@ export default function ProductsPage() {
     }
   };
 
+  // Phase 8E: Product Duplication
+  const handleDuplicate = async (product: Product) => {
+    if (!tenantId) return;
+    
+    if (!confirm(`Duplicate product "${product.name}"? A copy will be created with draft status.`)) {
+      return;
+    }
+
+    try {
+      const duplicatedProduct = await productApi.duplicateProduct(tenantId, product.id);
+      toast({
+        title: 'Success',
+        description: `Product duplicated successfully as "${duplicatedProduct.name}".`,
+      });
+      await fetchProducts();
+      await fetchStats();
+      
+      // Optionally navigate to the duplicated product
+      // navigate(`/admin/products/${duplicatedProduct.id}`);
+    } catch (error) {
+      console.error('Failed to duplicate product:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to duplicate product. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setForm(prev => ({
@@ -563,6 +624,15 @@ export default function ProductsPage() {
               }}
             />
           )}
+          {/* Column Customization Button */}
+          <Button 
+            variant="outline" 
+            onClick={() => setColumnModalOpen(true)}
+            title="Customize Columns"
+          >
+            <Cog6ToothIcon className="h-4 w-4 mr-2" />
+            Columns
+          </Button>
           {hasPermission('products.create') ? (
             <Button onClick={() => handleOpenModal()}>
               <PlusIcon className="h-4 w-4 mr-2" />
@@ -890,6 +960,27 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
 
+      {/* Phase 8A: Advanced Filters Panel */}
+      <AdvancedFiltersPanel
+        createdFrom={createdFrom}
+        createdTo={createdTo}
+        updatedFrom={updatedFrom}
+        updatedTo={updatedTo}
+        onCreatedFromChange={setCreatedFrom}
+        onCreatedToChange={setCreatedTo}
+        onUpdatedFromChange={setUpdatedFrom}
+        onUpdatedToChange={setUpdatedTo}
+        selectedStatuses={selectedStatuses}
+        onStatusesChange={setSelectedStatuses}
+        activeFiltersCount={
+          (createdFrom ? 1 : 0) +
+          (createdTo ? 1 : 0) +
+          (updatedFrom ? 1 : 0) +
+          (updatedTo ? 1 : 0) +
+          selectedStatuses.length
+        }
+      />
+
       <Card>
         <CardContent className="p-0">
           {loading ? (
@@ -942,135 +1033,188 @@ export default function ProductsPage() {
                 <Table scrollX={true}>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox
-                          checked={bulkSelection.isAllSelected}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              bulkSelection.selectAll();
-                            } else {
-                              bulkSelection.clearSelection();
-                            }
-                          }}
-                        />
-                      </TableHead>
-                      <TableHead>Image</TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleSort('name')}
-                      >
-                        <div className="flex items-center gap-1">
-                          Name
-                          {sortBy === 'name' && (
-                            sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleSort('sku')}
-                      >
-                        <div className="flex items-center gap-1">
-                          SKU
-                          {sortBy === 'sku' && (
-                            sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleSort('price')}
-                      >
-                        <div className="flex items-center gap-1">
-                          Price
-                          {sortBy === 'price' && (
-                            sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead 
-                        className="cursor-pointer hover:bg-gray-50"
-                        onClick={() => handleSort('stock')}
-                      >
-                        <div className="flex items-center gap-1">
-                          Stock
-                          {sortBy === 'stock' && (
-                            sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
-                          )}
-                        </div>
-                      </TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      {isColumnVisible('checkbox') && (
+                        <TableHead className="w-12">
+                          <Checkbox
+                            checked={bulkSelection.isAllSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                bulkSelection.selectAll();
+                              } else {
+                                bulkSelection.clearSelection();
+                              }
+                            }}
+                          />
+                        </TableHead>
+                      )}
+                      {isColumnVisible('image') && <TableHead>Image</TableHead>}
+                      {isColumnVisible('name') && (
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('name')}
+                        >
+                          <div className="flex items-center gap-1">
+                            Name
+                            {sortBy === 'name' && (
+                              sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                      )}
+                      {isColumnVisible('sku') && (
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('sku')}
+                        >
+                          <div className="flex items-center gap-1">
+                            SKU
+                            {sortBy === 'sku' && (
+                              sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                      )}
+                      {isColumnVisible('category') && <TableHead>Category</TableHead>}
+                      {isColumnVisible('price') && (
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('price')}
+                        >
+                          <div className="flex items-center gap-1">
+                            Price
+                            {sortBy === 'price' && (
+                              sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                      )}
+                      {isColumnVisible('cost_price') && <TableHead>Cost</TableHead>}
+                      {isColumnVisible('profit_margin') && <TableHead>Margin</TableHead>}
+                      {isColumnVisible('stock') && (
+                        <TableHead 
+                          className="cursor-pointer hover:bg-gray-50"
+                          onClick={() => handleSort('stock')}
+                        >
+                          <div className="flex items-center gap-1">
+                            Stock
+                            {sortBy === 'stock' && (
+                              sortOrder === 'asc' ? <ArrowUpIcon className="h-4 w-4" /> : <ArrowDownIcon className="h-4 w-4" />
+                            )}
+                          </div>
+                        </TableHead>
+                      )}
+                      {isColumnVisible('status') && <TableHead>Status</TableHead>}
+                      {isColumnVisible('created_at') && <TableHead>Created</TableHead>}
+                      {isColumnVisible('updated_at') && <TableHead>Updated</TableHead>}
+                      {isColumnVisible('actions') && <TableHead>Actions</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredProducts.map((product) => (
                     <TableRow key={product.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={bulkSelection.isSelected(product.id)}
-                          onChange={() => bulkSelection.toggleSelection(product.id)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {getImageUrl(product.thumbnail_url || product.image_url) ? (
-                          <img
-                            src={getImageUrl(product.thumbnail_url || product.image_url) || ''}
-                            alt={product.name}
-                            className="w-12 h-12 object-cover rounded"
+                      {isColumnVisible('checkbox') && (
+                        <TableCell>
+                          <Checkbox
+                            checked={bulkSelection.isSelected(product.id)}
+                            onChange={() => bulkSelection.toggleSelection(product.id)}
                           />
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package w-6 h-6 text-gray-400">
-                              <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path>
-                              <path d="M12 22V12"></path>
-                              <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
-                              <path d="m7.5 4.27 9 5.15"></path>
-                            </svg>
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{product.name}</div>
-                          {product.description && (
-                            <div className="text-sm text-gray-500 truncate max-w-xs">{product.description}</div>
+                        </TableCell>
+                      )}
+                      {isColumnVisible('image') && (
+                        <TableCell>
+                          {getImageUrl(product.thumbnail_url || product.image_url) ? (
+                            <img
+                              src={getImageUrl(product.thumbnail_url || product.image_url) || ''}
+                              alt={product.name}
+                              className="w-12 h-12 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package w-6 h-6 text-gray-400">
+                                <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path>
+                                <path d="M12 22V12"></path>
+                                <path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path>
+                                <path d="m7.5 4.27 9 5.15"></path>
+                              </svg>
+                            </div>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">{product.sku}</TableCell>
-                      <TableCell>
-                        {product.category ? (
-                          <Badge variant="outline">{product.category.name}</Badge>
-                        ) : (
-                          <span className="text-gray-400 text-sm">No category</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-semibold">{formatCurrency(product.price)}</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          product.stock > 10 
-                            ? 'bg-green-100 text-green-800'
-                            : product.stock > 0
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {product.stock}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={
-                            product.status === 'active' ? 'default' : 
-                            product.status === 'inactive' ? 'secondary' : 
-                            'destructive'
-                          }
-                        >
-                          {product.status || 'active'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
+                        </TableCell>
+                      )}
+                      {isColumnVisible('name') && (
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{product.name}</div>
+                            {product.description && (
+                              <div className="text-sm text-gray-500 truncate max-w-xs">{product.description}</div>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                      {isColumnVisible('sku') && (
+                        <TableCell className="font-mono text-sm">{product.sku}</TableCell>
+                      )}
+                      {isColumnVisible('category') && (
+                        <TableCell>
+                          {product.category ? (
+                            <Badge variant="outline">{product.category.name}</Badge>
+                          ) : (
+                            <span className="text-gray-400 text-sm">No category</span>
+                          )}
+                        </TableCell>
+                      )}
+                      {isColumnVisible('price') && (
+                        <TableCell className="font-semibold">{formatCurrency(product.price)}</TableCell>
+                      )}
+                      {isColumnVisible('cost_price') && (
+                        <TableCell className="text-sm text-gray-600">
+                          {product.cost_price ? formatCurrency(product.cost_price) : '-'}
+                        </TableCell>
+                      )}
+                      {isColumnVisible('profit_margin') && (
+                        <TableCell className="text-sm text-gray-600">
+                          {product.cost_price && product.price > 0
+                            ? `${(((product.price - product.cost_price) / product.price) * 100).toFixed(1)}%`
+                            : '-'}
+                        </TableCell>
+                      )}
+                      {isColumnVisible('stock') && (
+                        <TableCell>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            product.stock > 10 
+                              ? 'bg-green-100 text-green-800'
+                              : product.stock > 0
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {product.stock}
+                          </span>
+                        </TableCell>
+                      )}
+                      {isColumnVisible('status') && (
+                        <TableCell>
+                          <Badge 
+                            variant={
+                              product.status === 'active' ? 'default' : 
+                              product.status === 'inactive' ? 'secondary' : 
+                              'destructive'
+                            }
+                          >
+                            {product.status || 'active'}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      {isColumnVisible('created_at') && (
+                        <TableCell className="text-sm text-gray-600">
+                          {new Date(product.created_at).toLocaleDateString()}
+                        </TableCell>
+                      )}
+                      {isColumnVisible('updated_at') && (
+                        <TableCell className="text-sm text-gray-600">
+                          {new Date(product.updated_at).toLocaleDateString()}
+                        </TableCell>
+                      )}
+                      {isColumnVisible('actions') && (
+                        <TableCell>
                         <div className="flex space-x-2">
                           {hasPermission('products.view') && (
                             <Button
@@ -1091,6 +1235,17 @@ export default function ProductsPage() {
                               title="Edit Product"
                             >
                               <PencilIcon className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {hasPermission('products.create') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDuplicate(product)}
+                              disabled={deleting === product.id}
+                              title="Duplicate Product"
+                            >
+                              <DocumentDuplicateIcon className="h-4 w-4" />
                             </Button>
                           )}
                           {hasPermission('products.delete') && (
@@ -1125,7 +1280,8 @@ export default function ProductsPage() {
                             <span className="text-xs text-gray-400 italic">No actions available</span>
                           )}
                         </div>
-                      </TableCell>
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                   </TableBody>

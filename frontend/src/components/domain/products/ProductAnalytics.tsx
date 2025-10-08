@@ -30,8 +30,10 @@ import {
   ChartBarIcon,
   CubeIcon,
   ArrowPathIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import { useProductAnalytics } from '../../../hooks/useProductAnalytics';
+import { exportProductAnalyticsCsv, exportProductAnalyticsPdf } from '../../../api/analyticsApi';
 import MetricCard from './MetricCard';
 import SalesChart from './SalesChart';
 import StockMovementChart from './StockMovementChart';
@@ -58,6 +60,7 @@ export const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
   productId,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption['value']>('last_30_days');
+  const [exporting, setExporting] = useState<'csv' | 'pdf' | null>(null);
   
   const {
     overview,
@@ -70,6 +73,7 @@ export const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
     fetchOverview,
     refresh,
     setPresetPeriod,
+    currentPeriod,
   } = useProductAnalytics(tenantId, productId, {
     autoFetch: false, // Lazy load
     defaultPeriod: 'last_30_days',
@@ -88,6 +92,60 @@ export const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
    */
   const handleRefresh = () => {
     refresh();
+  };
+  
+  /**
+   * Handle export to CSV
+   */
+  const handleExportCsv = async () => {
+    if (!tenantId || !productId) return;
+    
+    setExporting('csv');
+    try {
+      const blob = await exportProductAnalyticsCsv(tenantId, productId, currentPeriod);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `product_analytics_${productId}_${new Date().getTime()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export CSV:', error);
+      alert('Failed to export analytics to CSV');
+    } finally {
+      setExporting(null);
+    }
+  };
+  
+  /**
+   * Handle export to PDF
+   */
+  const handleExportPdf = async () => {
+    if (!tenantId || !productId) return;
+    
+    setExporting('pdf');
+    try {
+      const blob = await exportProductAnalyticsPdf(tenantId, productId, currentPeriod);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `product_analytics_${productId}_${new Date().getTime()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+      alert('Failed to export analytics to PDF');
+    } finally {
+      setExporting(null);
+    }
   };
   
   /**
@@ -167,6 +225,29 @@ export const ProductAnalytics: React.FC<ProductAnalyticsProps> = ({
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Export Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCsv}
+              disabled={loading || exporting === 'csv'}
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export to CSV"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              {exporting === 'csv' ? 'Exporting...' : 'CSV'}
+            </button>
+            
+            <button
+              onClick={handleExportPdf}
+              disabled={loading || exporting === 'pdf'}
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export to PDF"
+            >
+              <ArrowDownTrayIcon className="w-4 h-4" />
+              {exporting === 'pdf' ? 'Exporting...' : 'PDF'}
+            </button>
+          </div>
+          
           {/* Period Selector */}
           <select
             value={selectedPeriod}

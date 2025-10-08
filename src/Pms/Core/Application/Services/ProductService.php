@@ -103,7 +103,12 @@ class ProductService
         ?string $sortOrder = 'asc',
         ?string $stockFilter = null,
         ?float $minPrice = null,
-        ?float $maxPrice = null
+        ?float $maxPrice = null,
+        ?string $createdFrom = null,
+        ?string $createdTo = null,
+        ?string $updatedFrom = null,
+        ?string $updatedTo = null,
+        ?array $statuses = null
     )
     {
         return $this->productRepository->findByTenantPaginated(
@@ -115,7 +120,12 @@ class ProductService
             $sortOrder,
             $stockFilter,
             $minPrice,
-            $maxPrice
+            $maxPrice,
+            $createdFrom,
+            $createdTo,
+            $updatedFrom,
+            $updatedTo,
+            $statuses
         );
     }
 

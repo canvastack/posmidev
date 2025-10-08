@@ -234,3 +234,77 @@ export const getPeriodPresetDates = (
   
   return { start, end };
 };
+
+/**
+ * Export product analytics to CSV
+ * 
+ * @param tenantId - Tenant UUID
+ * @param productId - Product UUID
+ * @param params - Optional query parameters (period_start, period_end)
+ * @returns Promise with blob data for download
+ * 
+ * @example
+ * ```ts
+ * const blob = await exportProductAnalyticsCsv('tenant-123', 'product-456', {
+ *   period_start: '2024-01-01',
+ *   period_end: '2024-01-31',
+ * });
+ * // Trigger download
+ * const url = window.URL.createObjectURL(blob);
+ * const link = document.createElement('a');
+ * link.href = url;
+ * link.download = 'analytics.csv';
+ * link.click();
+ * ```
+ */
+export const exportProductAnalyticsCsv = async (
+  tenantId: string,
+  productId: string,
+  params?: AnalyticsParams
+): Promise<Blob> => {
+  const response = await apiClient.get(
+    `/tenants/${tenantId}/products/${productId}/analytics/export/csv`,
+    { 
+      params,
+      responseType: 'blob'
+    }
+  );
+  return response.data;
+};
+
+/**
+ * Export product analytics to PDF
+ * 
+ * @param tenantId - Tenant UUID
+ * @param productId - Product UUID
+ * @param params - Optional query parameters (period_start, period_end)
+ * @returns Promise with blob data for download
+ * 
+ * @example
+ * ```ts
+ * const blob = await exportProductAnalyticsPdf('tenant-123', 'product-456', {
+ *   period_start: '2024-01-01',
+ *   period_end: '2024-01-31',
+ * });
+ * // Trigger download
+ * const url = window.URL.createObjectURL(blob);
+ * const link = document.createElement('a');
+ * link.href = url;
+ * link.download = 'analytics.pdf';
+ * link.click();
+ * ```
+ */
+export const exportProductAnalyticsPdf = async (
+  tenantId: string,
+  productId: string,
+  params?: AnalyticsParams
+): Promise<Blob> => {
+  const response = await apiClient.get(
+    `/tenants/${tenantId}/products/${productId}/analytics/export/pdf`,
+    { 
+      params,
+      responseType: 'blob'
+    }
+  );
+  return response.data;
+};

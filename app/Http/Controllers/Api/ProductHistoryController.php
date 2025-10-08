@@ -42,6 +42,11 @@ class ProductHistoryController extends Controller
             ->where('subject_id', $productId)
             ->where('tenant_id', $tenantId);
         
+        // Apply event type filter if provided
+        if ($request->has('event') && $request->filled('event')) {
+            $query->where('event', $request->get('event'));
+        }
+        
         // Apply date range filter if provided
         if ($request->has('date_from') && $request->filled('date_from')) {
             $query->where('created_at', '>=', $request->get('date_from'));

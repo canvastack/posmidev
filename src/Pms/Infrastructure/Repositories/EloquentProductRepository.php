@@ -37,7 +37,12 @@ class EloquentProductRepository implements ProductRepositoryInterface
         ?string $sortOrder = 'asc',
         ?string $stockFilter = null,
         ?float $minPrice = null,
-        ?float $maxPrice = null
+        ?float $maxPrice = null,
+        ?string $createdFrom = null,
+        ?string $createdTo = null,
+        ?string $updatedFrom = null,
+        ?string $updatedTo = null,
+        ?array $statuses = null
     )
     {
         $query = ProductModel::where('tenant_id', $tenantId);
@@ -79,8 +84,29 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $query->where('price', '<=', $maxPrice);
         }
 
+        // Apply created date range filter
+        if ($createdFrom) {
+            $query->where('created_at', '>=', $createdFrom);
+        }
+        if ($createdTo) {
+            $query->where('created_at', '<=', $createdTo . ' 23:59:59');
+        }
+
+        // Apply updated date range filter
+        if ($updatedFrom) {
+            $query->where('updated_at', '>=', $updatedFrom);
+        }
+        if ($updatedTo) {
+            $query->where('updated_at', '<=', $updatedTo . ' 23:59:59');
+        }
+
+        // Apply status filter (multi-select)
+        if ($statuses && is_array($statuses) && count($statuses) > 0) {
+            $query->whereIn('status', $statuses);
+        }
+
         // Apply sorting
-        $allowedSortFields = ['name', 'sku', 'price', 'stock', 'created_at'];
+        $allowedSortFields = ['name', 'sku', 'price', 'stock', 'created_at', 'updated_at'];
         $sortField = in_array($sortBy, $allowedSortFields) ? $sortBy : 'created_at';
         $sortDirection = strtolower($sortOrder) === 'asc' ? 'asc' : 'desc';
         

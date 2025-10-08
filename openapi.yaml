@@ -386,7 +386,7 @@ paths:
     get:
       tags: [Products]
       summary: List all products for a tenant
-      description: "Requires authentication and 'products.view' permission within the tenant scope."
+      description: "Requires authentication and 'products.view' permission within the tenant scope. Supports advanced filtering by date ranges, status, category, price range, and stock level."
       operationId: listProducts
       security: [{ bearerAuth: [] }]
       parameters:
@@ -397,6 +397,54 @@ paths:
         - in: query
           name: page
           schema: { type: integer, minimum: 1 }
+        - in: query
+          name: search
+          description: "Search in product name, SKU, or description"
+          schema: { type: string }
+        - in: query
+          name: category_id
+          description: "Filter by category UUID"
+          schema: { type: string, format: uuid }
+        - in: query
+          name: sort_by
+          description: "Sort field"
+          schema: { type: string, enum: [name, sku, price, stock, created_at, updated_at] }
+        - in: query
+          name: sort_order
+          description: "Sort direction"
+          schema: { type: string, enum: [asc, desc], default: desc }
+        - in: query
+          name: stock_filter
+          description: "Filter by stock level"
+          schema: { type: string, enum: [all, in_stock, low_stock, out_of_stock], default: all }
+        - in: query
+          name: min_price
+          description: "Minimum price filter"
+          schema: { type: number, format: float }
+        - in: query
+          name: max_price
+          description: "Maximum price filter"
+          schema: { type: number, format: float }
+        - in: query
+          name: created_from
+          description: "Filter products created from this date (YYYY-MM-DD)"
+          schema: { type: string, format: date }
+        - in: query
+          name: created_to
+          description: "Filter products created until this date (YYYY-MM-DD)"
+          schema: { type: string, format: date }
+        - in: query
+          name: updated_from
+          description: "Filter products updated from this date (YYYY-MM-DD)"
+          schema: { type: string, format: date }
+        - in: query
+          name: updated_to
+          description: "Filter products updated until this date (YYYY-MM-DD)"
+          schema: { type: string, format: date }
+        - in: query
+          name: statuses
+          description: "Filter by multiple statuses (comma-separated: active,draft,discontinued)"
+          schema: { type: string }
       responses:
         '200':
           description: A paginated list of products
@@ -693,6 +741,13 @@ paths:
             minimum: 1
             maximum: 100
           description: Number of items per page (max 100)
+        - in: query
+          name: event
+          schema:
+            type: string
+            enum: [created, updated, deleted, restored, archived, price_changed, stock_adjusted, variant_added, variant_updated, variant_deleted]
+          description: Filter activities by event type
+          example: "updated"
         - in: query
           name: date_from
           schema:
@@ -1094,6 +1149,279 @@ paths:
           description: Forbidden - missing products.view permission
         '404':
           description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/export/csv:
+    get:
+      tags: [Product Analytics]
+      summary: Export product analytics to CSV
+      description: "Requires authentication and 'products.view' permission. Downloads analytics data as CSV file."
+      operationId: exportProductAnalyticsCsv
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+      responses:
+        '200':
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/export/pdf:
+    get:
+      tags: [Product Analytics]
+      summary: Export product analytics to PDF
+      description: "Requires authentication and 'products.view' permission. Downloads analytics report as PDF file."
+      operationId: exportProductAnalyticsPdf
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+      responses:
+        '200':
+          description: PDF file download
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  # Phase 8E: Product Duplication
+  /tenants/{tenantId}/products/{productId}/duplicate:
+    post:
+      tags: [Products]
+      summary: Duplicate a product
+      description: "Requires authentication and 'products.create' permission. Creates a copy of an existing product with new UUID, modified SKU (adds -COPY suffix with counter), name with ' (Copy)' suffix, and draft status. All images are also duplicated with new UUIDs."
+      operationId: duplicateProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '201':
+          description: Product duplicated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Product duplicated successfully"
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '403':
+          description: Forbidden - missing products.create permission
+        '404':
+          description: Product not found or not in tenant scope
+
+  # Phase 7: Multi-Image Gallery
+  /tenants/{tenantId}/products/{productId}/images:
+    get:
+      tags: [Products]
+      summary: List all images for a product
+      description: "Requires authentication and 'products.view' permission. Returns all images ordered by sort_order."
+      operationId: listProductImages
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductImage' }
+                  total: { type: integer }
+                  max_images: { type: integer, default: 10 }
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+    post:
+      tags: [Products]
+      summary: Upload multiple images for a product
+      description: "Requires authentication and 'products.update' permission. Supports up to 10 images per product. Auto-generates thumbnails."
+      operationId: uploadProductImages
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [images]
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of image files (max 10 total per product, 2MB each)
+      responses:
+        '201':
+          description: Images uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductImage' }
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file: { type: string }
+                        error: { type: string }
+                  total_images: { type: integer }
+        '403':
+          description: Forbidden - missing products.update permission
+        '422':
+          description: Validation error or max image limit reached
+
+  /tenants/{tenantId}/products/{productId}/images/{imageId}:
+    delete:
+      tags: [Products]
+      summary: Delete a product image
+      description: "Requires authentication and 'products.update' permission. If deleted image was primary, first remaining image becomes primary."
+      operationId: deleteProductImage
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: path
+          name: imageId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Image ID
+      responses:
+        '200':
+          description: Image deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '403':
+          description: Forbidden - missing products.update permission
+        '404':
+          description: Image not found
+
+  /tenants/{tenantId}/products/{productId}/images/{imageId}/primary:
+    patch:
+      tags: [Products]
+      summary: Set an image as primary
+      description: "Requires authentication and 'products.update' permission. Unsets all other images as primary."
+      operationId: setProductImagePrimary
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: path
+          name: imageId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Image ID
+      responses:
+        '200':
+          description: Primary image updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data: { $ref: '#/components/schemas/ProductImage' }
+        '403':
+          description: Forbidden - missing products.update permission
+        '404':
+          description: Image not found
+
+  /tenants/{tenantId}/products/{productId}/images/reorder:
+    patch:
+      tags: [Products]
+      summary: Reorder product images
+      description: "Requires authentication and 'products.update' permission. Updates sort_order for all images."
+      operationId: reorderProductImages
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [order]
+              properties:
+                order:
+                  type: array
+                  items: { type: string, format: uuid }
+                  description: Array of image IDs in desired order
+      responses:
+        '200':
+          description: Images reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductImage' }
+        '403':
+          description: Forbidden - missing products.update permission
+        '422':
+          description: Validation error
 
   /tenants/{tenantId}/categories:
     get:
@@ -3294,6 +3622,40 @@ components:
         description: { type: string, nullable: true }
         cost_price: { type: number, format: float, nullable: true }
     
+    # Phase 7: Multi-Image Gallery
+    ProductImage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Image UUID
+        product_id:
+          type: string
+          format: uuid
+          description: Product UUID
+        tenant_id:
+          type: string
+          format: uuid
+          description: Tenant UUID
+        image_url:
+          type: string
+          description: Full image URL (accessible via storage)
+          example: 'http://localhost:9000/storage/products/images/1234567890_uuid_xyz.jpg'
+        thumbnail_url:
+          type: string
+          nullable: true
+          description: Thumbnail URL (200x200px)
+          example: 'http://localhost:9000/storage/products/images/thumb_1234567890_uuid_xyz.jpg'
+        is_primary:
+          type: boolean
+          default: false
+          description: Primary image flag (one per product)
+        sort_order:
+          type: integer
+          default: 0
+          description: Display order (0-based, lower = first)
+    
     ProductVariant:
       type: object
       properties:
@@ -3618,411 +3980,4 @@ components:
               type: object
         is_active:
           type: boolean
-          default: true
-
-    VariantAnalytics:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        variant_id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-        period_type:
-          type: string
-          enum: [daily, weekly, monthly]
-        period_start:
-          type: string
-          format: date-time
-        period_end:
-          type: string
-          format: date-time
-        total_orders:
-          type: integer
-        quantity_sold:
-          type: integer
-        revenue:
-          type: number
-          format: decimal
-        profit:
-          type: number
-          format: decimal
-        profit_margin_percent:
-          type: number
-          format: decimal
-        stock_start:
-          type: integer
-        stock_end:
-          type: integer
-        stock_change:
-          type: integer
-        turnover_rate:
-          type: number
-          format: decimal
-        days_of_stock:
-          type: number
-          format: decimal
-          nullable: true
-        view_count:
-          type: integer
-        add_to_cart_count:
-          type: integer
-        conversion_rate:
-          type: number
-          format: decimal
-        cart_abandonment_rate:
-          type: number
-          format: decimal
-        revenue_percentile:
-          type: number
-          format: decimal
-          nullable: true
-        profit_percentile:
-          type: number
-          format: decimal
-          nullable: true
-        turnover_percentile:
-          type: number
-          format: decimal
-          nullable: true
-        performance_status:
-          type: string
-          enum: [excellent, good, average, poor]
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-
-    Role:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        permissions:
-          type: array
-          items: { $ref: '#/components/schemas/Permission' }
-
-    RoleRequest:
-      type: object
-      required: [name]
-      properties:
-        name: { type: string, example: 'Store Manager' }
-        permissions:
-          type: array
-          description: Array of permission names
-          items: { type: string, example: 'products.view' }
-        global:
-          type: boolean
-          description: Set to true to create/update as global (HQ) role
-
-    Permission:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string, example: 'products.create' }
-
-    # Sales
-    Order:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        invoice_number: { type: string }
-        total_amount: { type: number, format: float }
-        payment_method: { type: string, enum: [cash, card, qris] }
-        amount_paid: { type: number, format: float }
-        change_amount: { type: number, format: float }
-        items:
-          type: array
-          items: { $ref: '#/components/schemas/OrderItem' }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    OrderItem:
-      type: object
-      properties:
-        product_id: { type: string, format: uuid }
-        product_name: { type: string }
-        quantity: { type: integer }
-        price: { type: number, format: float }
-        subtotal: { type: number, format: float }
-
-    OrderRequest:
-      type: object
-      required: [items, payment_method, amount_paid]
-      properties:
-        items:
-          type: array
-          items:
-            type: object
-            required: [product_id, quantity]
-            properties:
-              product_id: { type: string, format: uuid }
-              quantity: { type: integer }
-        payment_method:
-          type: string
-          enum: [cash, card, qris]
-          example: cash
-        amount_paid: { type: number, format: float }
-        customer_id: { type: string, format: uuid, nullable: true }
-
-    # Inventory
-    Category:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        description: { type: string, nullable: true }
-        tenant_id: { type: string, format: uuid }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-        updated_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    CategoryRequest:
-      type: object
-      required: [name]
-      properties:
-        name: { type: string, example: 'Elektronik' }
-        description: { type: string, nullable: true }
-
-    StockAdjustment:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        product_id: { type: string, format: uuid }
-        quantity: { type: integer, description: 'Positive for stock in, negative for stock out' }
-        reason: { type: string }
-        notes: { type: string, nullable: true }
-        user_id: { type: string, format: uuid }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    StockAdjustmentRequest:
-      type: object
-      required: [product_id, quantity, reason]
-      properties:
-        product_id: { type: string, format: uuid }
-        quantity: { type: integer, example: -2 }
-        reason: { type: string, example: 'Barang Rusak' }
-        notes: { type: string, nullable: true }
-
-    # Stock Alerts (Phase 5)
-    AdjustmentReason:
-      type: object
-      properties:
-        key: { type: string, example: 'damage' }
-        label: { type: string, example: 'Damage / Defect' }
-        type: { type: string, enum: [addition, deduction, audit, transfer, other] }
-        description: { type: string, example: 'Product damaged or defective' }
-
-    StockAlert:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        product_id: { type: string, format: uuid }
-        product:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-            sku: { type: string }
-            current_stock: { type: integer }
-        current_stock: { type: integer }
-        reorder_point: { type: integer }
-        severity: { type: string, enum: [low, critical, out_of_stock] }
-        severity_color: { type: string, example: 'yellow' }
-        status: { type: string, enum: [pending, acknowledged, resolved, dismissed] }
-        status_color: { type: string, example: 'gray' }
-        notified: { type: boolean }
-        notified_at: { type: string, format: date-time, nullable: true }
-        acknowledged_by:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-        acknowledged_at: { type: string, format: date-time, nullable: true }
-        resolved_by:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-        resolved_at: { type: string, format: date-time, nullable: true }
-        is_actionable: { type: boolean }
-        is_closed: { type: boolean }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-
-    StockAlertStats:
-      type: object
-      properties:
-        total_alerts: { type: integer }
-        pending_alerts: { type: integer }
-        acknowledged_alerts: { type: integer }
-        resolved_alerts: { type: integer }
-        dismissed_alerts: { type: integer }
-        by_severity:
-          type: object
-          properties:
-            low: { type: integer }
-            critical: { type: integer }
-            out_of_stock: { type: integer }
-        actionable_alerts: { type: integer }
-        not_notified: { type: integer }
-
-    StockAlertAction:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        status: { type: string }
-        acknowledged_by:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-        acknowledged_at: { type: string, format: date-time, nullable: true }
-        resolved_by:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-        resolved_at: { type: string, format: date-time, nullable: true }
-
-    LowStockProduct:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        sku: { type: string }
-        stock: { type: integer }
-        reorder_point: { type: integer }
-        reorder_quantity: { type: integer }
-        stock_status: { type: string, enum: [normal, low, critical, out_of_stock] }
-        stock_status_color: { type: string, example: 'yellow' }
-        stock_percentage: { type: number, format: float, nullable: true }
-        recommended_order_quantity: { type: integer }
-        category:
-          type: object
-          nullable: true
-          properties:
-            id: { type: string, format: uuid }
-            name: { type: string }
-        price: { type: number, format: float }
-        needs_reorder: { type: boolean }
-        has_active_alert: { type: boolean }
-        updated_at: { type: string, format: date-time }
-
-    LowStockSummary:
-      type: object
-      properties:
-        total_low_stock_products: { type: integer }
-        critical_products: { type: integer }
-        out_of_stock_products: { type: integer }
-
-    Pagination:
-      type: object
-      properties:
-        current_page: { type: integer }
-        last_page: { type: integer }
-        per_page: { type: integer }
-        total: { type: integer }
-
-    # Customers
-    Customer:
-      type: object
-      required: [id, name]
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        tags:
-          type: array
-          items: { type: string }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-
-    CustomerRequest:
-      type: object
-      properties:
-        name: { type: string }
-        email: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        address: { type: string, nullable: true }
-        tags:
-          type: array
-          items: { type: string }
-
-    # Tenants schemas
-    Tenant:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        address: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        logo: { type: string, nullable: true }
-        status: { type: string, enum: [active, inactive, pending, banned] }
-        can_auto_activate_users: { type: boolean }
-        auto_activate_request_pending: { type: boolean }
-        auto_activate_requested_at: { type: string, nullable: true, example: '2025-01-01 12:00:00' }
-        customers_count: { type: integer, nullable: true }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-        updated_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    TenantCreateRequest:
-      type: object
-      required: [name]
-      properties:
-        name: { type: string }
-        address: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        logo: { type: string, nullable: true }
-        status: { type: string, enum: [active, inactive, pending, banned] }
-
-    TenantUpdateRequest:
-      type: object
-      properties:
-        name: { type: string }
-        address: { type: string, nullable: true }
-        phone: { type: string, nullable: true }
-        logo: { type: string, nullable: true }
-        status: { type: string, enum: [active, inactive, pending, banned] }
-        can_auto_activate_users: { type: boolean }
-
-    # Settings
-    TenantSettings:
-      type: object
-      properties:
-        payments:
-          type: object
-          properties:
-            default_method:
-              type: string
-              enum: [cash, card, ewallet]
-              description: Default payment method for POS
-
-    PublicSettings:
-      description: Read-only subset used by public site (tenant.settings.public)
-      type: object
-      additionalProperties: true
-
-    PublicProduct:
-      type: object
-      description: Public product projection exposed by public endpoints
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        description: { type: string, nullable: true }
-        price: { type: number, format: float }
-        stock: { type: integer }
-        category_id: { type: string, format: uuid, nullable: true }
-
-  
+          defaul

@@ -18,3 +18,9 @@ export { StockHistoryChart } from './StockHistoryChart';
 // Stock Management Components (Phase 5)
 export { StockAdjustmentModal } from './StockAdjustmentModal';
 export { StockBadge, CompactStockBadge, StockIndicator } from './StockBadge';
+
+// Phase 7: Multi-Image Gallery
+export { default as ProductImageGallery } from './ProductImageGallery';
+
+// Phase 8: Advanced Filters & UI Enhancements
+export { AdvancedFiltersPanel } from './AdvancedFiltersPanel';

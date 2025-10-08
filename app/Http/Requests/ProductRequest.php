@@ -26,19 +26,8 @@ class ProductRequest extends FormRequest
             $skuRule->ignore($productId);
         }
 
-        // For updates, make fields optional (sometimes)
-        $required = $isUpdate ? 'sometimes|required' : 'required';
-
-        return [
-            'name' => $required.'|string|max:255',
-            'sku' => [
-                $required,
-                'string',
-                'max:100',
-                $skuRule
-            ],
-            'price' => $required.'|numeric|min:0',
-            'stock' => $required.'|integer|min:0',
+        // Build base rules
+        $rules = [
             'category_id' => 'nullable|uuid|exists:categories,id',
             'description' => 'nullable|string',
             'cost_price' => 'nullable|numeric|min:0',
@@ -46,5 +35,20 @@ class ProductRequest extends FormRequest
             'has_variants' => 'nullable|boolean',
             'manage_stock_by_variant' => 'nullable|boolean',
         ];
+
+        // For updates, make core fields optional (sometimes)
+        if ($isUpdate) {
+            $rules['name'] = ['sometimes', 'required', 'string', 'max:255'];
+            $rules['sku'] = ['sometimes', 'required', 'string', 'max:100', $skuRule];
+            $rules['price'] = ['sometimes', 'required', 'numeric', 'min:0'];
+            $rules['stock'] = ['sometimes', 'required', 'integer', 'min:0'];
+        } else {
+            $rules['name'] = ['required', 'string', 'max:255'];
+            $rules['sku'] = ['required', 'string', 'max:100', $skuRule];
+            $rules['price'] = ['required', 'numeric', 'min:0'];
+            $rules['stock'] = ['required', 'integer', 'min:0'];
+        }
+
+        return $rules;
     }
 }
