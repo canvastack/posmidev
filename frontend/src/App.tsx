@@ -31,6 +31,10 @@ const LowStockProductsPage = lazy(() => import('./pages/backend/stock-alerts/Low
 const ProductDetailPage = lazy(() => import('./pages/backend/products/ProductDetailPage'))
 const ProductEditPage = lazy(() => import('./pages/backend/products/ProductEditPage'))
 
+// Phase 9: Additional Business Features
+const SuppliersPage = lazy(() => import('./pages/backend/suppliers'))
+const ProductTagsPage = lazy(() => import('./pages/backend/product-tags'))
+
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/home'))
 const ProductsPublicPage = lazy(() => import('./pages/frontend/products'))
@@ -76,6 +80,9 @@ function App() {
                   {/* Stock Management (Phase 5) */}
                   <Route path="stock-alerts" element={<StockAlertsPage />} />
                   <Route path="stock-alerts/low-stock" element={<LowStockProductsPage />} />
+                  {/* Phase 9: Additional Business Features */}
+                  <Route path="suppliers" element={<SuppliersPage />} />
+                  <Route path="product-tags" element={<ProductTagsPage />} />
                 </Route>
 
                 {/* Catch all → public home */}

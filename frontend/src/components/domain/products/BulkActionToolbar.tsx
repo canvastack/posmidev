@@ -1,4 +1,4 @@
-import { Trash2, Edit, Tag, DollarSign, X, QrCode } from 'lucide-react';
+import { Trash2, Edit, Tag, DollarSign, X, QrCode, Truck, Tags, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +10,11 @@ interface BulkActionToolbarProps {
   onUpdateCategory: () => void;
   onUpdatePrice: () => void;
   onPrintBarcodes: () => void;
+  // Phase 9: Additional Business Features
+  onAssignSupplier?: () => void;
+  onAddTags?: () => void;
+  onRemoveTags?: () => void;
+  onUpdateTax?: () => void;
   canDelete: boolean;
   canUpdate: boolean;
   canView: boolean;
@@ -24,6 +29,10 @@ export function BulkActionToolbar({
   onUpdateCategory,
   onUpdatePrice,
   onPrintBarcodes,
+  onAssignSupplier,
+  onAddTags,
+  onRemoveTags,
+  onUpdateTax,
   canDelete,
   canUpdate,
   canView,
@@ -98,6 +107,51 @@ export function BulkActionToolbar({
               <DollarSign className="h-4 w-4" />
               Price
             </Button>
+            {/* Phase 9: Additional Bulk Actions */}
+            {onAssignSupplier && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAssignSupplier}
+                className="gap-2"
+              >
+                <Truck className="h-4 w-4" />
+                Supplier
+              </Button>
+            )}
+            {onAddTags && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddTags}
+                className="gap-2"
+              >
+                <Tags className="h-4 w-4" />
+                Add Tags
+              </Button>
+            )}
+            {onRemoveTags && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRemoveTags}
+                className="gap-2"
+              >
+                <Tags className="h-4 w-4" />
+                Remove Tags
+              </Button>
+            )}
+            {onUpdateTax && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onUpdateTax}
+                className="gap-2"
+              >
+                <Receipt className="h-4 w-4" />
+                Tax
+              </Button>
+            )}
           </>
         )}
         {canDelete && (

@@ -26,6 +26,12 @@ import { useToast } from '@/hooks/use-toast';
 import { getImageUrl } from '@/utils/imageHelpers';
 import { ArrowLeftIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import ProductImageGallery from '@/components/domain/products/ProductImageGallery';
+// Phase 9: Additional Business Features
+import { SupplierSelector } from '@/components/domain/products/phase9/SupplierSelector';
+import { UomSelector } from '@/components/domain/products/phase9/UomSelector';
+import { TaxConfigFields } from '@/components/domain/products/phase9/TaxConfigFields';
+import { TagMultiSelect } from '@/components/domain/products/phase9/TagMultiSelect';
+import { SkuGeneratorModal } from '@/components/domain/products/phase9/SkuGeneratorModal';
 
 export default function ProductEditPage() {
   const navigate = useNavigate();
@@ -39,6 +45,8 @@ export default function ProductEditPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  // Phase 9: SKU Generator Modal
+  const [skuModalOpen, setSkuModalOpen] = useState(false);
 
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -49,6 +57,12 @@ export default function ProductEditPage() {
     cost_price: 0,
     category_id: undefined,
     status: 'active',
+    // Phase 9: Additional Business Features
+    supplier_id: null,
+    uom: null,
+    tax_rate: null,
+    tax_inclusive: false,
+    tag_ids: [],
   });
 
   // Check permission
@@ -85,6 +99,12 @@ export default function ProductEditPage() {
           cost_price: productData.cost_price || 0,
           category_id: productData.category_id,
           status: productData.status || 'active',
+          // Phase 9: Additional Business Features
+          supplier_id: productData.supplier_id || null,
+          uom: productData.uom || null,
+          tax_rate: productData.tax_rate || null,
+          tax_inclusive: productData.tax_inclusive || false,
+          tag_ids: productData.tags?.map((tag) => tag.id) || [],
         });
         
         // Fetch categories
@@ -264,12 +284,21 @@ export default function ProductEditPage() {
 
                 <div>
                   <Label htmlFor="sku">SKU *</Label>
-                  <Input
-                    id="sku"
-                    value={form.sku}
-                    onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                    placeholder="e.g., PROD-001, SKU-12345"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="sku"
+                      value={form.sku}
+                      onChange={(e) => setForm({ ...form, sku: e.target.value })}
+                      placeholder="e.g., PROD-001, SKU-12345"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setSkuModalOpen(true)}
+                    >
+                      Generate
+                    </Button>
+                  </div>
                   {validationErrors.sku && (
                     <p className="text-sm text-destructive mt-1">{validationErrors.sku}</p>
                   )}
@@ -336,6 +365,48 @@ export default function ProductEditPage() {
                     <p className="text-sm text-destructive mt-1">{validationErrors.stock}</p>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Phase 9: Additional Business Features */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Additional Features</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Supplier Selector */}
+                <SupplierSelector
+                  value={form.supplier_id}
+                  onChange={(supplierId) => setForm({ ...form, supplier_id: supplierId })}
+                  error={validationErrors.supplier_id}
+                />
+
+                {/* UOM Selector */}
+                <UomSelector
+                  value={form.uom}
+                  onChange={(uom) => setForm({ ...form, uom })}
+                  error={validationErrors.uom}
+                />
+
+                {/* Tax Configuration */}
+                <TaxConfigFields
+                  taxRate={form.tax_rate}
+                  taxInclusive={form.tax_inclusive}
+                  onTaxRateChange={(rate) => setForm({ ...form, tax_rate: rate })}
+                  onTaxInclusiveChange={(inclusive) => setForm({ ...form, tax_inclusive: inclusive })}
+                  errors={{
+                    tax_rate: validationErrors.tax_rate,
+                    tax_inclusive: validationErrors.tax_inclusive,
+                  }}
+                  price={form.price}
+                />
+
+                {/* Tag Multi-Select */}
+                <TagMultiSelect
+                  value={form.tag_ids}
+                  onChange={(tagIds) => setForm({ ...form, tag_ids: tagIds })}
+                  error={validationErrors.tag_ids}
+                />
               </CardContent>
             </Card>
           </div>
@@ -418,6 +489,16 @@ export default function ProductEditPage() {
           </div>
         </div>
       </form>
+
+      {/* Phase 9: SKU Generator Modal */}
+      <SkuGeneratorModal
+        open={skuModalOpen}
+        onClose={() => setSkuModalOpen(false)}
+        onGenerate={(generatedSku) => {
+          setForm({ ...form, sku: generatedSku });
+        }}
+        categoryId={form.category_id}
+      />
     </div>
   );
 }

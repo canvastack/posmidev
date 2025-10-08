@@ -32,6 +32,25 @@ export interface ProductImage {
   sort_order: number;
 }
 
+// Phase 9: Supplier
+export interface Supplier {
+  id: string;
+  tenant_id: string;
+  name: string;
+  contact_person: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+// Phase 9: Product Tag
+export interface ProductTag {
+  id: string;
+  tenant_id: string;
+  name: string;
+  slug: string;
+  color: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -52,6 +71,19 @@ export interface Product {
   variant_count?: number;
   images?: ProductImage[]; // Phase 7: Multi-image support
   primary_image?: ProductImage; // Phase 7: Primary image relationship
+  
+  // Phase 9: Additional Business Features
+  supplier_id?: string | null;
+  supplier?: Supplier | null;
+  uom?: string | null; // Unit of Measurement
+  formatted_uom?: string; // e.g., "pcs", "kg"
+  stock_with_uom?: string; // e.g., "100 pcs"
+  tax_rate?: number | null; // Percentage (0-100)
+  tax_inclusive?: boolean; // Is tax included in price?
+  price_without_tax?: number; // Calculated
+  price_with_tax?: number; // Calculated
+  tax_amount?: number; // Calculated
+  tags?: ProductTag[]; // Array of tags
 }
 
 export interface Category {
@@ -128,6 +160,13 @@ export interface ProductForm {
   status?: 'active' | 'inactive' | 'discontinued';
   has_variants?: boolean;
   manage_stock_by_variant?: boolean;
+  
+  // Phase 9: Additional Business Features
+  supplier_id?: string | null;
+  uom?: string | null;
+  tax_rate?: number | null;
+  tax_inclusive?: boolean;
+  tag_ids?: string[]; // Array of tag IDs
 }
 
 export interface OrderForm {

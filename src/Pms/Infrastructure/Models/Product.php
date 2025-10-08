@@ -5,6 +5,7 @@ namespace Src\Pms\Infrastructure\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -39,6 +40,11 @@ class Product extends Model
         'has_variants',
         'variant_count',
         'manage_stock_by_variant',
+        // Phase 9: Additional Business Features
+        'supplier_id',
+        'uom',
+        'tax_rate',
+        'tax_inclusive',
     ];
 
     protected $casts = [
@@ -58,6 +64,10 @@ class Product extends Model
         'has_variants' => 'boolean',
         'variant_count' => 'integer',
         'manage_stock_by_variant' => 'boolean',
+        // Phase 9: Additional Business Features casts
+        'supplier_id' => 'string',
+        'tax_rate' => 'decimal:2',
+        'tax_inclusive' => 'boolean',
     ];
 
     protected $appends = ['image_url', 'thumbnail_url'];
@@ -180,6 +190,30 @@ class Product extends Model
     public function primaryImage(): HasMany
     {
         return $this->hasMany(ProductImage::class)->where('is_primary', true);
+    }
+
+    /**
+     * Product supplier relationship (Phase 9)
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
+    }
+
+    /**
+     * Product tags relationship (Phase 9)
+     */
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ProductTag::class,
+            'product_tag_pivot',
+            'product_id',
+            'tag_id',
+            'id',
+            'id'
+        )
+            ->wherePivot('tenant_id', $this->tenant_id);
     }
 
     // ========================================
@@ -435,6 +469,106 @@ class Product extends Model
     }
 
     // ========================================
+    // Phase 9: Tax Calculation Helper Methods
+    // ========================================
+
+    /**
+     * Get price without tax
+     * 
+     * @return float
+     */
+    public function getPriceWithoutTaxAttribute(): float
+    {
+        if (!$this->tax_rate || $this->tax_rate <= 0) {
+            return (float) $this->price;
+        }
+
+        if ($this->tax_inclusive) {
+            // Price is inclusive, calculate base price
+            return (float) ($this->price / (1 + ($this->tax_rate / 100)));
+        }
+
+        // Price is already without tax
+        return (float) $this->price;
+    }
+
+    /**
+     * Get price with tax
+     * 
+     * @return float
+     */
+    public function getPriceWithTaxAttribute(): float
+    {
+        if (!$this->tax_rate || $this->tax_rate <= 0) {
+            return (float) $this->price;
+        }
+
+        if ($this->tax_inclusive) {
+            // Price already includes tax
+            return (float) $this->price;
+        }
+
+        // Add tax to price
+        return (float) ($this->price * (1 + ($this->tax_rate / 100)));
+    }
+
+    /**
+     * Get tax amount
+     * 
+     * @return float
+     */
+    public function getTaxAmountAttribute(): float
+    {
+        if (!$this->tax_rate || $this->tax_rate <= 0) {
+            return 0.0;
+        }
+
+        return (float) ($this->price_with_tax - $this->price_without_tax);
+    }
+
+    /**
+     * Calculate tax for a given quantity
+     * 
+     * @param int $quantity
+     * @return float
+     */
+    public function calculateTax(int $quantity = 1): float
+    {
+        return (float) ($this->tax_amount * $quantity);
+    }
+
+    /**
+     * Calculate total with tax for a given quantity
+     * 
+     * @param int $quantity
+     * @return float
+     */
+    public function calculateTotalWithTax(int $quantity = 1): float
+    {
+        return (float) ($this->price_with_tax * $quantity);
+    }
+
+    /**
+     * Get formatted UOM display
+     * 
+     * @return string
+     */
+    public function getFormattedUomAttribute(): string
+    {
+        return $this->uom ?? 'pcs';
+    }
+
+    /**
+     * Get stock with UOM label
+     * 
+     * @return string
+     */
+    public function getStockWithUomAttribute(): string
+    {
+        return $this->stock . ' ' . $this->formatted_uom;
+    }
+
+    // ========================================
     // Activity Log Configuration
     // ========================================
 
@@ -462,6 +596,11 @@ class Product extends Model
                 'has_variants',
                 'variant_count',
                 'manage_stock_by_variant',
+                // Phase 9: Log business feature fields
+                'supplier_id',
+                'uom',
+                'tax_rate',
+                'tax_inclusive',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()

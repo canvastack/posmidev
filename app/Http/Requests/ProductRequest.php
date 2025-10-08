@@ -34,6 +34,14 @@ class ProductRequest extends FormRequest
             'status' => 'nullable|string|in:active,inactive,discontinued',
             'has_variants' => 'nullable|boolean',
             'manage_stock_by_variant' => 'nullable|boolean',
+            
+            // Phase 9: Additional Business Features
+            'supplier_id' => 'nullable|uuid|exists:suppliers,id',
+            'uom' => 'nullable|string|in:pcs,kg,g,liter,ml,box,pack,unit',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
+            'tax_inclusive' => 'nullable|boolean',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'uuid|exists:product_tags,id',
         ];
 
         // For updates, make core fields optional (sometimes)

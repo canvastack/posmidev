@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
+  Building2,
+  Tags,
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -22,6 +24,8 @@ const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: ShoppingCart, label: 'Point of Sale', path: '/admin/pos' },
   { icon: Package, label: 'Products', path: '/admin/products' },
+  { icon: Building2, label: 'Suppliers', path: '/admin/suppliers' },
+  { icon: Tags, label: 'Product Tags', path: '/admin/product-tags' },
   { icon: AlertTriangle, label: 'Stock Alerts', path: '/admin/stock-alerts' },
   { icon: ClipboardList, label: 'Orders', path: '/admin/orders' },
   { icon: IdCard, label: 'Users', path: '/admin/users' },

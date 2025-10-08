@@ -376,6 +376,116 @@ export default function ProductDetailPage() {
             </Card>
           </div>
 
+          {/* Phase 9: Additional Business Features */}
+          {(product.supplier || product.uom || product.tax_rate !== null || (product.tags && product.tags.length > 0)) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Additional Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Supplier */}
+                {product.supplier && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Supplier</p>
+                    <p className="font-medium">{product.supplier.name}</p>
+                    {product.supplier.contact_person && (
+                      <p className="text-sm text-muted-foreground">
+                        Contact: {product.supplier.contact_person}
+                      </p>
+                    )}
+                    {product.supplier.phone && (
+                      <p className="text-sm text-muted-foreground">
+                        Phone: {product.supplier.phone}
+                      </p>
+                    )}
+                    {product.supplier.email && (
+                      <p className="text-sm text-muted-foreground">
+                        Email: {product.supplier.email}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* UOM */}
+                {product.uom && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Unit of Measurement</p>
+                    <p className="font-medium">{product.formatted_uom || product.uom}</p>
+                    {product.stock_with_uom && (
+                      <p className="text-sm text-muted-foreground">
+                        Stock: {product.stock_with_uom}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Tax Configuration */}
+                {product.tax_rate !== null && product.tax_rate !== undefined && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Tax Configuration</p>
+                    <p className="font-medium">{product.tax_rate}%</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Tax {product.tax_inclusive ? 'Inclusive' : 'Exclusive'}
+                    </p>
+                    {product.price_with_tax && product.price_without_tax && (
+                      <div className="text-sm space-y-1 bg-muted/30 p-3 rounded-md">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Price without tax:</span>
+                          <span className="font-medium">
+                            {new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
+                            }).format(product.price_without_tax)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Tax amount:</span>
+                          <span className="font-medium">
+                            {new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
+                            }).format(product.tax_amount || 0)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-t pt-1 mt-1">
+                          <span className="font-semibold">Final price:</span>
+                          <span className="font-semibold">
+                            {new Intl.NumberFormat('id-ID', {
+                              style: 'currency',
+                              currency: 'IDR',
+                            }).format(product.price_with_tax)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Product Tags */}
+                {product.tags && product.tags.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Product Tags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.tags.map((tag) => (
+                        <Badge
+                          key={tag.id}
+                          style={{
+                            backgroundColor: `${tag.color}20`,
+                            borderColor: tag.color,
+                            color: tag.color,
+                          }}
+                          className="border"
+                        >
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Variant Status Card */}
           <Card>
             <CardHeader>

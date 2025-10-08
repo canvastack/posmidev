@@ -24,3 +24,11 @@ export { default as ProductImageGallery } from './ProductImageGallery';
 
 // Phase 8: Advanced Filters & UI Enhancements
 export { AdvancedFiltersPanel } from './AdvancedFiltersPanel';
+export { ColumnCustomizationModal } from './ColumnCustomizationModal';
+export { SavedViewsDropdown } from './SavedViewsDropdown';
+export { ProductQuickViewModal } from './ProductQuickViewModal';
+
+// Phase 9: Additional Business Features - Bulk Operations
+export { BulkAssignSupplierModal } from './BulkAssignSupplierModal';
+export { BulkTagModal } from './BulkTagModal';
+export { BulkTaxModal } from './BulkTaxModal';

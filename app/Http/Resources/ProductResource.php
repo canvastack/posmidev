@@ -51,6 +51,47 @@ class ProductResource extends JsonResource
             'variant_count' => $isDomainEntity 
                 ? 0 
                 : ($this->resource->variants_count ?? $this->resource->variants()->count() ?? 0),
+            
+            // Phase 9: Additional Business Features
+            // Supplier
+            'supplier_id' => $isDomainEntity ? null : $this->resource->supplier_id,
+            'supplier' => $isDomainEntity 
+                ? null 
+                : ($this->whenLoaded('supplier', function () {
+                    return $this->resource->supplier ? [
+                        'id' => $this->resource->supplier->id,
+                        'name' => $this->resource->supplier->name,
+                        'contact_person' => $this->resource->supplier->contact_person,
+                        'email' => $this->resource->supplier->email,
+                        'phone' => $this->resource->supplier->phone,
+                    ] : null;
+                })),
+            
+            // Unit of Measurement
+            'uom' => $isDomainEntity ? null : $this->resource->uom,
+            'formatted_uom' => $isDomainEntity ? null : $this->resource->formatted_uom,
+            'stock_with_uom' => $isDomainEntity ? null : $this->resource->stock_with_uom,
+            
+            // Tax Configuration
+            'tax_rate' => $isDomainEntity ? null : $this->resource->tax_rate,
+            'tax_inclusive' => $isDomainEntity ? null : $this->resource->tax_inclusive,
+            'price_without_tax' => $isDomainEntity ? null : $this->resource->price_without_tax,
+            'price_with_tax' => $isDomainEntity ? null : $this->resource->price_with_tax,
+            'tax_amount' => $isDomainEntity ? null : $this->resource->tax_amount,
+            
+            // Product Tags
+            'tags' => $isDomainEntity 
+                ? [] 
+                : ($this->whenLoaded('tags', function () {
+                    return $this->resource->tags->map(function ($tag) {
+                        return [
+                            'id' => $tag->id,
+                            'name' => $tag->name,
+                            'slug' => $tag->slug,
+                            'color' => $tag->color,
+                        ];
+                    });
+                })),
         ];
     }
 }

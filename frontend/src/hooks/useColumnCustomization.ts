@@ -17,6 +17,11 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [
   { key: 'status', label: 'Status', visible: true },
   { key: 'created_at', label: 'Created Date', visible: false },
   { key: 'updated_at', label: 'Last Updated', visible: false },
+  // Phase 9: Additional Business Features
+  { key: 'supplier', label: 'Supplier', visible: true },
+  { key: 'uom', label: 'UOM', visible: true },
+  { key: 'tags', label: 'Tags', visible: true },
+  { key: 'tax', label: 'Tax Rate', visible: false },
   { key: 'actions', label: 'Actions', visible: true, required: true },
 ];
 

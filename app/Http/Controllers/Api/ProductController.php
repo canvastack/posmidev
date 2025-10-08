@@ -62,6 +62,9 @@ class ProductController extends Controller
             $statuses
         );
 
+        // Load Phase 9 relationships
+        $products->getCollection()->load(['category', 'supplier', 'tags']);
+
         return response()->json([
             'data' => ProductResource::collection($products->items())->toArray($request),
             'current_page' => $products->currentPage(),
@@ -87,12 +90,46 @@ class ProductController extends Controller
                 costPrice: $request->cost_price
             );
 
-            // Update status if provided (using Eloquent model directly)
-            if ($request->has('status')) {
-                $productModel = \Src\Pms\Infrastructure\Models\Product::find($product->getId());
-                if ($productModel) {
-                    $productModel->update(['status' => $request->status]);
+            // Get Eloquent model for additional fields
+            $productModel = \Src\Pms\Infrastructure\Models\Product::find($product->getId());
+            
+            if ($productModel) {
+                $updateData = [];
+                
+                // Update status if provided
+                if ($request->has('status')) {
+                    $updateData['status'] = $request->status;
                 }
+                
+                // Phase 9: Additional Business Features
+                if ($request->has('supplier_id')) {
+                    $updateData['supplier_id'] = $request->supplier_id;
+                }
+                if ($request->has('uom')) {
+                    $updateData['uom'] = $request->uom;
+                }
+                if ($request->has('tax_rate')) {
+                    $updateData['tax_rate'] = $request->tax_rate;
+                }
+                if ($request->has('tax_inclusive')) {
+                    $updateData['tax_inclusive'] = $request->tax_inclusive;
+                }
+                
+                if (!empty($updateData)) {
+                    $productModel->update($updateData);
+                }
+                
+                // Phase 9: Attach tags if provided
+                if ($request->has('tag_ids') && is_array($request->tag_ids)) {
+                    foreach ($request->tag_ids as $tagId) {
+                        $productModel->tags()->attach($tagId, ['tenant_id' => $tenantId]);
+                    }
+                }
+                
+                // Reload with relationships
+                $productModel->load(['category', 'supplier', 'tags']);
+                
+                return response()->json(new ProductResource($productModel), 201);
             }
 
             return response()->json(new ProductResource($product), 201);
@@ -116,8 +153,8 @@ class ProductController extends Controller
 
         $this->authorize('view', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        // Load category relation and count variants
-        $product->load('category');
+        // Load category relation and count variants, plus Phase 9 relationships
+        $product->load(['category', 'supplier', 'tags']);
         $product->loadCount('variants');
 
         return response()->json([
@@ -171,10 +208,38 @@ class ProductController extends Controller
             $updateData['manage_stock_by_variant'] = $request->manage_stock_by_variant;
         }
         
+        // Phase 9: Additional Business Features
+        if ($request->has('supplier_id')) {
+            $updateData['supplier_id'] = $request->supplier_id;
+        }
+        if ($request->has('uom')) {
+            $updateData['uom'] = $request->uom;
+        }
+        if ($request->has('tax_rate')) {
+            $updateData['tax_rate'] = $request->tax_rate;
+        }
+        if ($request->has('tax_inclusive')) {
+            $updateData['tax_inclusive'] = $request->tax_inclusive;
+        }
+        
         if (!empty($updateData)) {
             $product->update($updateData);
             $product = $product->fresh();
         }
+        
+        // Phase 9: Update tags if provided
+        if ($request->has('tag_ids')) {
+            // Sync tags with tenant_id in pivot
+            $tagIds = $request->tag_ids ?? [];
+            $syncData = [];
+            foreach ($tagIds as $tagId) {
+                $syncData[$tagId] = ['tenant_id' => $tenantId];
+            }
+            $product->tags()->sync($syncData);
+        }
+        
+        // Load Phase 9 relationships
+        $product->load(['category', 'supplier', 'tags']);
 
         return response()->json([
             'data' => (new ProductResource($product))->toArray($request)

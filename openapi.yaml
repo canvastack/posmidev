@@ -1517,6 +1517,428 @@ paths:
         '204':
           description: Deleted
 
+  # Phase 9: Supplier Management
+  /tenants/{tenantId}/suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List all suppliers for a tenant
+      description: "Requires authentication and 'products.view' permission. Supports search and filtering."
+      operationId: listSuppliers
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: search
+          description: "Search in supplier name, contact person, email"
+          schema: { type: string }
+        - in: query
+          name: status
+          description: "Filter by status"
+          schema: { type: string, enum: [active, inactive] }
+      responses:
+        '200':
+          description: A paginated list of suppliers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Supplier' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+    post:
+      tags: [Suppliers]
+      summary: Create a new supplier
+      description: "Requires authentication and 'products.update' permission."
+      operationId: createSupplier
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SupplierRequest' }
+      responses:
+        '201':
+          description: Supplier created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Supplier' }
+
+  /tenants/{tenantId}/suppliers/{supplierId}:
+    get:
+      tags: [Suppliers]
+      summary: Get a supplier by ID
+      operationId: getSupplierById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SupplierId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Supplier' }
+    patch:
+      tags: [Suppliers]
+      summary: Update a supplier
+      operationId: updateSupplier
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SupplierId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SupplierRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Supplier' }
+    delete:
+      tags: [Suppliers]
+      summary: Delete a supplier
+      description: "Cannot delete if supplier has associated products."
+      operationId: deleteSupplier
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SupplierId'
+      responses:
+        '204':
+          description: Deleted
+        '422':
+          description: Cannot delete - has associated products
+
+  /tenants/{tenantId}/suppliers/{supplierId}/products:
+    get:
+      tags: [Suppliers]
+      summary: List products by supplier
+      operationId: listProductsBySupplier
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/SupplierId'
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: A paginated list of products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Product' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+
+  # Phase 9: Product Tags Management
+  /tenants/{tenantId}/tags:
+    get:
+      tags: [Product Tags]
+      summary: List all product tags for a tenant
+      description: "Requires authentication and 'products.view' permission. Supports search."
+      operationId: listProductTags
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: per_page
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: search
+          description: "Search in tag name"
+          schema: { type: string }
+      responses:
+        '200':
+          description: A paginated list of tags
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductTag' }
+                  current_page: { type: integer }
+                  last_page: { type: integer }
+                  per_page: { type: integer }
+                  total: { type: integer }
+    post:
+      tags: [Product Tags]
+      summary: Create a new product tag
+      description: "Requires authentication and 'products.update' permission."
+      operationId: createProductTag
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductTagRequest' }
+      responses:
+        '201':
+          description: Tag created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTag' }
+
+  /tenants/{tenantId}/tags/popular:
+    get:
+      tags: [Product Tags]
+      summary: Get most popular tags
+      description: "Returns tags ordered by usage count."
+      operationId: getPopularTags
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+      responses:
+        '200':
+          description: List of popular tags
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/ProductTag' }
+
+  /tenants/{tenantId}/tags/{tagId}:
+    get:
+      tags: [Product Tags]
+      summary: Get a tag by ID
+      operationId: getProductTagById
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTag' }
+    patch:
+      tags: [Product Tags]
+      summary: Update a tag
+      operationId: updateProductTag
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TagId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductTagRequest' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductTag' }
+    delete:
+      tags: [Product Tags]
+      summary: Delete a tag
+      description: "Removes tag and detaches from all products."
+      operationId: deleteProductTag
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/TagId'
+      responses:
+        '204':
+          description: Deleted
+
+  /tenants/{tenantId}/tags/bulk-attach:
+    post:
+      tags: [Product Tags]
+      summary: Attach tags to multiple products
+      description: "Bulk operation to attach tags to products."
+      operationId: bulkAttachTags
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_ids, tag_ids]
+              properties:
+                product_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                tag_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+      responses:
+        '200':
+          description: Tags attached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  attached_count: { type: integer }
+
+  /tenants/{tenantId}/tags/bulk-detach:
+    post:
+      tags: [Product Tags]
+      summary: Detach tags from multiple products
+      description: "Bulk operation to detach tags from products."
+      operationId: bulkDetachTags
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_ids, tag_ids]
+              properties:
+                product_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+                tag_ids:
+                  type: array
+                  items: { type: string, format: uuid }
+                  minItems: 1
+      responses:
+        '200':
+          description: Tags detached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  detached_count: { type: integer }
+
+  # Phase 9: SKU Generation
+  /tenants/{tenantId}/sku-patterns:
+    get:
+      tags: [SKU Generation]
+      summary: List predefined SKU patterns
+      description: "Returns available SKU generation patterns with placeholders."
+      operationId: listSkuPatterns
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      responses:
+        '200':
+          description: List of SKU patterns
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SkuPattern' }
+
+  /tenants/{tenantId}/generate-sku:
+    post:
+      tags: [SKU Generation]
+      summary: Generate a new SKU
+      description: "Generates and saves SKU using pattern. Increments sequence."
+      operationId: generateSku
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuGenerateRequest' }
+      responses:
+        '200':
+          description: SKU generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku: { type: string, example: 'ELEC-0001' }
+                  pattern: { type: string }
+                  sequence_number: { type: integer }
+
+  /tenants/{tenantId}/preview-sku:
+    post:
+      tags: [SKU Generation]
+      summary: Preview SKU without saving
+      description: "Generates SKU preview without incrementing sequence."
+      operationId: previewSku
+      security: [{ bearerAuth: [] }]
+      parameters: [ { $ref: '#/components/parameters/TenantId' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkuGenerateRequest' }
+      responses:
+        '200':
+          description: SKU preview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sku: { type: string, example: 'ELEC-0001' }
+                  pattern: { type: string }
+                  next_sequence_number: { type: integer }
+
+  /tenants/{tenantId}/validate-sku:
+    get:
+      tags: [SKU Generation]
+      summary: Validate SKU availability
+      description: "Check if SKU is unique and available."
+      operationId: validateSku
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: sku
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  is_available: { type: boolean }
+                  sku: { type: string }
+
   /tenants/{tenantId}/roles:
     get:
       tags: [Roles & Permissions]
@@ -3494,6 +3916,12 @@ tags:
     description: Pre-built variant configurations for quick setup
   - name: Variant Analytics
     description: Performance analytics and insights for variants
+  - name: Suppliers
+    description: Supplier management operations (Phase 9)
+  - name: Product Tags
+    description: Product tagging system for flexible categorization (Phase 9)
+  - name: SKU Generation
+    description: Automatic SKU generation with customizable patterns (Phase 9)
 
 components:
   securitySchemes:
@@ -3526,6 +3954,18 @@ components:
       in: path
       required: true
       description: ID of the category
+      schema: { type: string, format: uuid }
+    SupplierId:
+      name: supplierId
+      in: path
+      required: true
+      description: ID of the supplier
+      schema: { type: string, format: uuid }
+    TagId:
+      name: tagId
+      in: path
+      required: true
+      description: ID of the product tag
       schema: { type: string, format: uuid }
     OrderId:
       name: orderId
@@ -3606,6 +4046,20 @@ components:
         category_id: { type: string, format: uuid, nullable: true }
         description: { type: string, nullable: true }
         cost_price: { type: number, format: float, nullable: true }
+        # Phase 9: Additional Business Fields
+        supplier_id: { type: string, format: uuid, nullable: true }
+        supplier: { $ref: '#/components/schemas/Supplier', nullable: true }
+        uom: { type: string, nullable: true, example: 'pcs' }
+        formatted_uom: { type: string, example: 'pcs' }
+        stock_with_uom: { type: string, example: '100 pcs' }
+        tax_rate: { type: number, format: float, nullable: true, example: 10.00 }
+        tax_inclusive: { type: boolean, default: false }
+        price_without_tax: { type: number, format: float, nullable: true }
+        price_with_tax: { type: number, format: float, nullable: true }
+        tax_amount: { type: number, format: float, nullable: true }
+        tags:
+          type: array
+          items: { $ref: '#/components/schemas/ProductTag' }
         created_at: { type: string, example: '2025-01-01 12:00:00' }
         updated_at: { type: string, example: '2025-01-01 12:00:00' }
 
@@ -3621,6 +4075,15 @@ components:
         category_id: { type: string, format: uuid, nullable: true }
         description: { type: string, nullable: true }
         cost_price: { type: number, format: float, nullable: true }
+        # Phase 9: Additional Business Fields
+        supplier_id: { type: string, format: uuid, nullable: true }
+        uom: { type: string, nullable: true, example: 'pcs' }
+        tax_rate: { type: number, format: float, nullable: true, example: 10.00 }
+        tax_inclusive: { type: boolean, default: false }
+        tag_ids:
+          type: array
+          items: { type: string, format: uuid }
+          description: Array of tag IDs to attach to product
     
     # Phase 7: Multi-Image Gallery
     ProductImage:
@@ -3655,6 +4118,177 @@ components:
           type: integer
           default: 0
           description: Display order (0-based, lower = first)
+    
+    # Phase 9: Supplier Management
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'ABC Supplies Inc.'
+        contact_person:
+          type: string
+          nullable: true
+          example: 'John Smith'
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: 'john@abcsupplies.com'
+        phone:
+          type: string
+          nullable: true
+          example: '+1-555-0123'
+        address:
+          type: string
+          nullable: true
+          example: '123 Main St, City, State 12345'
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+        notes:
+          type: string
+          nullable: true
+        products_count:
+          type: integer
+          description: Number of products linked to this supplier
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SupplierRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: 'ABC Supplies Inc.'
+        contact_person:
+          type: string
+          nullable: true
+          example: 'John Smith'
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: 'john@abcsupplies.com'
+        phone:
+          type: string
+          nullable: true
+          example: '+1-555-0123'
+        address:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, inactive]
+          default: active
+        notes:
+          type: string
+          nullable: true
+
+    # Phase 9: Product Tags
+    ProductTag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'Bestseller'
+        slug:
+          type: string
+          example: 'bestseller'
+        color:
+          type: string
+          nullable: true
+          example: '#3B82F6'
+          description: Hex color code for tag display
+        usage_count:
+          type: integer
+          description: Number of products using this tag
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProductTagRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: 'Bestseller'
+        color:
+          type: string
+          nullable: true
+          example: '#3B82F6'
+          description: Hex color code (auto-generated if not provided)
+
+    # Phase 9: SKU Generation
+    SkuPattern:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'category_sequence'
+        name:
+          type: string
+          example: 'Category + Sequence'
+        pattern:
+          type: string
+          example: '{category}-{sequence}'
+        description:
+          type: string
+          example: 'Generates SKU like: ELEC-0001'
+        example_output:
+          type: string
+          example: 'ELEC-0001'
+        placeholders:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+                example: '{category}'
+              description:
+                type: string
+                example: 'Category code (e.g., ELEC)'
+
+    SkuGenerateRequest:
+      type: object
+      required: [pattern]
+      properties:
+        pattern:
+          type: string
+          example: '{category}-{sequence}'
+          description: SKU pattern with placeholders
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Category ID (required if pattern uses {category})
+        tenant_code:
+          type: string
+          nullable: true
+          description: Custom tenant code (optional, defaults to tenant name)
     
     ProductVariant:
       type: object
@@ -3929,55 +4563,4 @@ components:
             stock_settings:
               type: object
         is_system:
-          type: boolean
-        is_active:
-          type: boolean
-        usage_count:
-          type: integer
-        total_combinations:
-          type: integer
-        can_delete:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        last_used_at:
-          type: string
-          format: date-time
-          nullable: true
-
-    VariantTemplateInput:
-      type: object
-      required:
-        - name
-        - configuration
-      properties:
-        name:
-          type: string
-          maxLength: 255
-        slug:
-          type: string
-          nullable: true
-        description:
-          type: string
-        configuration:
-          type: object
-          required:
-            - attributes
-          properties:
-            attributes:
-              type: array
-              minItems: 1
-            sku_pattern:
-              type: string
-            price_calculation:
-              type: string
-              enum: [base, base_plus_modifiers, custom]
-            stock_settings:
-              type: object
-        is_active:
-          type: boolean
-          defaul
+          type: bool

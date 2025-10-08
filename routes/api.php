@@ -23,6 +23,9 @@ use App\Http\Controllers\Api\VariantAttributeController;
 use App\Http\Controllers\Api\VariantTemplateController;
 use App\Http\Controllers\Api\VariantAnalyticsController;
 use App\Http\Controllers\Api\ProductAnalyticsController;
+use App\Http\Controllers\Api\SupplierController;
+use App\Http\Controllers\Api\ProductTagController;
+use App\Http\Controllers\Api\SkuGenerationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -222,6 +225,26 @@ Route::prefix('v1')->group(function () {
             // Customers
             Route::apiResource('customers', \App\Http\Controllers\Api\CustomerController::class);
             Route::post('customers/search', [\App\Http\Controllers\Api\CustomerController::class, 'search']);
+
+            // Phase 9: Suppliers
+            Route::apiResource('suppliers', SupplierController::class);
+            Route::get('suppliers/{supplierId}/products', [SupplierController::class, 'products']);
+
+            // Phase 9: Product Tags
+            Route::get('tags', [ProductTagController::class, 'index']);
+            Route::post('tags', [ProductTagController::class, 'store']);
+            Route::get('tags/popular', [ProductTagController::class, 'popular']);
+            Route::get('tags/{tagId}', [ProductTagController::class, 'show']);
+            Route::patch('tags/{tagId}', [ProductTagController::class, 'update']);
+            Route::delete('tags/{tagId}', [ProductTagController::class, 'destroy']);
+            Route::post('tags/bulk-attach', [ProductTagController::class, 'bulkAttach']);
+            Route::post('tags/bulk-detach', [ProductTagController::class, 'bulkDetach']);
+
+            // Phase 9: SKU Generation
+            Route::get('sku-patterns', [SkuGenerationController::class, 'patterns']);
+            Route::post('generate-sku', [SkuGenerationController::class, 'generate']);
+            Route::post('preview-sku', [SkuGenerationController::class, 'preview']);
+            Route::get('validate-sku', [SkuGenerationController::class, 'validateSku']);
 
             // EAV Blueprints
             Route::get('blueprints', [\App\Http\Controllers\Api\BlueprintsController::class, 'index']);
