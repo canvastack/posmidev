@@ -668,7 +668,7 @@ paths:
     get:
       tags: [Products]
       summary: Get complete change history for a product
-      description: "Requires authentication and 'products.view' permission. Returns all activity logs for the product including create, update, and delete operations with before/after values."
+      description: "Requires authentication and 'products.view' permission. Returns all activity logs for the product including create, update, and delete operations with before/after values. Supports pagination and date range filtering."
       operationId: getProductHistory
       security: [{ bearerAuth: [] }]
       parameters:
@@ -678,6 +678,35 @@ paths:
           required: true
           schema: { type: string, format: uuid }
           description: Product ID
+        - in: query
+          name: page
+          schema: 
+            type: integer
+            default: 1
+            minimum: 1
+          description: Page number for pagination
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Number of items per page (max 100)
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date-time
+          description: Filter activities from this date (ISO 8601 format)
+          example: "2025-09-08T00:00:00Z"
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date-time
+          description: Filter activities up to this date (ISO 8601 format)
+          example: "2025-10-08T23:59:59Z"
       responses:
         '200':
           description: Product change history retrieved
@@ -691,17 +720,34 @@ paths:
                     items:
                       type: object
                       properties:
-                        id: { type: string, format: uuid }
-                        event: { type: string, enum: [created, updated, deleted] }
-                        description: { type: string }
+                        id: { type: integer }
+                        event: 
+                          type: string
+                          enum: [created, updated, deleted, restored, archived, price_changed, stock_adjusted, variant_added, variant_updated, variant_deleted]
+                          description: Activity event type from Spatie Activity Log
+                        description: 
+                          type: string
+                          nullable: true
+                          description: Human-readable description of the activity
                         properties:
                           type: object
+                          description: Full properties object from activity log
+                        changes:
+                          type: object
+                          description: Extracted change details
                           properties:
-                            attributes: { type: object }
-                            old: { type: object }
+                            old: 
+                              type: object
+                              nullable: true
+                              description: Old values before change
+                            attributes: 
+                              type: object
+                              nullable: true
+                              description: New values after change
                         causer:
                           type: object
                           nullable: true
+                          description: User who performed the action
                           properties:
                             id: { type: string, format: uuid }
                             name: { type: string }
@@ -847,6 +893,207 @@ paths:
           description: Forbidden - missing products.view permission
         '404':
           description: Product not found or doesn't belong to tenant
+
+  # Product Analytics Endpoints
+  /tenants/{tenantId}/products/{productId}/analytics/sales:
+    get:
+      tags: [Product Analytics]
+      summary: Get sales metrics and trends for a product
+      description: "Requires authentication and 'products.view' permission. Returns sales data including total revenue, quantity sold, and time-series trends."
+      operationId: getProductSalesMetrics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Sales metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/ProductSalesMetrics'
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/stock:
+    get:
+      tags: [Product Analytics]
+      summary: Get stock metrics and movements for a product
+      description: "Requires authentication and 'products.view' permission. Returns stock level metrics and time-series movement data."
+      operationId: getProductStockMetrics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Stock metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/ProductStockMetrics'
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/profit:
+    get:
+      tags: [Product Analytics]
+      summary: Get profit analysis for a product
+      description: "Requires authentication and 'products.view' permission. Returns profit metrics including gross profit, margin, and time-series trends."
+      operationId: getProductProfitMetrics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Profit metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/ProductProfitMetrics'
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/variants:
+    get:
+      tags: [Product Analytics]
+      summary: Get variant performance comparison for a product
+      description: "Requires authentication and 'products.view' permission. Returns performance metrics for all variants of the product."
+      operationId: getProductVariantPerformance
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+          description: Maximum number of variants to return
+      responses:
+        '200':
+          description: Variant performance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VariantPerformance'
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/analytics/overview:
+    get:
+      tags: [Product Analytics]
+      summary: Get combined analytics overview for a product
+      description: "Requires authentication and 'products.view' permission. Returns all analytics data in a single response (most efficient endpoint)."
+      operationId: getProductAnalyticsOverview
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: path
+          name: productId
+          required: true
+          schema: { type: string, format: uuid }
+          description: Product ID
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: Start date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: End date for analytics period (YYYY-MM-DD)
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+          description: Maximum number of variants to return in variant performance
+      responses:
+        '200':
+          description: Analytics overview retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    $ref: '#/components/schemas/ProductAnalyticsOverview'
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
 
   /tenants/{tenantId}/categories:
     get:
@@ -3778,32 +4025,4 @@ components:
         stock: { type: integer }
         category_id: { type: string, format: uuid, nullable: true }
 
-    TenantSettingsUpdate:
-      type: object
-      properties:
-        payments:
-          type: object
-          properties:
-            default_method:
-              type: string
-              enum: [ewallet, card, cash]
-
-    # Error Response Schemas
-    ErrorResponse:
-      type: object
-      properties:
-        message: { type: string }
-        errors:
-          type: object
-          additionalProperties: true
-        error_code: { type: string }
-
-    ValidationErrorResponse:
-      type: object
-      properties:
-        message: { type: string, example: "Validation failed" }
-        errors:
-          type: object
-          additionalProperties:
-            type: array
-            items: { type: string }
+  

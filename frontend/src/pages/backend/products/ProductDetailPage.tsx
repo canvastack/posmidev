@@ -22,6 +22,9 @@ import {
   ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { VariantManager } from '@/components/domain/variants/VariantManager';
+import { ActivityTimeline } from '@/components/domain/products/ActivityTimeline';
+import { ProductAnalytics } from '@/components/domain/products/ProductAnalytics';
+import { useProductActivity } from '@/hooks/useProductActivity';
 
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -34,11 +37,37 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('overview');
 
+  // Activity history hook - lazy load when history tab is active
+  // Initial load: 8 rows with load more functionality
+  const {
+    activities,
+    loading: activityLoading,
+    error: activityError,
+    hasMore,
+    loadMore,
+    fetchActivities,
+    refresh: refreshActivities,
+    setPeriod: setActivityPeriod,
+    currentPeriod: activityPeriod,
+  } = useProductActivity({
+    tenantId: tenantId || '',
+    productId: productId || '',
+    autoFetch: false, // Manual fetch control - lazy load when tab is active
+    perPage: 8, // Initial load: 8 rows max (can extend via load more)
+  });
+
   useEffect(() => {
     if (tenantId && productId) {
       fetchProduct();
     }
   }, [tenantId, productId]);
+
+  // Fetch activities when history tab becomes active
+  useEffect(() => {
+    if (activeTab === 'history' && tenantId && productId && activities.length === 0) {
+      fetchActivities(1);
+    }
+  }, [activeTab, tenantId, productId]);
 
   const fetchProduct = async () => {
     if (!tenantId || !productId) return;
@@ -389,32 +418,27 @@ export default function ProductDetailPage() {
 
         {/* History Tab */}
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-muted-foreground py-8">
-                <ClockIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Activity history coming soon</p>
-              </div>
-            </CardContent>
-          </Card>
+          <ActivityTimeline
+            activities={activities}
+            loading={activityLoading}
+            error={activityError}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            onRefresh={refreshActivities}
+            onPeriodChange={setActivityPeriod}
+            currentPeriod={activityPeriod}
+            productName={product.name}
+          />
         </TabsContent>
 
         {/* Analytics Tab */}
         <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>Product Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center text-muted-foreground py-8">
-                <ChartBarIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Analytics coming soon</p>
-              </div>
-            </CardContent>
-          </Card>
+          {tenantId && productId && (
+            <ProductAnalytics
+              tenantId={tenantId}
+              productId={productId}
+            />
+          )}
         </TabsContent>
       </Tabs>
     </div>

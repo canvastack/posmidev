@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\ProductVariantController;
 use App\Http\Controllers\Api\VariantAttributeController;
 use App\Http\Controllers\Api\VariantTemplateController;
 use App\Http\Controllers\Api\VariantAnalyticsController;
+use App\Http\Controllers\Api\ProductAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,6 +137,15 @@ Route::prefix('v1')->group(function () {
             Route::get('products/{productId}/history', [ProductHistoryController::class, 'index']);
             Route::get('products/{productId}/history/price', [ProductHistoryController::class, 'priceHistory']);
             Route::get('products/{productId}/history/stock', [ProductHistoryController::class, 'stockHistory']);
+            
+            // Product analytics (Phase 6 - Stage 2)
+            Route::prefix('products/{productId}/analytics')->group(function () {
+                Route::get('sales', [ProductAnalyticsController::class, 'salesMetrics']);
+                Route::get('stock', [ProductAnalyticsController::class, 'stockMetrics']);
+                Route::get('profit', [ProductAnalyticsController::class, 'profitMetrics']);
+                Route::get('variants', [ProductAnalyticsController::class, 'variantPerformance']);
+                Route::get('overview', [ProductAnalyticsController::class, 'overview']);
+            });
             
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);

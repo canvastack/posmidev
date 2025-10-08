@@ -1,22 +1,39 @@
 // Product History Types
 
+/**
+ * Activity log event types from Spatie Activity Log
+ */
+export type ActivityEvent = 
+  | 'created' 
+  | 'updated' 
+  | 'deleted' 
+  | 'restored'
+  | 'archived'
+  | 'price_changed'
+  | 'stock_adjusted'
+  | 'variant_added'
+  | 'variant_updated'
+  | 'variant_deleted';
+
+/**
+ * Activity log entry from backend (Spatie Activity Log)
+ * Matches ProductHistoryController@index response
+ */
 export interface ActivityLog {
   id: number;
-  log_name: string;
-  description: string; // 'created', 'updated', 'deleted'
-  subject_type: string;
-  subject_id: string;
-  causer_type: string | null;
-  causer_id: string | null;
-  causer?: {
+  event: ActivityEvent; // Event name from Spatie
+  description: string | null; // Human-readable description
+  properties: Record<string, any>; // Full properties object
+  changes: {
+    old: Record<string, any> | null; // Old values
+    attributes: Record<string, any> | null; // New values
+  };
+  causer: {
     id: string;
     name: string;
+    email: string;
   } | null;
-  properties: {
-    attributes?: Record<string, any>;
-    old?: Record<string, any>;
-  };
-  created_at: string;
+  created_at: string; // ISO 8601 format
 }
 
 export interface PriceHistory {

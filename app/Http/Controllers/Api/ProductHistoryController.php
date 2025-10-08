@@ -36,10 +36,22 @@ class ProductHistoryController extends Controller
 
         // Get paginated activity logs for this product
         $perPage = min($request->get('per_page', 20), 100); // Max 100 items per page
-        $activities = Activity::where('subject_type', Product::class)
+        
+        // Build query
+        $query = Activity::where('subject_type', Product::class)
             ->where('subject_id', $productId)
-            ->where('tenant_id', $tenantId)
-            ->with('causer:id,name,email')
+            ->where('tenant_id', $tenantId);
+        
+        // Apply date range filter if provided
+        if ($request->has('date_from') && $request->filled('date_from')) {
+            $query->where('created_at', '>=', $request->get('date_from'));
+        }
+        
+        if ($request->has('date_to') && $request->filled('date_to')) {
+            $query->where('created_at', '<=', $request->get('date_to'));
+        }
+        
+        $activities = $query->with('causer:id,name,email')
             ->orderByDesc('created_at')
             ->paginate($perPage);
 
