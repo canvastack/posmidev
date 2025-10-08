@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-
-export interface ColumnConfig {
-  key: string;
-  label: string;
-  visible: boolean;
-  required?: boolean; // Cannot be hidden
-}
+import type { ColumnConfig } from '../../../types/column';
 
 interface ColumnCustomizationModalProps {
   isOpen: boolean;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ColumnConfig } from '../components/domain/products/ColumnCustomizationModal';
+import type { ColumnConfig } from '../types/column';
 
 const STORAGE_KEY = 'products_column_config';
 
