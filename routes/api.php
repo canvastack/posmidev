@@ -26,6 +26,9 @@ use App\Http\Controllers\Api\ProductAnalyticsController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ProductTagController;
 use App\Http\Controllers\Api\SkuGenerationController;
+use App\Http\Controllers\Api\TenantAnalyticsController;
+use App\Http\Controllers\Api\ProductViewTrackingController;
+use App\Http\Controllers\Api\SearchAnalyticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +124,24 @@ Route::prefix('v1')->group(function () {
             Route::get('dashboard', [DashboardController::class, 'index']);
             Route::get('products/stats', [ProductStatsController::class, 'index']);
             
+            // Phase 10: Tenant Analytics & Reporting
+            Route::prefix('analytics')->group(function () {
+                // Tenant-wide analytics
+                Route::get('overview', [TenantAnalyticsController::class, 'overview']);
+                Route::get('top-products', [TenantAnalyticsController::class, 'topProducts']);
+                Route::get('revenue-breakdown', [TenantAnalyticsController::class, 'revenueBreakdown']);
+                Route::get('profit-analysis', [TenantAnalyticsController::class, 'profitAnalysis']);
+                Route::get('category-performance', [TenantAnalyticsController::class, 'categoryPerformance']);
+                Route::get('most-viewed', [TenantAnalyticsController::class, 'mostViewed']);
+                Route::get('search-terms', [TenantAnalyticsController::class, 'searchTerms']);
+                Route::get('search-trends', [TenantAnalyticsController::class, 'searchTrends']);
+                Route::get('search-stats', [SearchAnalyticsController::class, 'searchStats']);
+                Route::get('zero-result-searches', [TenantAnalyticsController::class, 'zeroResultSearches']);
+                
+                // Tracking endpoints (can be called without strict auth for public views)
+                Route::post('track-search', [SearchAnalyticsController::class, 'trackSearch']);
+            });
+            
             // Bulk operations (must be before apiResource to avoid route conflicts)
             Route::delete('products/bulk', [ProductController::class, 'bulkDelete']);
             Route::patch('products/bulk/status', [ProductController::class, 'bulkUpdateStatus']);
@@ -154,6 +175,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('export/csv', [ProductAnalyticsController::class, 'exportCsv']);
                 Route::get('export/pdf', [ProductAnalyticsController::class, 'exportPdf']);
             });
+            
+            // Phase 10: Product View Tracking
+            Route::post('products/{productId}/track-view', [ProductViewTrackingController::class, 'trackView']);
+            Route::get('products/{productId}/view-stats', [ProductViewTrackingController::class, 'viewStats']);
+            Route::get('products/{productId}/view-trends', [ProductViewTrackingController::class, 'viewTrends']);
             
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);

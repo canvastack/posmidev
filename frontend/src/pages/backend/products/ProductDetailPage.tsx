@@ -26,6 +26,7 @@ import { ActivityTimeline } from '@/components/domain/products/ActivityTimeline'
 import { ProductAnalytics } from '@/components/domain/products/ProductAnalytics';
 import { useProductActivity } from '@/hooks/useProductActivity';
 import ProductImageGallery from '@/components/domain/products/ProductImageGallery';
+import { trackProductView } from '@/api/tenantAnalyticsApi';
 
 export default function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -62,6 +63,16 @@ export default function ProductDetailPage() {
       fetchProduct();
     }
   }, [tenantId, productId]);
+
+  // Phase 10: Track product view (passive tracking)
+  useEffect(() => {
+    if (tenantId && productId && product) {
+      // Fire-and-forget tracking - don't block UI
+      trackProductView(tenantId, productId).catch(() => {
+        // Silent fail - tracking should not disrupt user experience
+      });
+    }
+  }, [tenantId, productId, product]);
 
   // Fetch activities when history tab becomes active
   useEffect(() => {

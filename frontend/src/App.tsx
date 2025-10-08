@@ -35,6 +35,9 @@ const ProductEditPage = lazy(() => import('./pages/backend/products/ProductEditP
 const SuppliersPage = lazy(() => import('./pages/backend/suppliers'))
 const ProductTagsPage = lazy(() => import('./pages/backend/product-tags'))
 
+// Phase 10: Analytics & Reporting
+const TenantAnalyticsDashboard = lazy(() => import('./pages/backend/analytics/TenantAnalyticsDashboard'))
+
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/home'))
 const ProductsPublicPage = lazy(() => import('./pages/frontend/products'))
@@ -83,6 +86,8 @@ function App() {
                   {/* Phase 9: Additional Business Features */}
                   <Route path="suppliers" element={<SuppliersPage />} />
                   <Route path="product-tags" element={<ProductTagsPage />} />
+                  {/* Phase 10: Analytics & Reporting */}
+                  <Route path="analytics" element={<TenantAnalyticsDashboard />} />
                 </Route>
 
                 {/* Catch all → public home */}

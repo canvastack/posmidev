@@ -18,6 +18,7 @@ import { categoryApi } from '@/api/categoryApi';
 import type { Product, ProductForm, Category, ProductStats } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { trackSearch } from '@/api/tenantAnalyticsApi';
 
 // Extracted components
 import {
@@ -244,6 +245,16 @@ export default function ProductsPage() {
     fetchCategories();
     fetchStats();
   }, [fetchCategories, fetchStats]);
+
+  // Phase 10: Track search queries (passive tracking)
+  useEffect(() => {
+    if (tenantId && debouncedSearchQuery && debouncedSearchQuery.trim().length > 0) {
+      // Track search with results count - fire-and-forget
+      trackSearch(tenantId, debouncedSearchQuery, totalItems).catch(() => {
+        // Silent fail - tracking should not disrupt user experience
+      });
+    }
+  }, [tenantId, debouncedSearchQuery, totalItems]);
 
   // Handlers
   const handleOpenModal = (product?: Product) => {

@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   Building2,
   Tags,
+  TrendingUp,
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -27,6 +28,7 @@ const menuItems = [
   { icon: Building2, label: 'Suppliers', path: '/admin/suppliers' },
   { icon: Tags, label: 'Product Tags', path: '/admin/product-tags' },
   { icon: AlertTriangle, label: 'Stock Alerts', path: '/admin/stock-alerts' },
+  { icon: TrendingUp, label: 'Analytics', path: '/admin/analytics' },
   { icon: ClipboardList, label: 'Orders', path: '/admin/orders' },
   { icon: IdCard, label: 'Users', path: '/admin/users' },
   { icon: BrainCircuit, label: 'Roles', path: '/admin/roles' },
