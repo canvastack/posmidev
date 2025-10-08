@@ -445,6 +445,14 @@ paths:
           name: statuses
           description: "Filter by multiple statuses (comma-separated: active,draft,discontinued)"
           schema: { type: string }
+        - in: query
+          name: include_archived
+          description: "Phase 11: Include archived (soft-deleted) products in results"
+          schema: { type: boolean, default: false }
+        - in: query
+          name: only_archived
+          description: "Phase 11: Show only archived (soft-deleted) products"
+          schema: { type: boolean, default: false }
       responses:
         '200':
           description: A paginated list of products
@@ -524,6 +532,81 @@ paths:
       responses:
         '204':
           description: Deleted
+
+  # Phase 11: Archive & Soft Delete
+  /tenants/{tenantId}/products/{productId}/archive:
+    patch:
+      tags: [Products]
+      summary: Archive a product (soft delete)
+      description: "Phase 11: Requires authentication and 'products.delete' permission. Soft deletes the product by setting deleted_at timestamp. Product will be excluded from default queries but can be restored."
+      operationId: archiveProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product archived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: 'Product archived successfully' }
+                  data: { $ref: '#/components/schemas/Product' }
+        '403':
+          description: Forbidden - missing products.delete permission
+        '404':
+          description: Product not found or not in tenant scope
+
+  /tenants/{tenantId}/products/{productId}/restore:
+    patch:
+      tags: [Products]
+      summary: Restore an archived product
+      description: "Phase 11: Requires authentication and 'products.restore' permission. Restores a soft-deleted product by clearing deleted_at timestamp. Product will be visible in default queries again."
+      operationId: restoreProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product restored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: 'Product restored successfully' }
+                  data: { $ref: '#/components/schemas/Product' }
+        '403':
+          description: Forbidden - missing products.restore permission
+        '404':
+          description: Product not found in archived products or not in tenant scope
+
+  /tenants/{tenantId}/products/{productId}/permanent:
+    delete:
+      tags: [Products]
+      summary: Permanently delete an archived product
+      description: "Phase 11: Requires authentication and 'products.delete.permanent' permission (admin-only). Permanently removes an archived product from the database. This action cannot be undone. Only archived products can be permanently deleted."
+      operationId: forceDeleteProduct
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: Product permanently deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: 'Product permanently deleted' }
+        '403':
+          description: Forbidden - missing products.delete.permanent permission
+        '404':
+          description: Product not found in archived products or not in tenant scope
 
   /tenants/{tenantId}/products/bulk:
     delete:
@@ -1938,6 +2021,569 @@ paths:
                 properties:
                   is_available: { type: boolean }
                   sku: { type: string }
+
+  # Phase 10: Tenant-Wide Analytics & Reporting
+  # Provides business intelligence and insights across all products
+  # All endpoints require 'products.view' permission and enforce tenant isolation
+  
+  /tenants/{tenantId}/analytics/overview:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get tenant-wide analytics overview
+      description: "Requires authentication and 'products.view' permission. Returns comprehensive dashboard data including total revenue, products count, average profit margin, and total views."
+      operationId: getTenantAnalyticsOverview
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+          description: "Start date for analytics period (YYYY-MM-DD)"
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+          description: "End date for analytics period (YYYY-MM-DD)"
+      responses:
+        '200':
+          description: Analytics overview retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      total_revenue:
+                        type: number
+                        format: float
+                        description: "Total revenue from all products"
+                      products_count:
+                        type: integer
+                        description: "Total number of active products"
+                      average_profit_margin:
+                        type: number
+                        format: float
+                        description: "Average profit margin percentage"
+                      total_views:
+                        type: integer
+                        description: "Total product page views"
+                      period_start: { type: string, format: date }
+                      period_end: { type: string, format: date }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/top-products:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get top performing products
+      description: "Requires authentication and 'products.view' permission. Returns top products by selected metric (revenue, quantity, profit, or views)."
+      operationId: getTenantTopProducts
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: metric
+          schema:
+            type: string
+            enum: [revenue, quantity, profit, views]
+            default: revenue
+          description: "Metric to rank products by"
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+          description: "Number of top products to return"
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Top products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id: { type: string, format: uuid }
+                        product_name: { type: string }
+                        sku: { type: string }
+                        metric_value: { type: number, format: float }
+                        revenue: { type: number, format: float }
+                        quantity_sold: { type: integer }
+                        profit: { type: number, format: float }
+                        profit_margin: { type: number, format: float }
+                        views: { type: integer }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/revenue-breakdown:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get revenue breakdown by product
+      description: "Requires authentication and 'products.view' permission. Returns revenue distribution across products for pie/donut charts."
+      operationId: getTenantRevenueBreakdown
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Revenue breakdown retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id: { type: string, format: uuid }
+                        product_name: { type: string }
+                        revenue: { type: number, format: float }
+                        percentage: { type: number, format: float }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/profit-analysis:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get profit analysis by product
+      description: "Requires authentication and 'products.view' permission. Returns profit margins and analysis for products."
+      operationId: getTenantProfitAnalysis
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Profit analysis retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id: { type: string, format: uuid }
+                        product_name: { type: string }
+                        revenue: { type: number, format: float }
+                        cost: { type: number, format: float }
+                        profit: { type: number, format: float }
+                        profit_margin: { type: number, format: float }
+                        quantity_sold: { type: integer }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/category-performance:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get performance breakdown by category
+      description: "Requires authentication and 'products.view' permission. Returns aggregated metrics per product category."
+      operationId: getTenantCategoryPerformance
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Category performance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category_id: { type: string, format: uuid }
+                        category_name: { type: string }
+                        products_count: { type: integer }
+                        total_revenue: { type: number, format: float }
+                        total_profit: { type: number, format: float }
+                        average_profit_margin: { type: number, format: float }
+                        total_quantity_sold: { type: integer }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/most-viewed:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get most viewed products
+      description: "Requires authentication and 'products.view' permission. Returns products sorted by view count."
+      operationId: getTenantMostViewedProducts
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Most viewed products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id: { type: string, format: uuid }
+                        product_name: { type: string }
+                        sku: { type: string }
+                        view_count: { type: integer }
+                        unique_viewers: { type: integer }
+                        last_viewed_at: { type: string, format: date-time }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/search-terms:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get popular search terms
+      description: "Requires authentication and 'products.view' permission. Returns most frequently searched terms."
+      operationId: getTenantSearchTerms
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Search terms retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        search_term: { type: string }
+                        search_count: { type: integer }
+                        average_results: { type: number, format: float }
+                        zero_results_count: { type: integer }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/search-trends:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get search trends over time
+      description: "Requires authentication and 'products.view' permission. Returns search activity aggregated by time period."
+      operationId: getTenantSearchTrends
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: group_by
+          schema:
+            type: string
+            enum: [hour, day, week, month]
+            default: day
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Search trends retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        search_count: { type: integer }
+                        unique_terms: { type: integer }
+                        zero_results_percentage: { type: number, format: float }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/search-stats:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get search statistics summary
+      description: "Requires authentication and 'products.view' permission. Returns aggregated search metrics."
+      operationId: getTenantSearchStats
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Search stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      total_searches: { type: integer }
+                      unique_terms: { type: integer }
+                      average_results_per_search: { type: number, format: float }
+                      zero_results_count: { type: integer }
+                      zero_results_percentage: { type: number, format: float }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/zero-result-searches:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get searches with zero results
+      description: "Requires authentication and 'products.view' permission. Returns search terms that returned no products (useful for product gap analysis)."
+      operationId: getTenantZeroResultSearches
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 10 }
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Zero result searches retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        search_term: { type: string }
+                        search_count: { type: integer }
+                        last_searched_at: { type: string, format: date-time }
+        '403':
+          description: Forbidden - missing products.view permission
+
+  /tenants/{tenantId}/analytics/track-search:
+    post:
+      tags: [Tenant Analytics]
+      summary: Track a product search query
+      description: "Public/authenticated endpoint. Logs search queries for analytics. Can be called without authentication for anonymous tracking."
+      operationId: trackProductSearch
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [search_term, results_count]
+              properties:
+                search_term:
+                  type: string
+                  maxLength: 255
+                  description: "The search query entered by user"
+                results_count:
+                  type: integer
+                  minimum: 0
+                  description: "Number of products returned"
+      responses:
+        '201':
+          description: Search tracked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '422':
+          description: Validation error
+
+  # Product View Tracking Endpoints
+  /tenants/{tenantId}/products/{productId}/track-view:
+    post:
+      tags: [Tenant Analytics]
+      summary: Track a product page view
+      description: "Public/authenticated endpoint. Logs product views for analytics. Can be called without authentication for anonymous tracking."
+      operationId: trackProductView
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '201':
+          description: View tracked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/view-stats:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get view statistics for a product
+      description: "Requires authentication and 'products.view' permission. Returns view metrics for a specific product."
+      operationId: getProductViewStats
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: View stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      total_views: { type: integer }
+                      unique_viewers: { type: integer }
+                      authenticated_views: { type: integer }
+                      anonymous_views: { type: integer }
+                      average_views_per_day: { type: number, format: float }
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
+
+  /tenants/{tenantId}/products/{productId}/view-trends:
+    get:
+      tags: [Tenant Analytics]
+      summary: Get view trends over time for a product
+      description: "Requires authentication and 'products.view' permission. Returns view activity aggregated by time period."
+      operationId: getProductViewTrends
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/ProductId'
+        - in: query
+          name: group_by
+          schema:
+            type: string
+            enum: [hour, day, week, month]
+            default: day
+        - in: query
+          name: period_start
+          schema: { type: string, format: date }
+        - in: query
+          name: period_end
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: View trends retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period: { type: string }
+                        view_count: { type: integer }
+                        unique_viewers: { type: integer }
+        '403':
+          description: Forbidden - missing products.view permission
+        '404':
+          description: Product not found
 
   /tenants/{tenantId}/roles:
     get:
@@ -3717,850 +4363,4 @@ paths:
                   default: false
       responses:
         '201':
-          description: Template applied successfully
-
-  /tenants/{tenantId}/variant-templates/{id}/preview:
-    post:
-      tags: [Variant Templates]
-      summary: Preview variants that would be generated
-      description: Shows variant combinations without creating them
-      operationId: previewVariantTemplate
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                product_id:
-                  type: string
-                  format: uuid
-      responses:
-        '200':
-          description: Preview generated
-
-  # ========== VARIANT ANALYTICS ==========
-  /tenants/{tenantId}/variants/{variantId}/analytics:
-    get:
-      tags: [Variant Analytics]
-      summary: Get analytics for a variant
-      operationId: getVariantAnalytics
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - name: variantId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - in: query
-          name: period_type
-          schema:
-            type: string
-            enum: [daily, weekly, monthly]
-            default: daily
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 30
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  variant:
-                    $ref: '#/components/schemas/ProductVariant'
-                  analytics:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/VariantAnalytics'
-                  summary:
-                    type: object
-
-  /tenants/{tenantId}/products/{productId}/analytics:
-    get:
-      tags: [Variant Analytics]
-      summary: Get analytics for all variants of a product
-      operationId: getProductVariantAnalytics
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - $ref: '#/components/parameters/ProductId'
-        - in: query
-          name: period_type
-          schema:
-            type: string
-            enum: [daily, weekly, monthly]
-        - in: query
-          name: period_start
-          schema:
-            type: string
-            format: date
-        - in: query
-          name: period_end
-          schema:
-            type: string
-            format: date
-      responses:
-        '200':
-          description: Successful operation
-
-  /tenants/{tenantId}/variants/analytics/top-performers:
-    get:
-      tags: [Variant Analytics]
-      summary: Get top performing variants
-      operationId: getTopPerformingVariants
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - in: query
-          name: metric
-          schema:
-            type: string
-            enum: [revenue, profit, quantity_sold, conversion_rate, turnover_rate]
-            default: revenue
-        - in: query
-          name: period_type
-          schema:
-            type: string
-            enum: [daily, weekly, monthly]
-            default: monthly
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 10
-      responses:
-        '200':
-          description: Successful operation
-
-  /tenants/{tenantId}/variants/analytics/compare:
-    post:
-      tags: [Variant Analytics]
-      summary: Compare multiple variants
-      operationId: compareVariants
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                variant_ids:
-                  type: array
-                  minItems: 2
-                  maxItems: 10
-                  items:
-                    type: string
-                    format: uuid
-                period_type:
-                  type: string
-                  enum: [daily, weekly, monthly]
-      responses:
-        '200':
-          description: Comparison data returned
-
-  /tenants/{tenantId}/variants/analytics/performance-summary:
-    get:
-      tags: [Variant Analytics]
-      summary: Get performance summary for all variants
-      operationId: getVariantPerformanceSummary
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/TenantId'
-        - in: query
-          name: period_type
-          schema:
-            type: string
-            enum: [daily, weekly, monthly]
-            default: monthly
-      responses:
-        '200':
-          description: Performance summary
-
-tags:
-  - name: Authentication
-    description: User registration, login, and logout
-  - name: Tenants
-    description: Tenant management operations
-  - name: Products
-    description: Product catalog management
-  - name: Categories
-    description: Product category management
-  - name: Orders
-    description: Sales order management
-  - name: Stock Alerts
-    description: Inventory alert management
-  - name: Product Variants
-    description: Manage product variants (color, size, material combinations)
-  - name: Variant Attributes
-    description: Manage reusable variant attributes (Size, Color, etc.)
-  - name: Variant Templates
-    description: Pre-built variant configurations for quick setup
-  - name: Variant Analytics
-    description: Performance analytics and insights for variants
-  - name: Suppliers
-    description: Supplier management operations (Phase 9)
-  - name: Product Tags
-    description: Product tagging system for flexible categorization (Phase 9)
-  - name: SKU Generation
-    description: Automatic SKU generation with customizable patterns (Phase 9)
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-  parameters:
-    TenantId:
-      name: tenantId
-      in: path
-      required: true
-      description: ID of the tenant
-      schema: { type: string, format: uuid }
-    ProductId:
-      name: productId
-      in: path
-      required: true
-      description: ID of the product
-      schema: { type: string, format: uuid }
-    RoleId:
-      name: roleId
-      in: path
-      required: true
-      description: ID of the role
-      schema: { type: string, format: uuid }
-    CategoryId:
-      name: categoryId
-      in: path
-      required: true
-      description: ID of the category
-      schema: { type: string, format: uuid }
-    SupplierId:
-      name: supplierId
-      in: path
-      required: true
-      description: ID of the supplier
-      schema: { type: string, format: uuid }
-    TagId:
-      name: tagId
-      in: path
-      required: true
-      description: ID of the product tag
-      schema: { type: string, format: uuid }
-    OrderId:
-      name: orderId
-      in: path
-      required: true
-      description: ID of the order
-      schema: { type: string, format: uuid }
-    UserId:
-      name: userId
-      in: path
-      required: true
-      description: ID of the user
-      schema: { type: string, format: uuid }
-    AlertId:
-      name: alertId
-      in: path
-      required: true
-      description: ID of the stock alert
-      schema: { type: string, format: uuid }
-    VariantId:
-      name: variantId
-      in: path
-      required: true
-      description: ID of the product variant
-      schema: { type: string, format: uuid }
-
-  schemas:
-    # Authentication
-    RegisterRequest:
-      type: object
-      required: [tenant_name, user_name, email, password]
-      properties:
-        tenant_name: { type: string, example: 'My Awesome Store' }
-        user_name: { type: string, example: 'John Doe' }
-        email: { type: string, format: email, example: 'john.doe@example.com' }
-        password: { type: string, format: password, example: 'password123' }
-    LoginRequest:
-      type: object
-      required: [email, password]
-      properties:
-        email: { type: string, format: email }
-        password: { type: string, format: password }
-    AuthResponse:
-      type: object
-      properties:
-        message: { type: string }
-        user: { $ref: '#/components/schemas/User' }
-        token: { type: string }
-
-    # Core
-    User:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        email: { type: string, format: email }
-        tenant_id: { type: string, format: uuid }
-        status: { type: string, enum: [active, inactive, pending, banned] }
-        roles:
-          type: array
-          items: { type: string }
-        display_name: { type: string, nullable: true }
-        photo: { type: string, nullable: true }
-        photo_thumb: { type: string, nullable: true }
-        phone_number: { type: string, nullable: true }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    Product:
-      type: object
-      properties:
-        id: { type: string, format: uuid }
-        name: { type: string }
-        sku: { type: string }
-        price: { type: number, format: float }
-        stock: { type: integer }
-        status: { type: string, enum: [draft, published, archived] }
-        tenant_id: { type: string, format: uuid }
-        category_id: { type: string, format: uuid, nullable: true }
-        description: { type: string, nullable: true }
-        cost_price: { type: number, format: float, nullable: true }
-        # Phase 9: Additional Business Fields
-        supplier_id: { type: string, format: uuid, nullable: true }
-        supplier: { $ref: '#/components/schemas/Supplier', nullable: true }
-        uom: { type: string, nullable: true, example: 'pcs' }
-        formatted_uom: { type: string, example: 'pcs' }
-        stock_with_uom: { type: string, example: '100 pcs' }
-        tax_rate: { type: number, format: float, nullable: true, example: 10.00 }
-        tax_inclusive: { type: boolean, default: false }
-        price_without_tax: { type: number, format: float, nullable: true }
-        price_with_tax: { type: number, format: float, nullable: true }
-        tax_amount: { type: number, format: float, nullable: true }
-        tags:
-          type: array
-          items: { $ref: '#/components/schemas/ProductTag' }
-        created_at: { type: string, example: '2025-01-01 12:00:00' }
-        updated_at: { type: string, example: '2025-01-01 12:00:00' }
-
-    ProductRequest:
-      type: object
-      required: [name, sku, price, stock]
-      properties:
-        name: { type: string, example: 'Laptop Pro' }
-        sku: { type: string, example: 'LP-001' }
-        price: { type: number, format: float, example: 1500.99 }
-        stock: { type: integer, example: 100 }
-        status: { type: string, enum: [draft, published, archived], default: draft }
-        category_id: { type: string, format: uuid, nullable: true }
-        description: { type: string, nullable: true }
-        cost_price: { type: number, format: float, nullable: true }
-        # Phase 9: Additional Business Fields
-        supplier_id: { type: string, format: uuid, nullable: true }
-        uom: { type: string, nullable: true, example: 'pcs' }
-        tax_rate: { type: number, format: float, nullable: true, example: 10.00 }
-        tax_inclusive: { type: boolean, default: false }
-        tag_ids:
-          type: array
-          items: { type: string, format: uuid }
-          description: Array of tag IDs to attach to product
-    
-    # Phase 7: Multi-Image Gallery
-    ProductImage:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Image UUID
-        product_id:
-          type: string
-          format: uuid
-          description: Product UUID
-        tenant_id:
-          type: string
-          format: uuid
-          description: Tenant UUID
-        image_url:
-          type: string
-          description: Full image URL (accessible via storage)
-          example: 'http://localhost:9000/storage/products/images/1234567890_uuid_xyz.jpg'
-        thumbnail_url:
-          type: string
-          nullable: true
-          description: Thumbnail URL (200x200px)
-          example: 'http://localhost:9000/storage/products/images/thumb_1234567890_uuid_xyz.jpg'
-        is_primary:
-          type: boolean
-          default: false
-          description: Primary image flag (one per product)
-        sort_order:
-          type: integer
-          default: 0
-          description: Display order (0-based, lower = first)
-    
-    # Phase 9: Supplier Management
-    Supplier:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: 'ABC Supplies Inc.'
-        contact_person:
-          type: string
-          nullable: true
-          example: 'John Smith'
-        email:
-          type: string
-          format: email
-          nullable: true
-          example: 'john@abcsupplies.com'
-        phone:
-          type: string
-          nullable: true
-          example: '+1-555-0123'
-        address:
-          type: string
-          nullable: true
-          example: '123 Main St, City, State 12345'
-        status:
-          type: string
-          enum: [active, inactive]
-          default: active
-        notes:
-          type: string
-          nullable: true
-        products_count:
-          type: integer
-          description: Number of products linked to this supplier
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-
-    SupplierRequest:
-      type: object
-      required: [name]
-      properties:
-        name:
-          type: string
-          example: 'ABC Supplies Inc.'
-        contact_person:
-          type: string
-          nullable: true
-          example: 'John Smith'
-        email:
-          type: string
-          format: email
-          nullable: true
-          example: 'john@abcsupplies.com'
-        phone:
-          type: string
-          nullable: true
-          example: '+1-555-0123'
-        address:
-          type: string
-          nullable: true
-        status:
-          type: string
-          enum: [active, inactive]
-          default: active
-        notes:
-          type: string
-          nullable: true
-
-    # Phase 9: Product Tags
-    ProductTag:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-        name:
-          type: string
-          example: 'Bestseller'
-        slug:
-          type: string
-          example: 'bestseller'
-        color:
-          type: string
-          nullable: true
-          example: '#3B82F6'
-          description: Hex color code for tag display
-        usage_count:
-          type: integer
-          description: Number of products using this tag
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-
-    ProductTagRequest:
-      type: object
-      required: [name]
-      properties:
-        name:
-          type: string
-          example: 'Bestseller'
-        color:
-          type: string
-          nullable: true
-          example: '#3B82F6'
-          description: Hex color code (auto-generated if not provided)
-
-    # Phase 9: SKU Generation
-    SkuPattern:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 'category_sequence'
-        name:
-          type: string
-          example: 'Category + Sequence'
-        pattern:
-          type: string
-          example: '{category}-{sequence}'
-        description:
-          type: string
-          example: 'Generates SKU like: ELEC-0001'
-        example_output:
-          type: string
-          example: 'ELEC-0001'
-        placeholders:
-          type: array
-          items:
-            type: object
-            properties:
-              key:
-                type: string
-                example: '{category}'
-              description:
-                type: string
-                example: 'Category code (e.g., ELEC)'
-
-    SkuGenerateRequest:
-      type: object
-      required: [pattern]
-      properties:
-        pattern:
-          type: string
-          example: '{category}-{sequence}'
-          description: SKU pattern with placeholders
-        category_id:
-          type: string
-          format: uuid
-          nullable: true
-          description: Category ID (required if pattern uses {category})
-        tenant_code:
-          type: string
-          nullable: true
-          description: Custom tenant code (optional, defaults to tenant name)
-    
-    ProductVariant:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        product_id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-        sku:
-          type: string
-          maxLength: 255
-        barcode:
-          type: string
-          nullable: true
-        name:
-          type: string
-          maxLength: 255
-        display_name:
-          type: string
-          description: Human-readable name with attributes
-        attributes:
-          type: object
-          description: 'JSONB key-value pairs (e.g., {"color": "Red", "size": "M"})'
-          additionalProperties: true
-        price:
-          type: number
-          format: decimal
-          minimum: 0
-        cost_price:
-          type: number
-          format: decimal
-          minimum: 0
-          nullable: true
-        price_modifier:
-          type: number
-          format: decimal
-          nullable: true
-        profit_margin:
-          type: number
-          format: decimal
-          description: Calculated profit percentage
-        stock:
-          type: integer
-          minimum: 0
-        reserved_stock:
-          type: integer
-          minimum: 0
-        available_stock:
-          type: integer
-          minimum: 0
-          description: Computed as stock - reserved_stock
-        manage_stock:
-          type: boolean
-          default: true
-        reorder_level:
-          type: integer
-          nullable: true
-        reorder_quantity:
-          type: integer
-          nullable: true
-        is_low_stock:
-          type: boolean
-        is_critical_stock:
-          type: boolean
-        images:
-          type: array
-          items:
-            type: string
-          description: Array of image paths
-        image_url:
-          type: string
-          nullable: true
-        is_active:
-          type: boolean
-          default: true
-        is_default:
-          type: boolean
-          default: false
-        sort_order:
-          type: integer
-          default: 0
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-        product:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            name:
-              type: string
-            sku:
-              type: string
-
-    ProductVariantInput:
-      type: object
-      required:
-        - sku
-        - name
-        - price
-        - stock
-      properties:
-        sku:
-          type: string
-          maxLength: 255
-        barcode:
-          type: string
-          nullable: true
-        name:
-          type: string
-          maxLength: 255
-        attributes:
-          type: object
-          additionalProperties: true
-        price:
-          type: number
-          minimum: 0
-        cost_price:
-          type: number
-          minimum: 0
-          nullable: true
-        price_modifier:
-          type: number
-          nullable: true
-        stock:
-          type: integer
-          minimum: 0
-        reserved_stock:
-          type: integer
-          minimum: 0
-          default: 0
-        manage_stock:
-          type: boolean
-          default: true
-        reorder_level:
-          type: integer
-          nullable: true
-        reorder_quantity:
-          type: integer
-          nullable: true
-        images:
-          type: array
-          items:
-            type: string
-        is_active:
-          type: boolean
-          default: true
-        is_default:
-          type: boolean
-          default: false
-        sort_order:
-          type: integer
-          default: 0
-
-    VariantAttribute:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        slug:
-          type: string
-        display_type:
-          type: string
-          enum: [select, radio, button, swatch, color_swatch]
-        values:
-          type: array
-          items:
-            type: string
-        value_count:
-          type: integer
-        price_modifiers:
-          type: object
-          additionalProperties:
-            type: number
-        visual_settings:
-          type: object
-          additionalProperties: true
-        sort_order:
-          type: integer
-        is_active:
-          type: boolean
-        usage_count:
-          type: integer
-        total_combinations:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-
-    VariantAttributeInput:
-      type: object
-      required:
-        - name
-        - display_type
-        - values
-      properties:
-        name:
-          type: string
-          maxLength: 255
-        slug:
-          type: string
-          nullable: true
-        display_type:
-          type: string
-          enum: [select, radio, button, swatch, color_swatch]
-        values:
-          type: array
-          minItems: 1
-          items:
-            type: string
-        price_modifiers:
-          type: object
-          additionalProperties:
-            type: number
-        visual_settings:
-          type: object
-        sort_order:
-          type: integer
-          default: 0
-        is_active:
-          type: boolean
-          default: true
-
-    VariantTemplate:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tenant_id:
-          type: string
-          format: uuid
-          nullable: true
-          description: NULL for system templates
-        name:
-          type: string
-        slug:
-          type: string
-        description:
-          type: string
-          nullable: true
-        configuration:
-          type: object
-          properties:
-            attributes:
-              type: array
-              items:
-                type: object
-            sku_pattern:
-              type: string
-            price_calculation:
-              type: string
-              enum: [base, base_plus_modifiers, custom]
-            stock_settings:
-              type: object
-        is_system:
-          type: bool
+         

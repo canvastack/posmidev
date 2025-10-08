@@ -40,6 +40,10 @@ class ProductController extends Controller
         $updatedTo = $request->get('updated_to');
         $statuses = $request->get('statuses'); // Can be comma-separated string or array
         
+        // Phase 11: Archive filtering parameters
+        $includeArchived = filter_var($request->get('include_archived', false), FILTER_VALIDATE_BOOLEAN);
+        $onlyArchived = filter_var($request->get('only_archived', false), FILTER_VALIDATE_BOOLEAN);
+        
         // Parse statuses if it's a comma-separated string
         if ($statuses && is_string($statuses)) {
             $statuses = array_filter(explode(',', $statuses));
@@ -59,7 +63,9 @@ class ProductController extends Controller
             $createdTo,
             $updatedFrom,
             $updatedTo,
-            $statuses
+            $statuses,
+            $includeArchived,
+            $onlyArchived
         );
 
         // Load Phase 9 relationships
@@ -708,5 +714,84 @@ class ProductController extends Controller
                 'message' => 'Failed to duplicate product: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Archive product (soft delete)
+     * Phase 11: Archive & Soft Delete
+     * 
+     * @param string $tenantId
+     * @param string $productId
+     * @return JsonResponse
+     */
+    public function archive(string $tenantId, string $productId): JsonResponse
+    {
+        $this->authorize('delete', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
+
+        $product = \Src\Pms\Infrastructure\Models\Product::where('tenant_id', $tenantId)
+                          ->where('id', $productId)
+                          ->firstOrFail();
+
+        // Soft delete the product
+        $product->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product archived successfully',
+            'data' => (new ProductResource($product->fresh()))->toArray(request())
+        ]);
+    }
+
+    /**
+     * Restore archived product
+     * Phase 11: Archive & Soft Delete
+     * 
+     * @param string $tenantId
+     * @param string $productId
+     * @return JsonResponse
+     */
+    public function restore(string $tenantId, string $productId): JsonResponse
+    {
+        $this->authorize('restore', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
+
+        $product = \Src\Pms\Infrastructure\Models\Product::onlyTrashed()
+                          ->where('tenant_id', $tenantId)
+                          ->where('id', $productId)
+                          ->firstOrFail();
+
+        // Restore the product
+        $product->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product restored successfully',
+            'data' => (new ProductResource($product->fresh()))->toArray(request())
+        ]);
+    }
+
+    /**
+     * Permanently delete product
+     * Phase 11: Archive & Soft Delete
+     * 
+     * @param string $tenantId
+     * @param string $productId
+     * @return JsonResponse
+     */
+    public function forceDelete(string $tenantId, string $productId): JsonResponse
+    {
+        $this->authorize('forceDelete', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
+
+        $product = \Src\Pms\Infrastructure\Models\Product::onlyTrashed()
+                          ->where('tenant_id', $tenantId)
+                          ->where('id', $productId)
+                          ->firstOrFail();
+
+        // Permanently delete the product
+        $product->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product permanently deleted'
+        ]);
     }
 }

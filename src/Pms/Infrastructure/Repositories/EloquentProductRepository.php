@@ -42,10 +42,20 @@ class EloquentProductRepository implements ProductRepositoryInterface
         ?string $createdTo = null,
         ?string $updatedFrom = null,
         ?string $updatedTo = null,
-        ?array $statuses = null
+        ?array $statuses = null,
+        bool $includeArchived = false,
+        bool $onlyArchived = false
     )
     {
         $query = ProductModel::where('tenant_id', $tenantId);
+
+        // Phase 11: Archive filtering
+        if ($onlyArchived) {
+            $query->onlyTrashed();
+        } elseif ($includeArchived) {
+            $query->withTrashed();
+        }
+        // Default: exclude archived (soft-deleted) products
 
         // Apply search filter
         if ($search) {

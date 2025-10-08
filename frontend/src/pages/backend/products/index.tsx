@@ -51,6 +51,11 @@ import { BulkAssignSupplierModal } from '@/components/domain/products/BulkAssign
 import { BulkTagModal } from '@/components/domain/products/BulkTagModal';
 import { BulkTaxModal } from '@/components/domain/products/BulkTaxModal';
 
+// Phase 11: Archive & Soft Delete
+import { ArchiveConfirmationModal } from '@/components/domain/products/ArchiveConfirmationModal';
+import { RestoreConfirmationModal } from '@/components/domain/products/RestoreConfirmationModal';
+import { PermanentDeleteModal } from '@/components/domain/products/PermanentDeleteModal';
+
 export default function ProductsPage() {
   const navigate = useNavigate();
   const { tenantId } = useAuth();
@@ -85,6 +90,10 @@ export default function ProductsPage() {
   const [updatedTo, setUpdatedTo] = useState<string>('');
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
+  // Phase 11: Archive & Soft Delete filters
+  const [showArchived, setShowArchived] = useState(false);
+  const [onlyArchived, setOnlyArchived] = useState(false);
+
   // Sorting
   const [sortBy, setSortBy] = useState<string>('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -114,6 +123,12 @@ export default function ProductsPage() {
   const [bulkTagMode, setBulkTagMode] = useState<'add' | 'remove'>('add');
   const [bulkTaxModalOpen, setBulkTaxModalOpen] = useState(false);
 
+  // Phase 11: Archive & Soft Delete modals
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+  const [restoreModalOpen, setRestoreModalOpen] = useState(false);
+  const [permanentDeleteModalOpen, setPermanentDeleteModalOpen] = useState(false);
+  const [archivingProduct, setArchivingProduct] = useState<Product | null>(null);
+
   // Form state
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -142,6 +157,8 @@ export default function ProductsPage() {
   const canCreate = hasPermission('products.create');
   const canEdit = hasPermission('products.update');
   const canDelete = hasPermission('products.delete');
+  const canRestore = hasPermission('products.restore');
+  const canPermanentlyDelete = hasPermission('products.delete.permanent');
 
   // Debounce search
   useEffect(() => {
@@ -173,6 +190,13 @@ export default function ProductsPage() {
       if (updatedFrom) params.updated_from = updatedFrom;
       if (updatedTo) params.updated_to = updatedTo;
       if (selectedStatuses.length > 0) params.status = selectedStatuses.join(',');
+
+      // Phase 11: Archive filters
+      if (onlyArchived) {
+        params.only_archived = true;
+      } else if (showArchived) {
+        params.include_archived = true;
+      }
 
       const response = await productApi.getProducts(tenantId, params);
       setProducts(response.data);
@@ -416,6 +440,97 @@ export default function ProductsPage() {
     }
   };
 
+  // Phase 11: Archive & Soft Delete handlers
+  const handleArchive = (product: Product) => {
+    setArchivingProduct(product);
+    setArchiveModalOpen(true);
+  };
+
+  const handleArchiveConfirm = async () => {
+    if (!tenantId || !archivingProduct) return;
+
+    setDeleting(archivingProduct.id);
+    try {
+      await productApi.archiveProduct(tenantId, archivingProduct.id);
+      toast({
+        title: 'Success',
+        description: `Product "${archivingProduct.name}" archived successfully`,
+      });
+      setArchiveModalOpen(false);
+      setArchivingProduct(null);
+      fetchProducts();
+      fetchStats();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to archive product',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleRestore = (product: Product) => {
+    setArchivingProduct(product);
+    setRestoreModalOpen(true);
+  };
+
+  const handleRestoreConfirm = async () => {
+    if (!tenantId || !archivingProduct) return;
+
+    setDeleting(archivingProduct.id);
+    try {
+      await productApi.restoreProduct(tenantId, archivingProduct.id);
+      toast({
+        title: 'Success',
+        description: `Product "${archivingProduct.name}" restored successfully`,
+      });
+      setRestoreModalOpen(false);
+      setArchivingProduct(null);
+      fetchProducts();
+      fetchStats();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to restore product',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handlePermanentDelete = (product: Product) => {
+    setArchivingProduct(product);
+    setPermanentDeleteModalOpen(true);
+  };
+
+  const handlePermanentDeleteConfirm = async () => {
+    if (!tenantId || !archivingProduct) return;
+
+    setDeleting(archivingProduct.id);
+    try {
+      await productApi.forceDeleteProduct(tenantId, archivingProduct.id);
+      toast({
+        title: 'Success',
+        description: `Product "${archivingProduct.name}" permanently deleted`,
+      });
+      setPermanentDeleteModalOpen(false);
+      setArchivingProduct(null);
+      fetchProducts();
+      fetchStats();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to permanently delete product',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   const handleSort = (field: string) => {
     if (sortBy === field) {
       setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
@@ -570,6 +685,45 @@ export default function ProductsPage() {
         }
       />
 
+      {/* Phase 11: Archive Filter */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showArchived}
+                onChange={(e) => {
+                  setShowArchived(e.target.checked);
+                  setOnlyArchived(false); // Reset only archived when showing all
+                }}
+                className="w-4 h-4 rounded border-border"
+              />
+              <span className="text-sm font-medium text-foreground">Show Archived Products</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={onlyArchived}
+                onChange={(e) => {
+                  setOnlyArchived(e.target.checked);
+                  if (e.target.checked) {
+                    setShowArchived(false); // Disable show archived when only archived is active
+                  }
+                }}
+                className="w-4 h-4 rounded border-border"
+              />
+              <span className="text-sm font-medium text-foreground">Only Archived Products</span>
+            </label>
+            {(showArchived || onlyArchived) && (
+              <span className="text-xs text-muted-foreground">
+                ({onlyArchived ? 'Showing only archived' : 'Including archived in results'})
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Bulk Action Toolbar */}
       {bulkSelection.selectedCount > 0 && (
         <BulkActionToolbar
@@ -632,6 +786,12 @@ export default function ProductsPage() {
             hasDeletePermission={canDelete}
             hasCreatePermission={canCreate}
             hasViewPermission={true}
+            // Phase 11: Archive & Soft Delete
+            onArchive={handleArchive}
+            onRestore={handleRestore}
+            onPermanentDelete={handlePermanentDelete}
+            hasRestorePermission={canRestore}
+            hasPermanentDeletePermission={canPermanentlyDelete}
           />
 
           {/* Pagination */}
@@ -744,6 +904,44 @@ export default function ProductsPage() {
         productIds={Array.from(bulkSelection.selectedIds)}
         onSuccess={handleBulkOperationSuccess}
       />
+
+      {/* Phase 11: Archive & Soft Delete Modals */}
+      {archivingProduct && (
+        <>
+          <ArchiveConfirmationModal
+            open={archiveModalOpen}
+            onClose={() => {
+              setArchiveModalOpen(false);
+              setArchivingProduct(null);
+            }}
+            onConfirm={handleArchiveConfirm}
+            productName={archivingProduct.name}
+            loading={deleting === archivingProduct.id}
+          />
+
+          <RestoreConfirmationModal
+            open={restoreModalOpen}
+            onClose={() => {
+              setRestoreModalOpen(false);
+              setArchivingProduct(null);
+            }}
+            onConfirm={handleRestoreConfirm}
+            productName={archivingProduct.name}
+            loading={deleting === archivingProduct.id}
+          />
+
+          <PermanentDeleteModal
+            open={permanentDeleteModalOpen}
+            onClose={() => {
+              setPermanentDeleteModalOpen(false);
+              setArchivingProduct(null);
+            }}
+            onConfirm={handlePermanentDeleteConfirm}
+            productName={archivingProduct.name}
+            loading={deleting === archivingProduct.id}
+          />
+        </>
+      )}
 
       {/* History & Quick View Modals */}
       {historyProduct && (

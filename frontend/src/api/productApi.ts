@@ -17,6 +17,9 @@ interface PaginationParams {
   updated_from?: string; // YYYY-MM-DD
   updated_to?: string; // YYYY-MM-DD
   statuses?: string; // Comma-separated: "active,draft"
+  // Phase 11: Archive & Soft Delete
+  include_archived?: boolean; // Include archived products
+  only_archived?: boolean; // Show only archived products
 }
 
 interface PaginatedResponse<T> {
@@ -179,5 +182,20 @@ export const productApi = {
   duplicateProduct: async (tenantId: string, productId: string): Promise<Product> => {
     const response = await apiClient.post(`/tenants/${tenantId}/products/${productId}/duplicate`);
     return response.data.data;
+  },
+
+  // Phase 11: Archive & Soft Delete
+  archiveProduct: async (tenantId: string, productId: string): Promise<Product> => {
+    const response = await apiClient.patch(`/tenants/${tenantId}/products/${productId}/archive`);
+    return response.data.data;
+  },
+
+  restoreProduct: async (tenantId: string, productId: string): Promise<Product> => {
+    const response = await apiClient.patch(`/tenants/${tenantId}/products/${productId}/restore`);
+    return response.data.data;
+  },
+
+  forceDeleteProduct: async (tenantId: string, productId: string): Promise<void> => {
+    await apiClient.delete(`/tenants/${tenantId}/products/${productId}/permanent`);
   },
 };

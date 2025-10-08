@@ -23,7 +23,9 @@ interface ProductRepositoryInterface
         ?string $createdTo = null,
         ?string $updatedFrom = null,
         ?string $updatedTo = null,
-        ?array $statuses = null
+        ?array $statuses = null,
+        bool $includeArchived = false,
+        bool $onlyArchived = false
     );
     public function findBySku(string $sku, string $tenantId): ?Product;
     public function save(Product $product): void;

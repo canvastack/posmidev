@@ -181,6 +181,11 @@ Route::prefix('v1')->group(function () {
             Route::get('products/{productId}/view-stats', [ProductViewTrackingController::class, 'viewStats']);
             Route::get('products/{productId}/view-trends', [ProductViewTrackingController::class, 'viewTrends']);
             
+            // Phase 11: Archive & Soft Delete
+            Route::patch('products/{productId}/archive', [ProductController::class, 'archive']);
+            Route::patch('products/{productId}/restore', [ProductController::class, 'restore']);
+            Route::delete('products/{productId}/permanent', [ProductController::class, 'forceDelete']);
+            
             Route::apiResource('products', ProductController::class);
             Route::post('products/{product}/upload-image', [ProductController::class, 'uploadImage']);
             

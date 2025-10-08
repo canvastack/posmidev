@@ -108,7 +108,9 @@ class ProductService
         ?string $createdTo = null,
         ?string $updatedFrom = null,
         ?string $updatedTo = null,
-        ?array $statuses = null
+        ?array $statuses = null,
+        bool $includeArchived = false, // Phase 11: Archive filtering
+        bool $onlyArchived = false // Phase 11: Show only archived
     )
     {
         return $this->productRepository->findByTenantPaginated(
@@ -125,7 +127,9 @@ class ProductService
             $createdTo,
             $updatedFrom,
             $updatedTo,
-            $statuses
+            $statuses,
+            $includeArchived,
+            $onlyArchived
         );
     }
 

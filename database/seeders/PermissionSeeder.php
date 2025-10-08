@@ -22,6 +22,8 @@ class PermissionSeeder extends Seeder
             'products.create',
             'products.update',
             'products.delete',
+            'products.restore', // Phase 11: Restore archived products
+            'products.delete.permanent', // Phase 11: Permanently delete archived products
             'products.export',
             'products.import',
             
@@ -123,7 +125,7 @@ class PermissionSeeder extends Seeder
             }
 
             $managerRole->givePermissionTo([
-                'products.view', 'products.create', 'products.update', 'products.export', 'products.import',
+                'products.view', 'products.create', 'products.update', 'products.restore', 'products.export', 'products.import',
                 'inventory.adjust', 'products.stock.adjust',
                 'orders.view', 'orders.create',
                 'customers.view', 'customers.create', 'customers.update',

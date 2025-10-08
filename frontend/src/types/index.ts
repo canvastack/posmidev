@@ -84,6 +84,9 @@ export interface Product {
   price_with_tax?: number; // Calculated
   tax_amount?: number; // Calculated
   tags?: ProductTag[]; // Array of tags
+  
+  // Phase 11: Archive & Soft Delete
+  deleted_at?: string | null; // Soft delete timestamp
 }
 
 export interface Category {
