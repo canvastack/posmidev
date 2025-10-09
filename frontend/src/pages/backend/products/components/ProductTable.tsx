@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { getImageUrl } from '@/utils/imageHelpers';
 import { PencilIcon, TrashIcon, ClockIcon, EyeIcon, ArrowUpIcon, ArrowDownIcon, DocumentDuplicateIcon } from '@heroicons/react/24/outline';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ArchiveBoxIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { BarcodeGenerateButton } from '@/components/domain/products/BarcodeGenerateButton';
 import type { Product } from '@/types';
 
@@ -31,6 +31,12 @@ interface ProductTableProps {
   hasDeletePermission: boolean;
   hasCreatePermission?: boolean;
   hasViewPermission?: boolean;
+  // Phase 11: Archive & Soft Delete
+  onArchive?: (product: Product) => void;
+  onRestore?: (product: Product) => void;
+  onPermanentDelete?: (product: Product) => void;
+  hasRestorePermission?: boolean;
+  hasPermanentDeletePermission?: boolean;
 }
 
 const formatCurrency = (value: number): string => {
@@ -72,6 +78,12 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   hasDeletePermission,
   hasCreatePermission = false,
   hasViewPermission = true,
+  // Phase 11: Archive & Soft Delete
+  onArchive,
+  onRestore,
+  onPermanentDelete,
+  hasRestorePermission = false,
+  hasPermanentDeletePermission = false,
 }) => {
   const navigate = useNavigate();
   const renderSortIcon = (field: string) => {
@@ -222,7 +234,15 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               {isColumnVisible('name') && (
                 <TableCell>
                   <div>
-                    <div className="font-medium">{product.name}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{product.name}</span>
+                      {/* Phase 11: Archived Badge */}
+                      {product.deleted_at && (
+                        <Badge variant="outline" className="bg-warning-50 text-warning-700 border-warning-200 dark:bg-warning-900/20 dark:text-warning-400 dark:border-warning-800">
+                          Archived
+                        </Badge>
+                      )}
+                    </div>
                     {product.description && (
                       <div className="text-sm text-muted-foreground truncate max-w-xs">
                         {product.description}
@@ -411,16 +431,47 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                         </Button>
                       </>
                     )}
-                    {hasDeletePermission && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onDelete(product.id)}
-                        disabled={deleting === product.id}
-                        title="Delete Product"
-                      >
-                        <TrashIcon className="h-4 w-4 text-danger" />
-                      </Button>
+                    {/* Phase 11: Archive & Soft Delete Actions */}
+                    {!product.deleted_at ? (
+                      // Active product: Show Archive button (replaces Delete)
+                      hasDeletePermission && onArchive && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onArchive(product)}
+                          disabled={deleting === product.id}
+                          title="Archive Product"
+                        >
+                          <ArchiveBoxIcon className="h-4 w-4 text-warning" />
+                        </Button>
+                      )
+                    ) : (
+                      // Archived product: Show Restore and Permanent Delete buttons
+                      <>
+                        {hasRestorePermission && onRestore && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onRestore(product)}
+                            disabled={deleting === product.id}
+                            title="Restore Product"
+                            className="text-success hover:text-success"
+                          >
+                            <ArrowPathIcon className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {hasPermanentDeletePermission && onPermanentDelete && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onPermanentDelete(product)}
+                            disabled={deleting === product.id}
+                            title="Delete Permanently"
+                          >
+                            <TrashIcon className="h-4 w-4 text-danger" />
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 </TableCell>
