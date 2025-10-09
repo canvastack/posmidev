@@ -229,6 +229,8 @@ export default function ProductsPage() {
     updatedFrom,
     updatedTo,
     selectedStatuses,
+    showArchived,
+    onlyArchived,
     toast,
   ]);
 
