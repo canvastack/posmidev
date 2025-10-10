@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Src\Pms\Infrastructure\Models\Supplier;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class SupplierController extends Controller
 {
@@ -76,6 +78,9 @@ class SupplierController extends Controller
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'location_address' => 'nullable|string|max:500',
             'status' => 'nullable|in:active,inactive',
             'notes' => 'nullable|string',
         ]);
@@ -154,6 +159,9 @@ class SupplierController extends Controller
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:50',
             'address' => 'nullable|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'location_address' => 'nullable|string|max:500',
             'status' => 'sometimes|in:active,inactive',
             'notes' => 'nullable|string',
         ]);
@@ -242,5 +250,125 @@ class SupplierController extends Controller
         $products = $query->with('category')->paginate($perPage);
 
         return response()->json($products);
+    }
+
+    /**
+     * Upload image for supplier
+     * 
+     * POST /api/v1/tenants/{tenantId}/suppliers/{supplierId}/upload-image
+     * Permission: suppliers.manage (or products.update)
+     */
+    public function uploadImage(Request $request, string $tenantId, string $supplierId): JsonResponse
+    {
+        $supplier = Supplier::where('tenant_id', $tenantId)
+            ->where('id', $supplierId)
+            ->firstOrFail();
+
+        // Check permission
+        if (!Gate::allows('update', [$supplier, $tenantId])) {
+            return response()->json([
+                'message' => 'Unauthorized. You do not have permission to update this supplier.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
+        ]);
+
+        try {
+            $image = $request->file('image');
+            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            // Save original image
+            $path = "suppliers/{$tenantId}/{$filename}";
+            Storage::disk('public')->put($path, file_get_contents($image));
+            $imageUrl = Storage::disk('public')->url($path);
+
+            // Create thumbnail (300x300)
+            $thumbnailFilename = Str::uuid() . '_thumb.' . $image->getClientOriginalExtension();
+            $thumbnailPath = "suppliers/{$tenantId}/{$thumbnailFilename}";
+            
+            $thumbnail = Image::make($image)->fit(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->encode();
+            
+            Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+            $thumbnailUrl = Storage::disk('public')->url($thumbnailPath);
+
+            // Delete old images if exist
+            if ($supplier->image_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($supplier->image_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($supplier->image_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($supplier->image_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update supplier
+            $supplier->update([
+                'image_url' => $imageUrl,
+                'image_thumb_url' => $thumbnailUrl,
+            ]);
+
+            return response()->json([
+                'message' => 'Image uploaded successfully.',
+                'image_url' => $imageUrl,
+                'image_thumb_url' => $thumbnailUrl,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload image.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete supplier image
+     * 
+     * DELETE /api/v1/tenants/{tenantId}/suppliers/{supplierId}/image
+     * Permission: suppliers.manage (or products.update)
+     */
+    public function deleteImage(string $tenantId, string $supplierId): JsonResponse
+    {
+        $supplier = Supplier::where('tenant_id', $tenantId)
+            ->where('id', $supplierId)
+            ->firstOrFail();
+
+        // Check permission
+        if (!Gate::allows('update', [$supplier, $tenantId])) {
+            return response()->json([
+                'message' => 'Unauthorized. You do not have permission to update this supplier.',
+            ], 403);
+        }
+
+        try {
+            // Delete images from storage
+            if ($supplier->image_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($supplier->image_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($supplier->image_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($supplier->image_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update supplier
+            $supplier->update([
+                'image_url' => null,
+                'image_thumb_url' => null,
+            ]);
+
+            return response()->json([
+                'message' => 'Image deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete image.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

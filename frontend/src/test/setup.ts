@@ -58,6 +58,14 @@ global.ResizeObserver = class ResizeObserver {
 // Mock scrollTo
 window.scrollTo = vi.fn();
 
+// Mock PointerCapture APIs for Radix UI components
+if (typeof Element !== 'undefined') {
+  Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+  Element.prototype.setPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+}
+
 // Suppress console errors in tests (optional, comment out if you want to see them)
 // global.console.error = vi.fn();
 // global.console.warn = vi.fn();

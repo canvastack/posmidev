@@ -22,14 +22,14 @@ return new class extends Migration
             $table->uuid('reference_id')->nullable(); // FK to order/adjustment
             $table->string('reference_type')->nullable(); // Order, StockAdjustment, etc.
             $table->text('notes')->nullable();
-            $table->uuid('changed_by');
+            $table->uuid('changed_by')->nullable(); // Make nullable for seeding/system changes
             $table->timestamp('changed_at');
             $table->timestamps();
 
             // Foreign keys
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('changed_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('changed_by')->references('id')->on('users')->onDelete('set null');
 
             // Indexes
             $table->index(['tenant_id', 'product_id']);

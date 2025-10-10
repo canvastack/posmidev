@@ -236,8 +236,24 @@ class ProductPermissionsTest extends TestCase
     /** @test */
     public function admin_can_delete_product()
     {
+        // Debug logging untuk memvalidasi asumsi
+        \Log::info('ProductPermissionsTest Debug - Admin Delete Product', [
+            'product_id' => $this->product->id,
+            'product_name' => $this->product->name,
+            'product_tenant_id' => $this->product->tenant_id,
+            'user_id' => $this->adminUser->id,
+            'user_tenant_id' => $this->adminUser->tenant_id,
+            'timestamp' => now()->toISOString()
+        ]);
+
         $response = $this->actingAs($this->adminUser, 'api')
             ->deleteJson("/api/v1/tenants/{$this->tenant->id}/products/{$this->product->id}");
+
+        \Log::info('ProductPermissionsTest Debug - Delete Response', [
+            'status_code' => $response->getStatusCode(),
+            'response_content' => $response->getContent(),
+            'timestamp' => now()->toISOString()
+        ]);
 
         $response->assertOk();
 

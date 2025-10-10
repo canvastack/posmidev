@@ -15,7 +15,7 @@ class PermissionSeeder extends Seeder
 
         $guard = 'api';
 
-        // Create permissions (idempotent, guard-aware)
+        // Define permission list (will be created per-tenant)
         $permissions = [
             // Product permissions
             'products.view',
@@ -90,37 +90,69 @@ class PermissionSeeder extends Seeder
             'customers.attributes.view',
             'customers.attributes.update',
 
+            // BOM Engine - Material permissions
+            'materials.view',
+            'materials.create',
+            'materials.update',
+            'materials.delete',
+            'materials.adjust_stock',
+            'materials.export',
+            'materials.import',
+            
+            // BOM Engine - Recipe permissions
+            'recipes.view',
+            'recipes.create',
+            'recipes.update',
+            'recipes.delete',
+            'recipes.activate',
+            'recipes.manage_components',
+            
+            // BOM Engine - Calculation permissions
+            'bom.calculate',
+            'bom.batch_plan',
+            'bom.capacity_forecast',
+            
+            // BOM Engine - Analytics & Reporting permissions
+            'bom.analytics.view',
+            'bom.alerts.view',
+            'bom.reports.view',
+            'bom.reports.export',
+
             // Testing/Diagnostics
             'testing.access',
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::findOrCreate($permission, $guard);
-        }
-
-        // Create roles and assign permissions (guard-aware)
-        // Assign permissions to 'admin' per tenant with HQ-specific exclusion for tenants.view
-        $allPerms = Permission::where('guard_name', $guard)->pluck('name')->all();
-        $allButTenantsView = array_values(array_diff($allPerms, ['tenants.view']));
         $hqTenantId = (string) config('tenancy.hq_tenant_id');
 
-        // Create roles for each tenant context (no global roles)
-        // Get all tenants to create roles for each
+        // 🔒 RULE COMPLIANCE: NO GLOBAL PERMISSIONS!
+        // Create permissions and roles ONLY within tenant context
+        // Get all tenants to create permissions/roles for each
         $tenants = \Src\Pms\Infrastructure\Models\Tenant::all();
 
         foreach ($tenants as $tenant) {
-            // Set tenant context for Spatie
+            // ✅ Set tenant context for Spatie (REQUIRED for tenant-scoped permissions)
             app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId((string) $tenant->id);
 
-            // Create roles within tenant context
+            // ✅ Create permissions within tenant context (tenant-scoped)
+            foreach ($permissions as $permission) {
+                Permission::findOrCreate($permission, $guard);
+            }
+
+            // ✅ Get all permissions for this tenant
+            $allPerms = Permission::where('guard_name', $guard)->pluck('name')->all();
+            $allButTenantsView = array_values(array_diff($allPerms, ['tenants.view']));
+
+            // ✅ Create roles within tenant context (tenant-scoped)
             $adminRole = Role::findOrCreate('admin', $guard);
             $managerRole = Role::findOrCreate('manager', $guard);
             $cashierRole = Role::findOrCreate('cashier', $guard);
 
             // Apply permissions based on tenant type
             if ((string) $tenant->id === $hqTenantId) {
-                $adminRole->syncPermissions($allButTenantsView);
+                // HQ admin gets all permissions (tenants.view handled via Gate::before)
+                $adminRole->syncPermissions($allPerms);
             } else {
+                // Non-HQ admin gets all permissions
                 $adminRole->syncPermissions($allPerms);
             }
 
@@ -133,16 +165,25 @@ class PermissionSeeder extends Seeder
                 'content.view', 'content.create', 'content.update', // manage content pages
                 'reports.view', 'reports.export',
                 'users.view', 'users.update', // manage users under tenant
+                // BOM Engine permissions for managers
+                'materials.view', 'materials.create', 'materials.update', 'materials.adjust_stock', 'materials.export', 'materials.import',
+                'recipes.view', 'recipes.create', 'recipes.update', 'recipes.activate', 'recipes.manage_components',
+                'bom.calculate', 'bom.batch_plan', 'bom.capacity_forecast',
+                'bom.analytics.view', 'bom.alerts.view', 'bom.reports.view', 'bom.reports.export',
             ]);
 
             $cashierRole->givePermissionTo([
                 'products.view',
                 'orders.view', 'orders.create',
                 'customers.view', 'customers.create',
+                // BOM Engine view permissions for cashiers
+                'materials.view',
+                'recipes.view',
+                'bom.calculate',
             ]);
         }
 
-        // Clear tenant context after processing
-        app(\Spatie\Permission\PermissionRegistrar::class)->setPermissionsTeamId(null);
+        // ✅ IMPORTANT: Keep tenant context active for subsequent seeders
+        // Do NOT set to null - let SystemTenantSeeder/DummyDataSeeder handle their own context
     }
 }

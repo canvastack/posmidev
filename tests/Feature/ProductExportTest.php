@@ -147,8 +147,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_search_filter()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create products with different names
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -169,14 +167,14 @@ class ProductExportTest extends TestCase
         ]);
 
         // Export with search filter
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=Apple");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=Apple", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should only export 2 products containing "Apple"
         $this->assertEquals(2, $dataLines);
     }
@@ -184,8 +182,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_category_filter()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create categories
         $category1 = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -209,14 +205,14 @@ class ProductExportTest extends TestCase
         ]);
 
         // Export with category filter
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&category_id={$category1->id}");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&category_id={$category1->id}", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should only export 3 products from category1
         $this->assertEquals(3, $dataLines);
     }
@@ -224,8 +220,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_stock_filter()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create products with different stock levels
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -243,14 +237,14 @@ class ProductExportTest extends TestCase
         ]);
 
         // Export only out of stock products
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&stock_filter=out_of_stock");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&stock_filter=out_of_stock", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should only export 1 out of stock product
         $this->assertEquals(1, $dataLines);
     }
@@ -258,8 +252,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_price_range_filter()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create products with different prices
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
@@ -277,14 +269,14 @@ class ProductExportTest extends TestCase
         ]);
 
         // Export products in price range 20-80
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&min_price=20&max_price=80");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&min_price=20&max_price=80", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should only export 1 product ($50)
         $this->assertEquals(1, $dataLines);
     }
@@ -292,8 +284,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_respects_multiple_filters_combined()
     {
-        $this->actingAs($this->user, 'api');
-
         $category = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Electronics',
@@ -326,14 +316,14 @@ class ProductExportTest extends TestCase
             'stock' => 50,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=Computer&category_id={$category->id}&min_price=100&stock_filter=in_stock");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=Computer&category_id={$category->id}&min_price=100&stock_filter=in_stock", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should only export 1 product that matches all filters
         $this->assertEquals(1, $dataLines);
     }
@@ -341,13 +331,11 @@ class ProductExportTest extends TestCase
     /** @test */
     public function manager_can_export_products()
     {
-        $this->actingAs($this->managerUser, 'api');
-
         Product::factory()->count(2)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
     }
@@ -355,13 +343,11 @@ class ProductExportTest extends TestCase
     /** @test */
     public function cashier_can_export_products_if_has_view_permission()
     {
-        $this->actingAs($this->cashierUser, 'api');
-
         Product::factory()->count(2)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
     }
@@ -369,15 +355,13 @@ class ProductExportTest extends TestCase
     /** @test */
     public function user_cannot_export_products_from_another_tenant()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create products for another tenant
         Product::factory()->count(3)->create([
             'tenant_id' => $this->otherTenant->id,
         ]);
 
         // Try to export another tenant's products
-        $response = $this->getJson("/api/v1/tenants/{$this->otherTenant->id}/products/export?format=xlsx");
+        $response = $this->getJson("/api/v1/tenants/{$this->otherTenant->id}/products/export?format=xlsx", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(403);
     }
@@ -397,14 +381,12 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_handles_large_dataset()
     {
-        $this->actingAs($this->user, 'api');
-
         // Create 500 products
         Product::factory()->count(500)->create([
             'tenant_id' => $this->tenant->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=xlsx", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
     }
@@ -437,22 +419,20 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_returns_empty_file_when_no_products_match_filters()
     {
-        $this->actingAs($this->user, 'api');
-
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Test Product',
         ]);
 
         // Search for non-existent product
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=NonExistentProduct");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv&search=NonExistentProduct", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
         $lines = explode("\n", trim($content));
         $dataLines = count(array_filter($lines, fn($line) => !empty(trim($line)))) - 1;
-        
+
         // Should have header but no data lines
         $this->assertEquals(0, $dataLines);
     }
@@ -460,8 +440,6 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_includes_category_name_in_export()
     {
-        $this->actingAs($this->user, 'api');
-
         $category = Category::factory()->create([
             'tenant_id' => $this->tenant->id,
             'name' => 'Electronics',
@@ -473,12 +451,12 @@ class ProductExportTest extends TestCase
             'category_id' => $category->id,
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
-        
+
         // Check if category name is included in the export
         $this->assertStringContainsString('Electronics', $content);
     }
@@ -486,20 +464,18 @@ class ProductExportTest extends TestCase
     /** @test */
     public function export_calculates_profit_margin_correctly()
     {
-        $this->actingAs($this->user, 'api');
-
         Product::factory()->create([
             'tenant_id' => $this->tenant->id,
             'price' => 100.00,
             'cost_price' => 60.00, // 40% profit margin
         ]);
 
-        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv");
+        $response = $this->getJson("/api/v1/tenants/{$this->tenant->id}/products/export?format=csv", $this->authenticatedRequest()['headers']);
 
         $response->assertStatus(200);
-        
+
         $content = $response->getContent();
-        
+
         // Check if profit margin is calculated (40%)
         $this->assertStringContainsString('40', $content);
     }

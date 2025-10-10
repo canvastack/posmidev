@@ -535,6 +535,24 @@ class ProductController extends Controller
         $minPrice = $request->get('min_price');
         $maxPrice = $request->get('max_price');
 
+        \Log::info('ProductController Export Debug', [
+            'tenant_id' => $tenantId,
+            'format' => $format,
+            'search' => $search,
+            'category_id' => $categoryId,
+            'stock_filter' => $stockFilter,
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
+            'user_id' => auth()->id()
+        ]);
+
+        // Check if products exist for this tenant
+        $productCount = \Src\Pms\Infrastructure\Models\Product::where('tenant_id', $tenantId)->count();
+        \Log::info('ProductController Export Product Count', [
+            'tenant_id' => $tenantId,
+            'product_count' => $productCount
+        ]);
+
         $export = new ProductsExport(
             $tenantId,
             $search,

@@ -59,8 +59,23 @@ class StockAdjustmentApiTest extends TestCase
     /** @test */
     public function it_returns_adjustment_reasons()
     {
+        // Debug logging untuk memvalidasi asumsi
+        \Log::info('StockAdjustmentApiTest Debug - Adjustment Reasons', [
+            'endpoint' => "/api/v1/tenants/{$this->tenant->id}/stock-adjustments/reasons",
+            'user_id' => $this->user->id,
+            'user_tenant_id' => $this->user->tenant_id,
+            'timestamp' => now()->toISOString()
+        ]);
+
         $response = $this->actingAs($this->user, 'api')
             ->getJson("/api/v1/tenants/{$this->tenant->id}/stock-adjustments/reasons");
+
+        \Log::info('StockAdjustmentApiTest Debug - Reasons Response', [
+            'status_code' => $response->getStatusCode(),
+            'response_content' => $response->getContent(),
+            'expected_status' => 200,
+            'timestamp' => now()->toISOString()
+        ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -74,7 +89,7 @@ class StockAdjustmentApiTest extends TestCase
 
         $reasons = $response->json();
         $this->assertGreaterThan(0, count($reasons));
-        
+
         // Check for specific reasons
         $reasonNames = collect($reasons)->pluck('name')->toArray();
         $this->assertContains('purchase', $reasonNames);

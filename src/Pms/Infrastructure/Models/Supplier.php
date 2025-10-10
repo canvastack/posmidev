@@ -21,12 +21,19 @@ class Supplier extends Model
         'email',
         'phone',
         'address',
+        'image_url',
+        'image_thumb_url',
+        'latitude',
+        'longitude',
+        'location_address',
         'status',
         'notes',
     ];
 
     protected $casts = [
         'tenant_id' => 'string',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     /**
@@ -68,5 +75,36 @@ class Supplier extends Model
     public function getProductsCountAttribute(): int
     {
         return $this->products()->count();
+    }
+
+    /**
+     * Check if supplier has location data
+     */
+    public function getHasLocationAttribute(): bool
+    {
+        return !is_null($this->latitude) && !is_null($this->longitude);
+    }
+
+    /**
+     * Check if supplier has image
+     */
+    public function getHasImageAttribute(): bool
+    {
+        return !is_null($this->image_url);
+    }
+
+    /**
+     * Get location coordinates as array
+     */
+    public function getLocationCoordinatesAttribute(): ?array
+    {
+        if (!$this->has_location) {
+            return null;
+        }
+
+        return [
+            'lat' => (float) $this->latitude,
+            'lng' => (float) $this->longitude,
+        ];
     }
 }

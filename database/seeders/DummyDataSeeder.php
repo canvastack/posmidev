@@ -447,6 +447,7 @@ class DummyDataSeeder extends Seeder
 
                 StockAdjustment::create([
                     'id' => (string) Str::uuid(),
+                    'tenant_id' => $tenant->id,
                     'product_id' => $product->id,
                     'user_id' => $superAdmin->id,
                     'quantity' => $qty,

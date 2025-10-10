@@ -5,19 +5,57 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useAuth } from '@/hooks/useAuth';
 import type { Order } from '@/types';
 import { EyeIcon } from '@heroicons/react/24/outline';
+import { orderApi } from '@/api/orderApi';
+import { useToast } from '@/hooks/use-toast';
 
 export default function OrdersPage() {
   const { tenantId } = useAuth();
-  const [orders] = useState<Order[]>([]);
+  const { toast } = useToast();
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 15,
+    total: 0,
+  });
 
   useEffect(() => {
-    // Note: The backend doesn't have a GET orders endpoint yet
-    // This is a placeholder for when it's implemented
-    setLoading(false);
+    if (tenantId) {
+      fetchOrders();
+    }
   }, [tenantId]);
+
+  const fetchOrders = async (page = 1) => {
+    if (!tenantId) return;
+    
+    setLoading(true);
+    try {
+      const response = await orderApi.getOrders(tenantId, {
+        per_page: pagination.per_page,
+        page,
+      });
+      
+      setOrders(response.data);
+      setPagination({
+        current_page: response.current_page,
+        last_page: response.last_page,
+        per_page: response.per_page,
+        total: response.total,
+      });
+    } catch (error: any) {
+      console.error('Failed to fetch orders:', error);
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to load orders',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -68,49 +106,81 @@ export default function OrdersPage() {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Payment</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {orders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">
-                      {order.invoice_number}
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(order.created_at)}
-                    </TableCell>
-                    <TableCell>
-                      {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                    </TableCell>
-                    <TableCell>
-                      {formatCurrency(order.total_amount)}
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        {order.payment_method}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => handleViewOrder(order)}
-                        className="text-primary-600 hover:text-primary-900"
-                      >
-                        <EyeIcon className="h-4 w-4" />
-                      </button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Invoice</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Items</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead>Payment</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orders.map((order) => (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium">
+                          {order.invoice_number}
+                        </TableCell>
+                        <TableCell>
+                          {formatDate(order.created_at)}
+                        </TableCell>
+                        <TableCell>
+                          {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(order.total_amount)}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                            {order.payment_method}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <button
+                            onClick={() => handleViewOrder(order)}
+                            className="text-primary-600 hover:text-primary-900"
+                          >
+                            <EyeIcon className="h-4 w-4" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              {/* Pagination */}
+              {pagination.last_page > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="text-sm text-gray-700">
+                    Showing {orders.length} of {pagination.total} orders
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => fetchOrders(pagination.current_page - 1)}
+                      disabled={pagination.current_page === 1}
+                      className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">
+                      Page {pagination.current_page} of {pagination.last_page}
+                    </span>
+                    <button
+                      onClick={() => fetchOrders(pagination.current_page + 1)}
+                      disabled={pagination.current_page === pagination.last_page}
+                      className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

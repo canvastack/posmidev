@@ -40,8 +40,38 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
      */
     public function collection()
     {
+        \Log::info('ProductsExport Debug', [
+            'tenant_id' => $this->tenantId,
+            'search' => $this->search,
+            'category_id' => $this->categoryId,
+            'stock_filter' => $this->stockFilter,
+            'min_price' => $this->minPrice,
+            'max_price' => $this->maxPrice
+        ]);
+
         $query = Product::where('tenant_id', $this->tenantId)
             ->with('category');
+
+        $baseCount = $query->count();
+        \Log::info('ProductsExport Query Base Count', [
+            'count' => $baseCount,
+            'tenant_id' => $this->tenantId
+        ]);
+
+        // Log sample products to verify data exists
+        $sampleProducts = $query->limit(3)->get();
+        \Log::info('ProductsExport Sample Products', [
+            'sample_count' => $sampleProducts->count(),
+            'sample_products' => $sampleProducts->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'tenant_id' => $product->tenant_id,
+                    'category_id' => $product->category_id
+                ];
+            })->toArray()
+        ]);
 
         // Apply filters (same as index method)
         if ($this->search) {
@@ -51,6 +81,10 @@ class ProductsExport implements FromCollection, WithHeadings, WithMapping, WithS
                     ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$searchTerm}%"])
                     ->orWhereRaw('LOWER(description) LIKE ?', ["%{$searchTerm}%"]);
             });
+            \Log::info('ProductsExport After Search Filter', [
+                'count' => $query->count(),
+                'search_term' => $this->search
+            ]);
         }
 
         if ($this->categoryId) {

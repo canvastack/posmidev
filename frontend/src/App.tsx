@@ -7,6 +7,7 @@ import { ThemeProvider } from './hooks/useTheme'
 import { QueryProvider } from './providers/QueryProvider'
 import { Toaster } from './components/ui/toaster'
 import { ErrorBoundary } from './components/shared/ErrorBoundary'
+import { PageLoadingFallback } from './components/shared/PageLoadingFallback'
 
 // Auth
 const LoginPage = lazy(() => import('./pages/frontend/auth/login'))
@@ -36,7 +37,13 @@ const SuppliersPage = lazy(() => import('./pages/backend/suppliers'))
 const ProductTagsPage = lazy(() => import('./pages/backend/product-tags'))
 
 // Phase 10: Analytics & Reporting
-const TenantAnalyticsDashboard = lazy(() => import('./pages/backend/analytics/TenantAnalyticsDashboard'))
+const TenantAnalyticsDashboard = lazy(() => import('./pages/backend/analytics'))
+
+// BOM Engine (Phase 1 MVP - Week 4)
+const MaterialsPage = lazy(() => import('./pages/backend/materials'))
+const RecipesPage = lazy(() => import('./pages/backend/recipes'))
+const RecipeDetailPage = lazy(() => import('./pages/backend/recipes/RecipeDetailPage'))
+const BOMDashboardPage = lazy(() => import('./pages/backend/bom-dashboard'))
 
 // Public (frontend) pages
 const HomePage = lazy(() => import('./pages/frontend/home'))
@@ -51,7 +58,7 @@ function App() {
         <ThemeProvider defaultTheme="system" storageKey="posmid-ui-theme">
           <Router>
             <Toaster />
-            <Suspense fallback={<div className="p-4">Loading...</div>}>
+            <Suspense fallback={<PageLoadingFallback />}>
               <Routes>
                 {/* Public/Frontend routes */}
                 <Route element={<FrontendLayout />}>
@@ -88,6 +95,11 @@ function App() {
                   <Route path="product-tags" element={<ProductTagsPage />} />
                   {/* Phase 10: Analytics & Reporting */}
                   <Route path="analytics" element={<TenantAnalyticsDashboard />} />
+                  {/* BOM Engine (Phase 1 MVP - Week 4) */}
+                  <Route path="bom-dashboard" element={<BOMDashboardPage />} />
+                  <Route path="materials" element={<MaterialsPage />} />
+                  <Route path="recipes" element={<RecipesPage />} />
+                  <Route path="recipes/:recipeId" element={<RecipeDetailPage />} />
                 </Route>
 
                 {/* Catch all → public home */}

@@ -3,6 +3,7 @@ node_modules/
 vendor/
 composer.lock
 .gitignores/
+.devs/
 devs/
 .zenc*/
 web/*example/

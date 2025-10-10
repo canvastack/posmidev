@@ -9,6 +9,18 @@ export const useAuth = () => {
   const isHq = hqEnv ? (user?.tenant_id === hqEnv) : (user?.roles?.includes('Super Admin') ?? false);
   const effectiveTenantId = isHq && selectedTenantId ? selectedTenantId : user?.tenant_id;
 
+  // Validasi tenant_id (only log when error occurs)
+  if (!effectiveTenantId && isAuthenticated) {
+    console.error('❌ useAuth Error: tenantId is null or undefined!', 
+      JSON.stringify({
+        user_tenant_id: user?.tenant_id,
+        selectedTenantId,
+        isHq,
+        hqEnv
+      })
+    );
+  }
+
   return {
     user,
     token,

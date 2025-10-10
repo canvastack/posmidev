@@ -32,9 +32,9 @@ class Order extends Model
         'tenant_id' => 'string',
         'user_id' => 'string',
         'customer_id' => 'string',
-        'total_amount' => 'decimal:2',
-        'amount_paid' => 'decimal:2',
-        'change_amount' => 'decimal:2',
+        'total_amount' => 'float', // Changed from decimal to float for proper JS number handling
+        'amount_paid' => 'float',  // Changed from decimal to float for proper JS number handling
+        'change_amount' => 'float', // Changed from decimal to float for proper JS number handling
     ];
 
     public function tenant(): BelongsTo

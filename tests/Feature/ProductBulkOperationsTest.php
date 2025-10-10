@@ -27,8 +27,11 @@ class ProductBulkOperationsTest extends TestCase
     {
         parent::setUp();
 
-        // Seed permissions
-        $this->seed(PermissionSeeder::class);
+        // Clear permission cache sebelum setup
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Buat permissions secara manual untuk test environment
+        $this->createTestPermissions();
 
         // Create test tenants
         $this->tenant = Tenant::factory()->create();
@@ -96,6 +99,48 @@ class ProductBulkOperationsTest extends TestCase
         app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
     }
 
+    private function createTestPermissions(): void
+    {
+        $permissions = [
+            // Product permissions
+            'products.view', 'products.create', 'products.update', 'products.delete',
+            'products.restore', 'products.delete.permanent', 'products.export', 'products.import',
+            // Inventory permissions
+            'inventory.adjust', 'products.stock.adjust',
+            // Order permissions
+            'orders.view', 'orders.create', 'orders.update', 'orders.delete',
+            // Category permissions
+            'categories.view', 'categories.create', 'categories.update', 'categories.delete',
+            // Customer permissions
+            'customers.view', 'customers.create', 'customers.update', 'customers.delete',
+            // Content pages permissions
+            'content.view', 'content.create', 'content.update', 'content.delete',
+            // User management permissions
+            'users.view', 'users.create', 'users.update', 'users.delete',
+            // Tenant management permissions
+            'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete',
+            'tenants.set-status', 'tenants.manage-auto-activation',
+            // Role management permissions
+            'roles.view', 'roles.create', 'roles.update', 'roles.delete',
+            // Report permissions
+            'reports.view', 'reports.export',
+            // Settings permissions
+            'settings.view', 'settings.update',
+            // EAV permissions
+            'blueprints.view', 'blueprints.create', 'blueprints.update',
+            'customers.attributes.view', 'customers.attributes.update',
+            // Testing/Diagnostics
+            'testing.access',
+        ];
+
+        foreach ($permissions as $permission) {
+            \Spatie\Permission\Models\Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'api',
+            ]);
+        }
+    }
+
     /** @test */
     public function admin_can_bulk_delete_products()
     {
@@ -117,9 +162,9 @@ class ProductBulkOperationsTest extends TestCase
             'requested_count' => 5,
         ]);
 
-        // Verify products were deleted
+        // Verify products were soft deleted
         foreach ($productIds as $id) {
-            $this->assertDatabaseMissing('products', ['id' => $id]);
+            $this->assertSoftDeleted('products', ['id' => $id]);
         }
     }
 
@@ -192,9 +237,9 @@ class ProductBulkOperationsTest extends TestCase
             'requested_count' => 6,
         ]);
 
-        // Verify only own products were deleted
+        // Verify only own products were soft deleted
         foreach ($ownProducts as $product) {
-            $this->assertDatabaseMissing('products', ['id' => $product->id]);
+            $this->assertSoftDeleted('products', ['id' => $product->id]);
         }
 
         // Verify other tenant's products were NOT deleted

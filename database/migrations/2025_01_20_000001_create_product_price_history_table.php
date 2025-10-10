@@ -19,14 +19,14 @@ return new class extends Migration
             $table->decimal('new_price', 15, 2);
             $table->decimal('old_cost_price', 15, 2)->nullable();
             $table->decimal('new_cost_price', 15, 2)->nullable();
-            $table->uuid('changed_by');
+            $table->uuid('changed_by')->nullable(); // Make nullable for seeding/system changes
             $table->timestamp('changed_at');
             $table->timestamps();
 
             // Foreign keys
             $table->foreign('tenant_id')->references('id')->on('tenants')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('changed_by')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('changed_by')->references('id')->on('users')->onDelete('set null');
 
             // Indexes
             $table->index(['tenant_id', 'product_id']);

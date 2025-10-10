@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -46,14 +47,17 @@ class Product extends Model
         'uom',
         'tax_rate',
         'tax_inclusive',
+        // BOM Engine fields
+        'inventory_management_type',
+        'active_recipe_id',
     ];
 
     protected $casts = [
         'id' => 'string',
         'tenant_id' => 'string',
         'category_id' => 'string',
-        'price' => 'decimal:2',
-        'cost_price' => 'decimal:2',
+        'price' => 'float', // Changed from decimal to float for proper JS number handling
+        'cost_price' => 'float', // Changed from decimal to float for proper JS number handling
         'stock' => 'integer',
         'status' => 'string',
         // Phase 5: Stock Management casts
@@ -67,8 +71,11 @@ class Product extends Model
         'manage_stock_by_variant' => 'boolean',
         // Phase 9: Additional Business Features casts
         'supplier_id' => 'string',
-        'tax_rate' => 'decimal:2',
+        'tax_rate' => 'float', // Changed from decimal to float for proper JS number handling
         'tax_inclusive' => 'boolean',
+        // BOM Engine casts
+        'inventory_management_type' => 'string',
+        'active_recipe_id' => 'string',
     ];
 
     protected $appends = ['image_url', 'thumbnail_url'];
@@ -215,6 +222,23 @@ class Product extends Model
             'id'
         )
             ->wherePivot('tenant_id', $this->tenant_id);
+    }
+
+    /**
+     * Product recipes relationship (BOM Engine - Phase 1)
+     */
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    /**
+     * Active recipe only (BOM Engine - Phase 1)
+     * Returns the single active recipe for this product
+     */
+    public function activeRecipe(): HasOne
+    {
+        return $this->hasOne(Recipe::class)->where('is_active', true);
     }
 
     // ========================================

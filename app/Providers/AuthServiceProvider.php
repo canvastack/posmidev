@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, StockAlert, User, Tenant, Customer, ContentPage, Supplier, ProductTag};
-use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, StockAlertPolicy, UserPolicy, TenantPolicy, CustomerPolicy, ContentPagePolicy, SupplierPolicy, ProductTagPolicy};
+use Src\Pms\Infrastructure\Models\{Product, Order, Category, StockAdjustment, StockAlert, User, Tenant, Customer, ContentPage, Supplier, ProductTag, Material, Recipe};
+use App\Policies\{ProductPolicy, OrderPolicy, CategoryPolicy, StockAdjustmentPolicy, StockAlertPolicy, UserPolicy, TenantPolicy, CustomerPolicy, ContentPagePolicy, SupplierPolicy, ProductTagPolicy, MaterialPolicy, RecipePolicy};
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -26,6 +26,8 @@ class AuthServiceProvider extends ServiceProvider
         ContentPage::class => ContentPagePolicy::class,
         Supplier::class => SupplierPolicy::class,
         ProductTag::class => ProductTagPolicy::class,
+        Material::class => MaterialPolicy::class,
+        Recipe::class => RecipePolicy::class,
         \App\Models\TestSubject::class => \App\Policies\TestPolicy::class,
     ];
 

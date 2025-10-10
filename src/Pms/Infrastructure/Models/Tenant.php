@@ -58,4 +58,22 @@ class Tenant extends Model
     {
         return $this->hasMany(Customer::class);
     }
+
+    /**
+     * BOM Engine relationships (Phase 1)
+     */
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class);
+    }
+
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    public function inventoryTransactions(): HasMany
+    {
+        return $this->hasMany(InventoryTransaction::class);
+    }
 }

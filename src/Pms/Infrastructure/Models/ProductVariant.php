@@ -57,9 +57,9 @@ class ProductVariant extends Model
         'product_id' => 'string',
         'attributes' => 'array', // JSONB
         'metadata' => 'array', // JSONB
-        'price' => 'decimal:2',
-        'cost_price' => 'decimal:2',
-        'price_modifier' => 'decimal:2',
+        'price' => 'float', // Changed from decimal to float for proper JS number handling
+        'cost_price' => 'float', // Changed from decimal to float for proper JS number handling
+        'price_modifier' => 'float', // Changed from decimal to float for proper JS number handling
         'stock' => 'integer',
         'reserved_stock' => 'integer',
         'reorder_point' => 'integer',

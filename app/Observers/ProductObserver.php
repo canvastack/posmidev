@@ -39,7 +39,7 @@ class ProductObserver
             'new_price' => $product->price,
             'old_cost_price' => $product->getOriginal('cost_price'),
             'new_cost_price' => $product->cost_price,
-            'changed_by' => auth()->id() ?? $product->tenant_id, // fallback to tenant_id if no auth
+            'changed_by' => auth()->id(), // nullable for system/seeder changes
             'changed_at' => now(),
         ]);
     }
@@ -60,7 +60,7 @@ class ProductObserver
             'new_stock' => $newStock,
             'change_amount' => $newStock - $oldStock,
             'change_type' => 'manual', // default for direct updates
-            'changed_by' => auth()->id() ?? $product->tenant_id, // fallback to tenant_id if no auth
+            'changed_by' => auth()->id(), // nullable for system/seeder changes
             'changed_at' => now(),
         ]);
     }

@@ -42,7 +42,16 @@ export function PopularSearchesTable({
     }).format(new Date(dateString));
   };
 
-  const getAvgResultsBadge = (avg: number) => {
+  const getAvgResultsBadge = (avg: number | undefined | null) => {
+    // Handle undefined or null
+    if (avg === undefined || avg === null) {
+      return (
+        <Badge variant="secondary" className="bg-muted/50 text-muted-foreground">
+          N/A
+        </Badge>
+      );
+    }
+    
     if (avg === 0) {
       return (
         <Badge variant="destructive" className="gap-1">

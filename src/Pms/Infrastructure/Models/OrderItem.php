@@ -28,8 +28,8 @@ class OrderItem extends Model
         'order_id' => 'string',
         'product_id' => 'string',
         'quantity' => 'integer',
-        'price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
+        'price' => 'float', // Changed from decimal to float for proper JS number handling
+        'subtotal' => 'float', // Changed from decimal to float for proper JS number handling
     ];
 
     public function order(): BelongsTo

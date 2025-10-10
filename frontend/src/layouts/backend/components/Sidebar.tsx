@@ -18,6 +18,9 @@ import {
   Building2,
   Tags,
   TrendingUp,
+  Factory,
+  ClipboardCheck,
+  PieChart,
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -30,6 +33,11 @@ const menuItems = [
   { icon: AlertTriangle, label: 'Stock Alerts', path: '/admin/stock-alerts' },
   { icon: TrendingUp, label: 'Analytics', path: '/admin/analytics' },
   { icon: ClipboardList, label: 'Orders', path: '/admin/orders' },
+  // BOM Engine
+  { icon: PieChart, label: 'BOM Dashboard', path: '/admin/bom-dashboard', highlight: true },
+  { icon: Factory, label: 'Materials', path: '/admin/materials' },
+  { icon: ClipboardCheck, label: 'Recipes', path: '/admin/recipes' },
+  // Users & Settings
   { icon: IdCard, label: 'Users', path: '/admin/users' },
   { icon: BrainCircuit, label: 'Roles', path: '/admin/roles' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },

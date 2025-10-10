@@ -170,9 +170,19 @@ class ProductImportTest extends TestCase
             'file' => $csv,
         ]);
 
+        // Debug logging untuk memvalidasi asumsi
+        \Log::info('ProductImportTest Debug - Required Fields Validation', [
+            'status_code' => $response->getStatusCode(),
+            'response_content' => $response->getContent(),
+            'expected_status' => 200,
+            'actual_status' => $response->getStatusCode(),
+            'total_errors' => $response->json('total_errors') ?? 0,
+            'timestamp' => now()->toISOString()
+        ]);
+
         $response->assertStatus(200);
         $this->assertGreaterThan(0, $response->json('total_errors'));
-        
+
         // No products should be imported due to validation errors
         $this->assertEquals(0, Product::where('tenant_id', $this->tenant->id)->count());
     }

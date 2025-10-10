@@ -1,0 +1,1932 @@
+﻿openapi: 3.0.3
+info:
+  title: BOM Engine API - End-to-End Specification
+  description: |
+    Complete Bill of Materials (BOM) Engine API specification for POSMID system.
+    
+    **IMMUTABLE RULES COMPLIANCE:**
+    - ✅ Teams enabled: TRUE
+    - ✅ team_foreign_key: tenant_id (UUID)
+    - ✅ guard_name: api
+    - ✅ model_morph_key: model_uuid (UUID string)
+    - ✅ All roles & permissions: Strictly tenant-scoped
+    - ❌ NO global roles (NULL tenant_id)
+    
+    **TENANT ISOLATION:**
+    - All endpoints prefixed with /tenants/{tenantId}
+    - All database queries filtered by tenant_id
+    - HQ Super Admin (tenant_id: 11111111-1111-1111-1111-111111111111) has cross-tenant access via Gate::before
+    
+    **AUTHENTICATION:**
+    - Uses Laravel Sanctum bearer tokens
+    - Guard name: 'api' for all permission checks
+    
+    **PHASE 1 MVP SCOPE:**
+    - Material Management (CRUD + Bulk Operations)
+    - Recipe Management (CRUD with Components)
+    - Stock Calculation (Real-time BOM Explosion)
+    - Inventory Transactions (Audit Trail)
+    - Reorder Alert Configuration
+  version: 1.0.0
+  contact:
+    name: POSMID Development Team
+    email: dev@posmid.example.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local Development
+  - url: https://api.posmid.example.com/api/v1
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Materials
+    description: Raw material and component material management
+  - name: Recipes
+    description: Recipe (BOM) management with multi-material composition
+  - name: Recipe Components
+    description: Manage materials within recipes
+  - name: Stock Calculation
+    description: Real-time available quantity calculation based on BOM
+  - name: Inventory Transactions
+    description: Audit trail for material stock movements
+  - name: Reorder Alerts
+    description: Low stock alert configuration for materials
+
+paths:
+  # ==================== MATERIALS ====================
+  /tenants/{tenantId}/materials:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    get:
+      tags: [Materials]
+      summary: List all materials
+      description: |
+        Retrieve paginated list of materials for the tenant.
+        
+        **Required Permission:** `materials.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: listMaterials
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: search
+          in: query
+          description: Search by name, SKU, or description
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+        - name: unit
+          in: query
+          description: Filter by unit of measurement
+          schema:
+            type: string
+            enum: [kg, g, L, ml, pcs, box, bottle, can, bag]
+        - name: low_stock
+          in: query
+          description: Filter materials below reorder level
+          schema:
+            type: boolean
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, sku, stock_quantity, unit_cost, created_at]
+            default: name
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Material'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      tags: [Materials]
+      summary: Create new material
+      description: |
+        Create a new material for the tenant.
+        
+        **Required Permission:** `materials.create`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: createMaterial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialCreateRequest'
+            examples:
+              flour:
+                summary: Flour ingredient
+                value:
+                  name: "All-Purpose Flour"
+                  sku: "ING-FLOUR-001"
+                  description: "Premium all-purpose flour for baking"
+                  category: "Dry Goods"
+                  unit: "kg"
+                  stock_quantity: 100.5
+                  reorder_level: 20.0
+                  unit_cost: 15000
+                  supplier: "ABC Supplies"
+              tomato:
+                summary: Fresh tomato
+                value:
+                  name: "Fresh Tomatoes"
+                  sku: "ING-VEG-002"
+                  category: "Vegetables"
+                  unit: "kg"
+                  stock_quantity: 50.0
+                  reorder_level: 10.0
+                  unit_cost: 8000
+      responses:
+        '201':
+          description: Material created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Material created successfully"
+                  data:
+                    $ref: '#/components/schemas/Material'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /tenants/{tenantId}/materials/{materialId}:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: materialId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    get:
+      tags: [Materials]
+      summary: Get material details
+      description: |
+        Retrieve detailed information about a specific material.
+        
+        **Required Permission:** `materials.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: getMaterial
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MaterialDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      tags: [Materials]
+      summary: Update material
+      description: |
+        Update an existing material.
+        
+        **Required Permission:** `materials.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: updateMaterial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialUpdateRequest'
+      responses:
+        '200':
+          description: Material updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Material updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Material'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    
+    delete:
+      tags: [Materials]
+      summary: Delete material
+      description: |
+        Soft delete a material. Cannot delete if used in active recipes.
+        
+        **Required Permission:** `materials.delete`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: deleteMaterial
+      responses:
+        '200':
+          description: Material deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Material deleted successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - material used in active recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cannot Delete material: currently used in 3 active recipes"
+                  recipes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+
+  /tenants/{tenantId}/materials/bulk:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    post:
+      tags: [Materials]
+      summary: Bulk create materials
+      description: |
+        Create multiple materials in a single request.
+        
+        **Required Permission:** `materials.create`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: bulkCreateMaterials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                materials:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MaterialCreateRequest'
+                  minItems: 1
+                  maxItems: 100
+      responses:
+        '201':
+          description: Bulk creation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Bulk material creation completed"
+                  summary:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      success:
+                        type: integer
+                      failed:
+                        type: integer
+                  data:
+                    type: object
+                    properties:
+                      created:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Material'
+                      errors:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            index:
+                              type: integer
+                            name:
+                              type: string
+                            error:
+                              type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /tenants/{tenantId}/materials/{materialId}/adjust-stock:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: materialId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    post:
+      tags: [Materials]
+      summary: Adjust material stock
+      description: |
+        Adjust material stock quantity with reason and audit trail.
+        
+        **Required Permission:** `materials.adjust-stock`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: adjustMaterialStock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - adjustment_type
+                - quantity
+                - reason
+              properties:
+                adjustment_type:
+                  type: string
+                  enum: [add, subtract, set]
+                  description: |
+                    - add: Increase stock (e.g., new purchase)
+                    - subtract: Decrease stock (e.g., waste, damage)
+                    - set: Set absolute value (e.g., after physical count)
+                quantity:
+                  type: number
+                  format: float
+                  minimum: 0
+                reason:
+                  type: string
+                  enum: [purchase, waste, damage, count_adjustment, production, other]
+                notes:
+                  type: string
+                  maxLength: 500
+              example:
+                adjustment_type: "add"
+                quantity: 50.0
+                reason: "purchase"
+                notes: "Restocked from ABC Supplies - Invoice #INV-2024-001"
+      responses:
+        '200':
+          description: Stock adjusted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Stock adjusted successfully"
+                  data:
+                    type: object
+                    properties:
+                      material:
+                        $ref: '#/components/schemas/Material'
+                      transaction:
+                        $ref: '#/components/schemas/InventoryTransaction'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== RECIPES ====================
+  /tenants/{tenantId}/recipes:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    get:
+      tags: [Recipes]
+      summary: List all recipes
+      description: |
+        Retrieve paginated list of recipes (BOMs) for the tenant.
+        
+        **Required Permission:** `recipes.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: listRecipes
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: search
+          in: query
+          description: Search by name or product name
+          schema:
+            type: string
+        - name: product_id
+          in: query
+          description: Filter by product ID
+          schema:
+            type: string
+            format: uuid
+        - name: is_active
+          in: query
+          description: Filter by active status
+          schema:
+            type: boolean
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, created_at, updated_at]
+            default: name
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Recipe'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    
+    post:
+      tags: [Recipes]
+      summary: Create new recipe
+      description: |
+        Create a new recipe (BOM) with materials.
+        
+        **Required Permission:** `recipes.create`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: createRecipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreateRequest'
+            examples:
+              pizza:
+                summary: Pizza Margherita Recipe
+                value:
+                  product_id: "550e8400-e29b-41d4-a716-446655440001"
+                  name: "Pizza Margherita - Standard Recipe"
+                  description: "Classic Margherita pizza with fresh ingredients"
+                  yield_quantity: 1
+                  yield_unit: "pcs"
+                  is_active: true
+                  notes: "Pre-heat oven to 250°C"
+                  components:
+                    - material_id: "660e8400-e29b-41d4-a716-446655440001"
+                      quantity_required: 0.3
+                      unit: "kg"
+                      waste_percentage: 5
+                      notes: "Pizza dough"
+                    - material_id: "660e8400-e29b-41d4-a716-446655440002"
+                      quantity_required: 0.1
+                      unit: "L"
+                      waste_percentage: 0
+                      notes: "Tomato sauce"
+                    - material_id: "660e8400-e29b-41d4-a716-446655440003"
+                      quantity_required: 0.2
+                      unit: "kg"
+                      waste_percentage: 10
+                      notes: "Mozzarella cheese"
+      responses:
+        '201':
+          description: Recipe created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe created successfully"
+                  data:
+                    $ref: '#/components/schemas/RecipeDetailed'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /tenants/{tenantId}/recipes/{recipeId}:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    get:
+      tags: [Recipes]
+      summary: Get recipe details
+      description: |
+        Retrieve detailed recipe information with all components.
+        
+        **Required Permission:** `recipes.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: getRecipe
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/RecipeDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    put:
+      tags: [Recipes]
+      summary: Update recipe
+      description: |
+        Update recipe details. Use separate endpoints to manage components.
+        
+        **Required Permission:** `recipes.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: updateRecipe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeUpdateRequest'
+      responses:
+        '200':
+          description: Recipe updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe updated successfully"
+                  data:
+                    $ref: '#/components/schemas/RecipeDetailed'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags: [Recipes]
+      summary: Delete recipe
+      description: |
+        Soft delete a recipe. Cannot delete if it's the active recipe for a product.
+        
+        **Required Permission:** `recipes.delete`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: deleteRecipe
+      responses:
+        '200':
+          description: Recipe deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe deleted successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - recipe is active for product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cannot delete recipe: it is the active recipe for product 'Pizza Margherita'"
+                  product:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+
+  /tenants/{tenantId}/recipes/{recipeId}/activate:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    post:
+      tags: [Recipes]
+      summary: Activate recipe for product
+      description: |
+        Set this recipe as the active BOM for its associated product.
+        Deactivates any other recipes for the same product.
+        
+        **Required Permission:** `recipes.manage`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: activateRecipe
+      responses:
+        '200':
+          description: Recipe activated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe activated successfully"
+                  data:
+                    $ref: '#/components/schemas/RecipeDetailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== RECIPE COMPONENTS ====================
+  /tenants/{tenantId}/recipes/{recipeId}/components:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    post:
+      tags: [Recipe Components]
+      summary: Add material to recipe
+      description: |
+        Add a material component to the recipe.
+        
+        **Required Permission:** `recipes.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: addRecipeComponent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeComponentRequest'
+      responses:
+        '201':
+          description: Component added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ingredient added to recipe successfully"
+                  data:
+                    $ref: '#/components/schemas/RecipeComponent'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict - material already in recipe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "This material is already in the recipe"
+
+  /tenants/{tenantId}/recipes/{recipeId}/components/{componentId}:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: recipeId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: componentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    put:
+      tags: [Recipe Components]
+      summary: Update recipe component
+      description: |
+        Update material quantity, waste percentage, or notes in recipe.
+        
+        **Required Permission:** `recipes.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: updateRecipeComponent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeComponentRequest'
+      responses:
+        '200':
+          description: Component updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Recipe component updated successfully"
+                  data:
+                    $ref: '#/components/schemas/RecipeComponent'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    delete:
+      tags: [Recipe Components]
+      summary: Remove material from recipe
+      description: |
+        Remove a material component from the recipe.
+        
+        **Required Permission:** `recipes.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: removeRecipeComponent
+      responses:
+        '200':
+          description: Component removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Ingredient removed from recipe successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== STOCK CALCULATION ====================
+  /tenants/{tenantId}/products/{productId}/available-quantity:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    get:
+      tags: [Stock Calculation]
+      summary: Calculate available quantity for BOM-managed product
+      description: |
+        Real-time calculation of how many units can be produced based on material availability.
+        
+        **Algorithm:**
+        1. Get active recipe for product
+        2. For each material in recipe:
+           - Calculate: material_stock / (quantity_required * (1 + waste_percentage/100))
+           - Floor result to integer
+        3. Return minimum (bottleneck material)
+        
+        **Required Permission:** `products.view` OR `recipes.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+        **Performance:** Read-only, no database writes
+      operationId: calculateProductAvailability
+      responses:
+        '200':
+          description: Calculation successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/StockAvailability'
+              examples:
+                sufficient_stock:
+                  summary: Sufficient materials available
+                  value:
+                    data:
+                      product_id: "550e8400-e29b-41d4-a716-446655440001"
+                      product_name: "Pizza Margherita"
+                      available_quantity: 15
+                      recipe_id: "770e8400-e29b-41d4-a716-446655440001"
+                      recipe_name: "Pizza Margherita - Standard Recipe"
+                      bottleneck_material:
+                        material_id: "660e8400-e29b-41d4-a716-446655440003"
+                        material_name: "Mozzarella Cheese"
+                        current_stock: 3.5
+                        required_per_unit: 0.22
+                        can_produce: 15
+                      component_details:
+                        - material_id: "660e8400-e29b-41d4-a716-446655440001"
+                          material_name: "Pizza Dough"
+                          current_stock: 10.0
+                          required_per_unit: 0.315
+                          waste_percentage: 5
+                          can_produce: 31
+                        - material_id: "660e8400-e29b-41d4-a716-446655440002"
+                          material_name: "Tomato Sauce"
+                          current_stock: 5.0
+                          required_per_unit: 0.1
+                          waste_percentage: 0
+                          can_produce: 50
+                        - material_id: "660e8400-e29b-41d4-a716-446655440003"
+                          material_name: "Mozzarella Cheese"
+                          current_stock: 3.5
+                          required_per_unit: 0.22
+                          waste_percentage: 10
+                          can_produce: 15
+                low_stock:
+                  summary: Low stock scenario
+                  value:
+                    data:
+                      product_id: "550e8400-e29b-41d4-a716-446655440001"
+                      product_name: "Pizza Margherita"
+                      available_quantity: 0
+                      recipe_id: "770e8400-e29b-41d4-a716-446655440001"
+                      recipe_name: "Pizza Margherita - Standard Recipe"
+                      bottleneck_material:
+                        material_id: "660e8400-e29b-41d4-a716-446655440003"
+                        material_name: "Mozzarella Cheese"
+                        current_stock: 0.05
+                        required_per_unit: 0.22
+                        can_produce: 0
+                      component_details:
+                        - material_id: "660e8400-e29b-41d4-a716-446655440001"
+                          material_name: "Pizza Dough"
+                          current_stock: 10.0
+                          required_per_unit: 0.315
+                          waste_percentage: 5
+                          can_produce: 31
+                        - material_id: "660e8400-e29b-41d4-a716-446655440002"
+                          material_name: "Tomato Sauce"
+                          current_stock: 5.0
+                          required_per_unit: 0.1
+                          waste_percentage: 0
+                          can_produce: 50
+                        - material_id: "660e8400-e29b-41d4-a716-446655440003"
+                          material_name: "Mozzarella Cheese"
+                          current_stock: 0.05
+                          required_per_unit: 0.22
+                          waste_percentage: 10
+                          can_produce: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: Product not found or no active recipe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No active recipe found for this product"
+        '422':
+          description: Product not BOM-managed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Product inventory is not managed by BOM (inventory_management_type is not 'bom')"
+
+  /tenants/{tenantId}/products/bulk-availability:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    post:
+      tags: [Stock Calculation]
+      summary: Bulk calculate availability for multiple products
+      description: |
+        Calculate available quantity for multiple BOM-managed products in one request.
+        Useful for POS screens that display many products simultaneously.
+        
+        **Required Permission:** `products.view` OR `recipes.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+        **Performance:** Optimized with batch queries
+      operationId: bulkCalculateAvailability
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  minItems: 1
+                  maxItems: 100
+              example:
+                product_ids:
+                  - "550e8400-e29b-41d4-a716-446655440001"
+                  - "550e8400-e29b-41d4-a716-446655440002"
+                  - "550e8400-e29b-41d4-a716-446655440003"
+      responses:
+        '200':
+          description: Bulk calculation successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        product_id:
+                          type: string
+                          format: uuid
+                        product_name:
+                          type: string
+                        available_quantity:
+                          type: integer
+                          minimum: 0
+                        has_active_recipe:
+                          type: boolean
+                        is_bom_managed:
+                          type: boolean
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ==================== INVENTORY TRANSACTIONS ====================
+  /tenants/{tenantId}/materials/{materialId}/transactions:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: materialId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    get:
+      tags: [Inventory Transactions]
+      summary: Get material transaction history
+      description: |
+        Retrieve audit trail of all stock movements for an ingredient.
+        
+        **Required Permission:** `materials.view` OR `inventory.view-transactions`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: getMaterialTransactions
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: transaction_type
+          in: query
+          schema:
+            type: string
+            enum: [adjustment, deduction, restock]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryTransaction'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tenants/{tenantId}/inventory-transactions:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    get:
+      tags: [Inventory Transactions]
+      summary: Get all inventory transactions
+      description: |
+        Retrieve complete audit trail of inventory movements across all ingredients.
+        
+        **Required Permission:** `inventory.view-transactions`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: getAllTransactions
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: transaction_type
+          in: query
+          schema:
+            type: string
+            enum: [adjustment, deduction, restock]
+        - name: reason
+          in: query
+          schema:
+            type: string
+            enum: [purchase, waste, damage, count_adjustment, production, sale, other]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: user_id
+          in: query
+          description: Filter by user who performed transaction
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryTransaction'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ==================== REORDER ALERTS ====================
+  /tenants/{tenantId}/materials/low-stock:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+    
+    get:
+      tags: [Reorder Alerts]
+      summary: Get low stock ingredients
+      description: |
+        List all materials below their reorder level.
+        
+        **Required Permission:** `materials.view`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: getLowStockMaterials
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        material:
+                          $ref: '#/components/schemas/Material'
+                        stock_status:
+                          type: object
+                          properties:
+                            current_stock:
+                              type: number
+                              format: float
+                            reorder_level:
+                              type: number
+                              format: float
+                            deficit:
+                              type: number
+                              format: float
+                            percentage_remaining:
+                              type: number
+                              format: float
+                            urgency:
+                              type: string
+                              enum: [critical, low, medium]
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /tenants/{tenantId}/materials/{materialId}/reorder-config:
+    parameters:
+      - $ref: '#/components/parameters/TenantIdParam'
+      - name: materialId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    
+    put:
+      tags: [Reorder Alerts]
+      summary: Update reorder configuration
+      description: |
+        Update reorder level for an ingredient.
+        
+        **Required Permission:** `materials.update`
+        **Guard:** api
+        **Tenant-scoped:** YES
+      operationId: updateReorderConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reorder_level
+              properties:
+                reorder_level:
+                  type: number
+                  format: float
+                  minimum: 0
+              example:
+                reorder_level: 25.0
+      responses:
+        '200':
+          description: Reorder config updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Reorder configuration updated successfully"
+                  data:
+                    $ref: '#/components/schemas/Material'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Laravel Sanctum bearer token
+
+  parameters:
+    TenantIdParam:
+      name: tenantId
+      in: path
+      required: true
+      description: Tenant UUID for multi-tenancy isolation
+      schema:
+        type: string
+        format: uuid
+      example: "22222222-2222-2222-2222-222222222222"
+
+  schemas:
+    # ==================== INGREDIENT SCHEMAS ====================
+    material:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sku:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        unit:
+          type: string
+          enum: [kg, g, L, ml, pcs, box, bottle, can, bag]
+        stock_quantity:
+          type: number
+          format: float
+        reorder_level:
+          type: number
+          format: float
+        unit_cost:
+          type: number
+          format: float
+          description: Cost per unit in smallest currency (e.g., cents)
+        supplier:
+          type: string
+          nullable: true
+        is_low_stock:
+          type: boolean
+          description: True if stock_quantity < reorder_level
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    MaterialDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Material'
+        - type: object
+          properties:
+            usage_in_recipes:
+              type: array
+              items:
+                type: object
+                properties:
+                  recipe_id:
+                    type: string
+                    format: uuid
+                  recipe_name:
+                    type: string
+                  product_id:
+                    type: string
+                    format: uuid
+                  product_name:
+                    type: string
+                  quantity_required:
+                    type: number
+                    format: float
+                  is_active:
+                    type: boolean
+            recent_transactions:
+              type: array
+              items:
+                $ref: '#/components/schemas/InventoryTransaction'
+              description: Last 5 transactions
+    
+    MaterialCreateRequest:
+      type: object
+      required:
+        - name
+        - unit
+        - stock_quantity
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        sku:
+          type: string
+          maxLength: 100
+          nullable: true
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        category:
+          type: string
+          maxLength: 100
+          nullable: true
+        unit:
+          type: string
+          enum: [kg, g, L, ml, pcs, box, bottle, can, bag]
+        stock_quantity:
+          type: number
+          format: float
+          minimum: 0
+        reorder_level:
+          type: number
+          format: float
+          minimum: 0
+          default: 0
+        unit_cost:
+          type: number
+          format: float
+          minimum: 0
+          default: 0
+        supplier:
+          type: string
+          maxLength: 255
+          nullable: true
+    
+    MaterialUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        sku:
+          type: string
+          maxLength: 100
+          nullable: true
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        category:
+          type: string
+          maxLength: 100
+          nullable: true
+        unit:
+          type: string
+          enum: [kg, g, L, ml, pcs, box, bottle, can, bag]
+        reorder_level:
+          type: number
+          format: float
+          minimum: 0
+        unit_cost:
+          type: number
+          format: float
+          minimum: 0
+        supplier:
+          type: string
+          maxLength: 255
+          nullable: true
+
+    # ==================== RECIPE SCHEMAS ====================
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        product_name:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        yield_quantity:
+          type: number
+          format: float
+        yield_unit:
+          type: string
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        component_count:
+          type: integer
+          description: Number of materials in recipe
+        total_cost:
+          type: number
+          format: float
+          description: Sum of all component costs
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    RecipeDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Recipe'
+        - type: object
+          properties:
+            components:
+              type: array
+              items:
+                $ref: '#/components/schemas/RecipeComponent'
+    
+    RecipeCreateRequest:
+      type: object
+      required:
+        - product_id
+        - name
+        - yield_quantity
+        - yield_unit
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        yield_quantity:
+          type: number
+          format: float
+          minimum: 0.001
+        yield_unit:
+          type: string
+          enum: [pcs, kg, L, serving, batch]
+        is_active:
+          type: boolean
+          default: true
+        notes:
+          type: string
+          maxLength: 1000
+          nullable: true
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeComponentRequest'
+          minItems: 1
+    
+    RecipeUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1000
+          nullable: true
+        yield_quantity:
+          type: number
+          format: float
+          minimum: 0.001
+        yield_unit:
+          type: string
+          enum: [pcs, kg, L, serving, batch]
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          maxLength: 1000
+          nullable: true
+
+    # ==================== RECIPE COMPONENT SCHEMAS ====================
+    RecipeComponent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        recipe_id:
+          type: string
+          format: uuid
+        material_id:
+          type: string
+          format: uuid
+        material_name:
+          type: string
+        ingredient_sku:
+          type: string
+          nullable: true
+        ingredient_unit:
+          type: string
+        quantity_required:
+          type: number
+          format: float
+        unit:
+          type: string
+        waste_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          default: 0
+        effective_quantity:
+          type: number
+          format: float
+          description: quantity_required * (1 + waste_percentage/100)
+        unit_cost:
+          type: number
+          format: float
+        total_cost:
+          type: number
+          format: float
+          description: effective_quantity * unit_cost
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    RecipeComponentRequest:
+      type: object
+      required:
+        - material_id
+        - quantity_required
+        - unit
+      properties:
+        material_id:
+          type: string
+          format: uuid
+        quantity_required:
+          type: number
+          format: float
+          minimum: 0.001
+        unit:
+          type: string
+          enum: [kg, g, L, ml, pcs, box, bottle, can, bag]
+        waste_percentage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          default: 0
+        notes:
+          type: string
+          maxLength: 500
+          nullable: true
+
+    # ==================== STOCK CALCULATION SCHEMAS ====================
+    StockAvailability:
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        product_name:
+          type: string
+        available_quantity:
+          type: integer
+          minimum: 0
+          description: Maximum units that can be produced (bottleneck)
+        recipe_id:
+          type: string
+          format: uuid
+        recipe_name:
+          type: string
+        bottleneck_material:
+          type: object
+          properties:
+            material_id:
+              type: string
+              format: uuid
+            material_name:
+              type: string
+            current_stock:
+              type: number
+              format: float
+            required_per_unit:
+              type: number
+              format: float
+            can_produce:
+              type: integer
+        component_details:
+          type: array
+          items:
+            type: object
+            properties:
+              material_id:
+                type: string
+                format: uuid
+              material_name:
+                type: string
+              current_stock:
+                type: number
+                format: float
+              required_per_unit:
+                type: number
+                format: float
+                description: Includes waste percentage
+              waste_percentage:
+                type: number
+                format: float
+              can_produce:
+                type: integer
+                description: floor(current_stock / required_per_unit)
+
+    # ==================== INVENTORY TRANSACTION SCHEMAS ====================
+    InventoryTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        material_id:
+          type: string
+          format: uuid
+        material_name:
+          type: string
+        transaction_type:
+          type: string
+          enum: [adjustment, deduction, restock]
+        quantity_before:
+          type: number
+          format: float
+        quantity_change:
+          type: number
+          format: float
+          description: Positive for increases, negative for decreases
+        quantity_after:
+          type: number
+          format: float
+        reason:
+          type: string
+          enum: [purchase, waste, damage, count_adjustment, production, sale, other]
+        notes:
+          type: string
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        user_name:
+          type: string
+          nullable: true
+        reference_type:
+          type: string
+          nullable: true
+          description: Morph type (e.g., Order, StockAdjustment)
+        reference_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    # ==================== PAGINATION & ERRORS ====================
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        from:
+          type: integer
+          nullable: true
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        to:
+          type: integer
+          nullable: true
+        total:
+          type: integer
+    
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Unauthenticated."
+    
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "This action is unauthorized."
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Resource not found"
+    
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    
+    UnprocessableEntity:
+      description: Request cannot be processed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

@@ -18,7 +18,11 @@ trait TenantTestTrait
 
     protected function setUpTenantWithAdminUser(): void
     {
-        $this->seed(PermissionSeeder::class);
+        // Clear permission cache sebelum setup
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Buat permissions secara manual untuk test environment
+        $this->createTestPermissions();
 
         $this->tenant = Tenant::create([
             'id' => (string)\Ramsey\Uuid\Uuid::uuid4(),
@@ -45,6 +49,16 @@ trait TenantTestTrait
         // Set tenant context for permissions
         app(PermissionRegistrar::class)->setPermissionsTeamId($this->tenant->id);
 
+        // Debug logging untuk memvalidasi setup (hanya jika dalam development)
+        if (config('app.debug')) {
+            \Illuminate\Support\Facades\Log::info('TenantTestTrait Setup', [
+                'tenant_id' => $this->tenant->id,
+                'user_id' => $this->user->id,
+                'permissions_count' => \Spatie\Permission\Models\Permission::where('guard_name', 'api')->count(),
+                'user_permissions_count' => $this->user->getAllPermissions()->count(),
+            ]);
+        }
+
         // Create and assign admin role with all necessary permissions
         $adminRole = \App\Models\Role::firstOrCreate([
             'name' => 'admin',
@@ -63,11 +77,67 @@ trait TenantTestTrait
             'users.view', 'users.create', 'users.update', 'users.delete',
             'roles.view', 'roles.create', 'roles.update', 'roles.delete',
             'settings.view', 'settings.update', 'reports.view', 'reports.export',
-            'inventory.adjust', 'testing.access'
+            'inventory.adjust', 'testing.access',
+            // BOM Engine permissions
+            'materials.view', 'materials.create', 'materials.update', 'materials.delete',
+            'materials.adjust_stock', 'materials.export', 'materials.import',
+            'recipes.view', 'recipes.create', 'recipes.update', 'recipes.delete',
+            'recipes.activate', 'recipes.manage_components',
+            'bom.calculate', 'bom.batch_plan', 'bom.capacity_forecast',
+            'bom.analytics.view', 'bom.alerts.view', 'bom.reports.view', 'bom.reports.export'
         ]);
 
         // Create token for API authentication
         $this->token = $this->user->createToken('test-token')->plainTextToken;
+    }
+
+    private function createTestPermissions(): void
+    {
+        $permissions = [
+            // Product permissions
+            'products.view', 'products.create', 'products.update', 'products.delete',
+            'products.restore', 'products.delete.permanent', 'products.export', 'products.import',
+            // Inventory permissions
+            'inventory.adjust', 'products.stock.adjust',
+            // Order permissions
+            'orders.view', 'orders.create', 'orders.update', 'orders.delete',
+            // Category permissions
+            'categories.view', 'categories.create', 'categories.update', 'categories.delete',
+            // Customer permissions
+            'customers.view', 'customers.create', 'customers.update', 'customers.delete',
+            // Content pages permissions
+            'content.view', 'content.create', 'content.update', 'content.delete',
+            // User management permissions
+            'users.view', 'users.create', 'users.update', 'users.delete',
+            // Tenant management permissions
+            'tenants.view', 'tenants.create', 'tenants.update', 'tenants.delete',
+            'tenants.set-status', 'tenants.manage-auto-activation',
+            // Role management permissions
+            'roles.view', 'roles.create', 'roles.update', 'roles.delete',
+            // Report permissions
+            'reports.view', 'reports.export',
+            // Settings permissions
+            'settings.view', 'settings.update',
+            // EAV permissions
+            'blueprints.view', 'blueprints.create', 'blueprints.update',
+            'customers.attributes.view', 'customers.attributes.update',
+            // BOM Engine permissions
+            'materials.view', 'materials.create', 'materials.update', 'materials.delete',
+            'materials.adjust_stock', 'materials.export', 'materials.import',
+            'recipes.view', 'recipes.create', 'recipes.update', 'recipes.delete',
+            'recipes.activate', 'recipes.manage_components',
+            'bom.calculate', 'bom.batch_plan', 'bom.capacity_forecast',
+            'bom.analytics.view', 'bom.alerts.view', 'bom.reports.view', 'bom.reports.export',
+            // Testing/Diagnostics
+            'testing.access',
+        ];
+
+        foreach ($permissions as $permission) {
+            \Spatie\Permission\Models\Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'api',
+            ]);
+        }
     }
 
     protected function authenticatedRequest(): array

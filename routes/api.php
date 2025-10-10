@@ -259,6 +259,8 @@ Route::prefix('v1')->group(function () {
 
             // Phase 9: Suppliers
             Route::apiResource('suppliers', SupplierController::class);
+            Route::post('suppliers/{supplierId}/upload-image', [SupplierController::class, 'uploadImage']);
+            Route::delete('suppliers/{supplierId}/image', [SupplierController::class, 'deleteImage']);
             Route::get('suppliers/{supplierId}/products', [SupplierController::class, 'products']);
 
             // Phase 9: Product Tags
@@ -316,6 +318,61 @@ Route::prefix('v1')->group(function () {
             Route::post('stock-alerts/{alertId}/acknowledge', [StockAlertController::class, 'acknowledge']);
             Route::post('stock-alerts/{alertId}/resolve', [StockAlertController::class, 'resolve']);
             Route::post('stock-alerts/{alertId}/dismiss', [StockAlertController::class, 'dismiss']);
+
+            // ====================
+            // BOM Engine - Phase 1 MVP
+            // ====================
+            
+            // Material Management
+            Route::get('materials/low-stock', [\App\Http\Controllers\Api\MaterialController::class, 'lowStock']);
+            Route::get('materials/export', [\App\Http\Controllers\Api\MaterialController::class, 'export']);
+            Route::post('materials/import', [\App\Http\Controllers\Api\MaterialController::class, 'import']);
+            Route::get('materials/import-template', [\App\Http\Controllers\Api\MaterialController::class, 'importTemplate']);
+            Route::get('materials/low-stock-report', [\App\Http\Controllers\Api\MaterialController::class, 'lowStockReport']);
+            Route::post('materials/bulk', [\App\Http\Controllers\Api\MaterialController::class, 'bulkStore']);
+            Route::post('materials/{material}/adjust-stock', [\App\Http\Controllers\Api\MaterialController::class, 'adjustStock']);
+            Route::apiResource('materials', \App\Http\Controllers\Api\MaterialController::class);
+            
+            // Recipe Management
+            Route::post('recipes/{recipe}/activate', [\App\Http\Controllers\Api\RecipeController::class, 'activate']);
+            Route::get('recipes/{recipe}/cost-breakdown', [\App\Http\Controllers\Api\RecipeController::class, 'costBreakdown']);
+            Route::apiResource('recipes', \App\Http\Controllers\Api\RecipeController::class);
+            
+            // Recipe Components
+            Route::post('recipes/{recipe}/components', [\App\Http\Controllers\Api\RecipeComponentController::class, 'store']);
+            Route::put('recipes/{recipe}/components/{component}', [\App\Http\Controllers\Api\RecipeComponentController::class, 'update']);
+            Route::delete('recipes/{recipe}/components/{component}', [\App\Http\Controllers\Api\RecipeComponentController::class, 'destroy']);
+            
+            // BOM Calculation
+            Route::get('bom/products/{product}/available-quantity', [\App\Http\Controllers\Api\BOMCalculationController::class, 'availableQuantity']);
+            Route::post('bom/bulk-availability', [\App\Http\Controllers\Api\BOMCalculationController::class, 'bulkAvailability']);
+            Route::get('bom/products/{product}/production-capacity', [\App\Http\Controllers\Api\BOMCalculationController::class, 'productionCapacity']);
+            
+            // Batch Production Planning
+            Route::post('bom/batch-requirements', [\App\Http\Controllers\Api\BatchProductionController::class, 'batchRequirements']);
+            Route::post('bom/optimal-batch-size', [\App\Http\Controllers\Api\BatchProductionController::class, 'optimalBatchSize']);
+            Route::post('bom/multi-product-plan', [\App\Http\Controllers\Api\BatchProductionController::class, 'multiProductPlan']);
+            
+            // Material Analytics
+            Route::get('bom/analytics/stock-status', [\App\Http\Controllers\Api\MaterialAnalyticsController::class, 'stockStatus']);
+            Route::get('bom/analytics/categories', [\App\Http\Controllers\Api\MaterialAnalyticsController::class, 'categories']);
+            Route::get('bom/analytics/usage-trends', [\App\Http\Controllers\Api\MaterialAnalyticsController::class, 'usageTrends']);
+            Route::get('bom/analytics/cost-analysis', [\App\Http\Controllers\Api\MaterialAnalyticsController::class, 'costAnalysis']);
+            Route::get('bom/analytics/turnover-rate', [\App\Http\Controllers\Api\MaterialAnalyticsController::class, 'turnoverRate']);
+            
+            // BOM Alerts (BOM-specific material alerts)
+            Route::get('bom/alerts/active', [\App\Http\Controllers\Api\BOMAlertController::class, 'active']);
+            Route::get('bom/alerts/predictive', [\App\Http\Controllers\Api\BOMAlertController::class, 'predictive']);
+            Route::get('bom/alerts/reorder-recommendations', [\App\Http\Controllers\Api\BOMAlertController::class, 'reorderRecommendations']);
+            Route::get('bom/alerts/dashboard', [\App\Http\Controllers\Api\BOMAlertController::class, 'dashboard']);
+            
+            // Reporting
+            Route::get('bom/reports/executive-dashboard', [\App\Http\Controllers\Api\ReportingController::class, 'executiveDashboard']);
+            Route::get('bom/reports/material-usage', [\App\Http\Controllers\Api\ReportingController::class, 'materialUsage']);
+            Route::get('bom/reports/recipe-costing', [\App\Http\Controllers\Api\ReportingController::class, 'recipeCosting']);
+            Route::get('bom/reports/stock-movement', [\App\Http\Controllers\Api\ReportingController::class, 'stockMovement']);
+            Route::get('bom/reports/production-efficiency', [\App\Http\Controllers\Api\ReportingController::class, 'productionEfficiency']);
+            Route::post('bom/reports/export', [\App\Http\Controllers\Api\ReportingController::class, 'export']);
         });
     });
 });

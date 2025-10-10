@@ -1,0 +1,1560 @@
+# POSMID 2.0 - BOM Engine OpenAPI Specification
+# Version: 1.0.0
+# This spec extends the existing openapi.yaml with BOM/Recipe management endpoints
+
+openapi: 3.0.3
+info:
+  title: POSMID Inventory & BOM Management API
+  version: 2.0.0
+  description: |
+    Extended API specification for Bill of Materials (BOM) Engine
+    
+    ## Key Features
+    - Inventory item management (raw materials, WIP, packaging)
+    - Recipe/BOM management with multi-level support
+    - Batch tracking with FIFO/FEFO
+    - Real-time stock calculation for composite products
+    - Predictive purchase orders
+    - Waste tracking
+    - Analytics and reporting
+
+servers:
+  - url: https://api.posmid.com/api/v1
+    description: Production server
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+tags:
+  - name: Inventory Items
+    description: Manage raw materials, WIP, and packaging
+  - name: Recipes
+    description: Bill of Materials (BOM) management
+  - name: Batches
+    description: Batch tracking for perishable items
+  - name: Transactions
+    description: Inventory movement history
+  - name: Suppliers
+    description: Supplier management
+  - name: Purchase Orders
+    description: Purchase order management
+  - name: Analytics
+    description: Inventory analytics and insights
+  - name: Waste
+    description: Waste/spoilage tracking
+
+# =====================================================
+# PATHS
+# =====================================================
+
+paths:
+  # ==================== INVENTORY ITEMS ====================
+  /tenants/{tenantId}/inventory/items:
+    get:
+      tags: [Inventory Items]
+      summary: List inventory items
+      description: Get paginated list of inventory items with filtering
+      operationId: listInventoryItems
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: inventory_type
+          in: query
+          schema:
+            type: string
+            enum: [raw_material, work_in_progress, finished_goods, packaging, consumable]
+        - name: tracking_mode
+          in: query
+          schema:
+            type: string
+            enum: [perishable, batch, standard, serialized]
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - name: low_stock
+          in: query
+          description: Filter items below reorder point
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          description: Search by name or SKU
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/PerPageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InventoryItem'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+    
+    post:
+      tags: [Inventory Items]
+      summary: Create inventory item
+      description: Create a new inventory item (raw material, WIP, etc.)
+      operationId: createInventoryItem
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemCreate'
+      responses:
+        '201':
+          description: Item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /tenants/{tenantId}/inventory/items/{itemId}:
+    get:
+      tags: [Inventory Items]
+      summary: Get inventory item details
+      operationId: getInventoryItem
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/ItemIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemDetail'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+    patch:
+      tags: [Inventory Items]
+      summary: Update inventory item
+      operationId: updateInventoryItem
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/ItemIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItemUpdate'
+      responses:
+        '200':
+          description: Item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItem'
+    
+    delete:
+      tags: [Inventory Items]
+      summary: Delete inventory item
+      description: Soft delete an inventory item (only if not used in any recipes)
+      operationId: deleteInventoryItem
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/ItemIdParam'
+      responses:
+        '204':
+          description: Item deleted successfully
+        '409':
+          description: Cannot delete - item is used in recipes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tenants/{tenantId}/inventory/items/{itemId}/adjust:
+    post:
+      tags: [Inventory Items]
+      summary: Adjust stock quantity
+      description: Manually adjust stock (for physical counts, corrections)
+      operationId: adjustInventoryStock
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/ItemIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [adjustment_type, quantity, reason]
+              properties:
+                adjustment_type:
+                  type: string
+                  enum: [add, subtract, set]
+                  description: |
+                    - add: Increase stock
+                    - subtract: Decrease stock
+                    - set: Set stock to exact value
+                quantity:
+                  type: number
+                  format: float
+                  example: 100.5
+                reason:
+                  type: string
+                  example: "Physical count adjustment"
+                reference_number:
+                  type: string
+                  example: "PC-2025-001"
+      responses:
+        '200':
+          description: Stock adjusted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Stock adjusted successfully"
+                  old_stock:
+                    type: number
+                    example: 500
+                  new_stock:
+                    type: number
+                    example: 600.5
+                  transaction:
+                    $ref: '#/components/schemas/InventoryTransaction'
+
+  # ==================== RECIPES ====================
+  /tenants/{tenantId}/inventory/recipes:
+    get:
+      tags: [Recipes]
+      summary: List all recipes
+      operationId: listRecipes
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: product_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/PageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Recipe'
+
+    post:
+      tags: [Recipes]
+      summary: Create new recipe
+      operationId: createRecipe
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeCreate'
+      responses:
+        '201':
+          description: Recipe created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+
+  /tenants/{tenantId}/inventory/recipes/{recipeId}:
+    get:
+      tags: [Recipes]
+      summary: Get recipe details
+      operationId: getRecipe
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/RecipeIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeDetail'
+
+    put:
+      tags: [Recipes]
+      summary: Update recipe
+      description: Update recipe details and components
+      operationId: updateRecipe
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/RecipeIdParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecipeUpdate'
+      responses:
+        '200':
+          description: Recipe updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+
+    delete:
+      tags: [Recipes]
+      summary: Delete recipe
+      operationId: deleteRecipe
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/RecipeIdParam'
+      responses:
+        '204':
+          description: Recipe deleted successfully
+
+  /tenants/{tenantId}/inventory/recipes/{recipeId}/cost-analysis:
+    get:
+      tags: [Recipes]
+      summary: Calculate recipe cost
+      description: Get detailed cost breakdown for a recipe
+      operationId: analyzeRecipeCost
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/RecipeIdParam'
+      responses:
+        '200':
+          description: Cost analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeCostAnalysis'
+
+  # ==================== PRODUCT INTEGRATION ====================
+  /tenants/{tenantId}/products/{productId}/available-quantity:
+    get:
+      tags: [Recipes]
+      summary: Calculate available production quantity
+      description: |
+        For composite products, calculates maximum producible quantity
+        based on current ingredient availability.
+      operationId: calculateAvailableQuantity
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: variant_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Calculation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableQuantityResponse'
+
+  # ==================== BATCHES ====================
+  /tenants/{tenantId}/inventory/batches:
+    get:
+      tags: [Batches]
+      summary: List batches
+      operationId: listBatches
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: inventory_item_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, expired, depleted, quarantined]
+        - $ref: '#/components/parameters/PageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InventoryBatch'
+
+    post:
+      tags: [Batches]
+      summary: Create batch
+      description: Create a new batch (typically when receiving stock)
+      operationId: createBatch
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchCreate'
+      responses:
+        '201':
+          description: Batch created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryBatch'
+
+  /tenants/{tenantId}/inventory/batches/expiring:
+    get:
+      tags: [Batches]
+      summary: Get expiring batches
+      description: List batches expiring within specified days
+      operationId: getExpiringBatches
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: days
+          in: query
+          description: Number of days until expiry
+          schema:
+            type: integer
+            default: 7
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryBatch'
+                  summary:
+                    type: object
+                    properties:
+                      total_batches:
+                        type: integer
+                      total_value_at_risk:
+                        type: number
+
+  # ==================== TRANSACTIONS ====================
+  /tenants/{tenantId}/inventory/transactions:
+    get:
+      tags: [Transactions]
+      summary: List inventory transactions
+      operationId: listTransactions
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: inventory_item_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: transaction_type
+          in: query
+          schema:
+            type: string
+            enum: [purchase, sale_deduction, production_input, production_output, adjustment, waste, return_customer, return_supplier]
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InventoryTransaction'
+
+  /tenants/{tenantId}/inventory/items/{itemId}/history:
+    get:
+      tags: [Transactions]
+      summary: Get item transaction history
+      operationId: getItemHistory
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - $ref: '#/components/parameters/ItemIdParam'
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: '#/components/schemas/InventoryItem'
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/InventoryTransaction'
+                  summary:
+                    type: object
+                    properties:
+                      total_in:
+                        type: number
+                      total_out:
+                        type: number
+                      net_change:
+                        type: number
+
+  # ==================== WASTE TRACKING ====================
+  /tenants/{tenantId}/inventory/waste-logs:
+    get:
+      tags: [Waste]
+      summary: List waste logs
+      operationId: listWasteLogs
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/PageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WasteLog'
+                      summary:
+                        type: object
+                        properties:
+                          total_cost_impact:
+                            type: number
+                          total_quantity_wasted:
+                            type: number
+
+    post:
+      tags: [Waste]
+      summary: Log waste/spoilage
+      operationId: createWasteLog
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WasteLogCreate'
+      responses:
+        '201':
+          description: Waste logged successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WasteLog'
+
+  # ==================== SUPPLIERS ====================
+  /tenants/{tenantId}/suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List suppliers
+      operationId: listSuppliers
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/PageParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Supplier'
+
+    post:
+      tags: [Suppliers]
+      summary: Create supplier
+      operationId: createSupplier
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupplierCreate'
+      responses:
+        '201':
+          description: Supplier created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+
+  # ==================== ANALYTICS ====================
+  /tenants/{tenantId}/analytics/menu-engineering:
+    get:
+      tags: [Analytics]
+      summary: Get menu engineering matrix
+      description: BCG matrix analysis (Stars, Plow-horses, Puzzles, Dogs)
+      operationId: getMenuEngineering
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuEngineeringResponse'
+
+  /tenants/{tenantId}/analytics/stock-valuation:
+    get:
+      tags: [Analytics]
+      summary: Get total inventory valuation
+      operationId: getStockValuation
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_value:
+                    type: number
+                    description: Total inventory value
+                  by_type:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        inventory_type:
+                          type: string
+                        total_value:
+                          type: number
+                        item_count:
+                          type: integer
+
+  /tenants/{tenantId}/analytics/what-if-analysis:
+    post:
+      tags: [Analytics]
+      summary: Perform what-if cost analysis
+      description: Simulate impact of ingredient cost changes on product margins
+      operationId: performWhatIfAnalysis
+      security:
+        - sanctumAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WhatIfAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhatIfAnalysisResponse'
+
+# =====================================================
+# COMPONENTS
+# =====================================================
+
+components:
+  securitySchemes:
+    sanctumAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TenantIdParam:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    ItemIdParam:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    RecipeIdParam:
+      name: recipeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+    
+    PerPageParam:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        default: 15
+
+  schemas:
+    # ==================== INVENTORY ITEM SCHEMAS ====================
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Biji Kopi Arabika"
+        sku:
+          type: string
+          example: "ING-COFFEE-001"
+        inventory_type:
+          type: string
+          enum: [raw_material, work_in_progress, finished_goods, packaging, consumable]
+        tracking_mode:
+          type: string
+          enum: [perishable, batch, standard, serialized]
+        unit_of_measurement:
+          type: string
+          example: "gram"
+        current_stock:
+          type: number
+          format: float
+          example: 5000.50
+        reserved_stock:
+          type: number
+          format: float
+          example: 100.00
+        available_stock:
+          type: number
+          format: float
+          example: 4900.50
+        reorder_point:
+          type: number
+          format: float
+          example: 1000.00
+        cost_per_unit:
+          type: number
+          format: float
+          example: 120.50
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    InventoryItemDetail:
+      allOf:
+        - $ref: '#/components/schemas/InventoryItem'
+        - type: object
+          properties:
+            primary_supplier:
+              $ref: '#/components/schemas/Supplier'
+            active_batches:
+              type: array
+              items:
+                $ref: '#/components/schemas/InventoryBatch'
+            stock_status:
+              type: object
+              properties:
+                is_low_stock:
+                  type: boolean
+                days_until_reorder:
+                  type: number
+                avg_daily_consumption:
+                  type: number
+
+    InventoryItemCreate:
+      type: object
+      required: [name, unit_of_measurement, inventory_type]
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        inventory_type:
+          type: string
+          enum: [raw_material, work_in_progress, finished_goods, packaging, consumable]
+        tracking_mode:
+          type: string
+          enum: [perishable, batch, standard, serialized]
+          default: standard
+        unit_of_measurement:
+          type: string
+        unit_precision:
+          type: integer
+          default: 2
+        current_stock:
+          type: number
+          default: 0
+        reorder_point:
+          type: number
+        reorder_quantity:
+          type: number
+        cost_per_unit:
+          type: number
+        default_shelf_life_days:
+          type: integer
+        primary_supplier_id:
+          type: string
+          format: uuid
+
+    InventoryItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        reorder_point:
+          type: number
+        reorder_quantity:
+          type: number
+        cost_per_unit:
+          type: number
+        is_active:
+          type: boolean
+
+    # ==================== RECIPE SCHEMAS ====================
+    Recipe:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+          format: uuid
+        variant_id:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          example: "Resep Kopi Susu Gula Aren"
+        description:
+          type: string
+        version:
+          type: integer
+        is_active:
+          type: boolean
+        yield_quantity:
+          type: number
+          example: 1.0
+        total_material_cost:
+          type: number
+          example: 8500.00
+        created_at:
+          type: string
+          format: date-time
+
+    RecipeDetail:
+      allOf:
+        - $ref: '#/components/schemas/Recipe'
+        - type: object
+          properties:
+            product:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                selling_price:
+                  type: number
+            components:
+              type: array
+              items:
+                $ref: '#/components/schemas/RecipeComponent'
+            cost_breakdown:
+              type: object
+              properties:
+                material_cost:
+                  type: number
+                labor_cost:
+                  type: number
+                overhead_cost:
+                  type: number
+                total_cost:
+                  type: number
+                selling_price:
+                  type: number
+                gross_margin:
+                  type: number
+                margin_percentage:
+                  type: number
+
+    RecipeComponent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        inventory_item_id:
+          type: string
+          format: uuid
+        inventory_item:
+          $ref: '#/components/schemas/InventoryItem'
+        quantity_required:
+          type: number
+          example: 15.5
+        waste_percentage:
+          type: number
+          example: 5.0
+        actual_quantity:
+          type: number
+          example: 16.275
+        unit_cost_snapshot:
+          type: number
+        total_cost:
+          type: number
+        is_optional:
+          type: boolean
+        processing_notes:
+          type: string
+
+    RecipeCreate:
+      type: object
+      required: [product_id, name, components]
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        variant_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        yield_quantity:
+          type: number
+          default: 1.0
+        components:
+          type: array
+          items:
+            type: object
+            required: [inventory_item_id, quantity_required]
+            properties:
+              inventory_item_id:
+                type: string
+                format: uuid
+              quantity_required:
+                type: number
+              waste_percentage:
+                type: number
+                default: 0
+              is_optional:
+                type: boolean
+                default: false
+              processing_notes:
+                type: string
+
+    RecipeUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        yield_quantity:
+          type: number
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              inventory_item_id:
+                type: string
+                format: uuid
+              quantity_required:
+                type: number
+              waste_percentage:
+                type: number
+              is_optional:
+                type: boolean
+
+    RecipeCostAnalysis:
+      type: object
+      properties:
+        recipe:
+          $ref: '#/components/schemas/Recipe'
+        cost_breakdown:
+          type: object
+          properties:
+            components:
+              type: array
+              items:
+                type: object
+                properties:
+                  item_name:
+                    type: string
+                  quantity:
+                    type: number
+                  unit_cost:
+                    type: number
+                  total_cost:
+                    type: number
+                  percentage_of_total:
+                    type: number
+            subtotal_material:
+              type: number
+            labor_cost:
+              type: number
+            overhead_cost:
+              type: number
+            total_cost_per_unit:
+              type: number
+        profitability:
+          type: object
+          properties:
+            cost_per_unit:
+              type: number
+            selling_price:
+              type: number
+            gross_profit:
+              type: number
+            margin_percentage:
+              type: number
+
+    # ==================== BATCH SCHEMAS ====================
+    InventoryBatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        inventory_item_id:
+          type: string
+          format: uuid
+        batch_number:
+          type: string
+        received_date:
+          type: string
+          format: date
+        expiry_date:
+          type: string
+          format: date
+          nullable: true
+        current_quantity:
+          type: number
+        unit_cost:
+          type: number
+        status:
+          type: string
+          enum: [active, expired, depleted, quarantined]
+        days_until_expiry:
+          type: integer
+          nullable: true
+
+    BatchCreate:
+      type: object
+      required: [inventory_item_id, batch_number, received_date, initial_quantity, unit_cost]
+      properties:
+        inventory_item_id:
+          type: string
+          format: uuid
+        batch_number:
+          type: string
+        received_date:
+          type: string
+          format: date
+        expiry_date:
+          type: string
+          format: date
+        initial_quantity:
+          type: number
+        unit_cost:
+          type: number
+        supplier_id:
+          type: string
+          format: uuid
+
+    # ==================== TRANSACTION SCHEMAS ====================
+    InventoryTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        inventory_item_id:
+          type: string
+          format: uuid
+        transaction_type:
+          type: string
+        quantity:
+          type: number
+        stock_before:
+          type: number
+        stock_after:
+          type: number
+        unit_cost:
+          type: number
+        total_value:
+          type: number
+        reference_type:
+          type: string
+        reference_number:
+          type: string
+        reason:
+          type: string
+        transaction_date:
+          type: string
+          format: date-time
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+
+    # ==================== WASTE SCHEMAS ====================
+    WasteLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        inventory_item_id:
+          type: string
+          format: uuid
+        inventory_item:
+          type: object
+          properties:
+            name:
+              type: string
+            sku:
+              type: string
+        quantity_wasted:
+          type: number
+        reason:
+          type: string
+        cost_impact:
+          type: number
+        logged_by:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+
+    WasteLogCreate:
+      type: object
+      required: [inventory_item_id, quantity, reason]
+      properties:
+        inventory_item_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+        reason:
+          type: string
+          enum: [spoilage, spillage, damaged, expired, production_error, other]
+        notes:
+          type: string
+
+    # ==================== SUPPLIER SCHEMAS ====================
+    Supplier:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        contact_person:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        lead_time_days:
+          type: integer
+        is_active:
+          type: boolean
+
+    SupplierCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        code:
+          type: string
+        contact_person:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        lead_time_days:
+          type: integer
+          default: 7
+
+    # ==================== ANALYTICS SCHEMAS ====================
+    AvailableQuantityResponse:
+      type: object
+      properties:
+        product_id:
+          type: string
+          format: uuid
+        product_name:
+          type: string
+        inventory_management_type:
+          type: string
+          enum: [none, simple, composite]
+        current_stock:
+          type: number
+          description: For simple products
+        maximum_producible_quantity:
+          type: integer
+          description: For composite products
+        limiting_component:
+          type: object
+          properties:
+            item_id:
+              type: string
+            item_name:
+              type: string
+            required_per_unit:
+              type: number
+            available_stock:
+              type: number
+            max_units:
+              type: integer
+        all_components_availability:
+          type: array
+          items:
+            type: object
+            properties:
+              item_id:
+                type: string
+              item_name:
+                type: string
+              required_quantity:
+                type: number
+              available_stock:
+                type: number
+              sufficient:
+                type: boolean
+              max_producible:
+                type: integer
+
+    MenuEngineeringResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              product_name:
+                type: string
+              units_sold:
+                type: integer
+              revenue:
+                type: number
+              cogs:
+                type: number
+              gross_profit:
+                type: number
+              margin_percentage:
+                type: number
+              quadrant:
+                type: string
+                enum: [star, plow_horse, puzzle, dog]
+        thresholds:
+          type: object
+          properties:
+            median_sales:
+              type: number
+            median_margin:
+              type: number
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              product_name:
+                type: string
+              quadrant:
+                type: string
+              suggestion:
+                type: string
+
+    WhatIfAnalysisRequest:
+      type: object
+      required: [changes]
+      properties:
+        scenario:
+          type: string
+          example: "price_increase"
+        changes:
+          type: array
+          items:
+            type: object
+            required: [inventory_item_id, new_cost_per_unit]
+            properties:
+              inventory_item_id:
+                type: string
+                format: uuid
+              new_cost_per_unit:
+                type: number
+
+    WhatIfAnalysisResponse:
+      type: object
+      properties:
+        scenario_name:
+          type: string
+        changes_applied:
+          type: array
+          items:
+            type: object
+        affected_products:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: string
+              product_name:
+                type: string
+              current_selling_price:
+                type: number
+              current_cogs:
+                type: number
+              current_margin_pct:
+                type: number
+              new_cogs:
+                type: number
+              new_margin_pct:
+                type: number
+              margin_drop_pct:
+                type: number
+              recommended_new_price:
+                type: number
+              recommended_reason:
+                type: string
+        summary:
+          type: object
+          properties:
+            total_products_affected:
+              type: integer
+            average_margin_drop:
+              type: number
+            estimated_monthly_impact:
+                type: number
+
+    # ==================== COMMON SCHEMAS ====================
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+        last_page:
+          type: integer
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+
+  responses:
+    ForbiddenError:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

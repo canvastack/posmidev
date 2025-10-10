@@ -54,6 +54,15 @@ class ProductTest extends TestCase
 
         $response = $this->getJson("/api/v1/tenants/{$tenant->id}/products");
 
+        // Debug logging untuk memvalidasi asumsi
+        \Log::info('ProductTest Debug - List Products Empty', [
+            'status_code' => $response->getStatusCode(),
+            'response_content' => $response->getContent(),
+            'expected_empty_array' => true,
+            'actual_response' => json_decode($response->getContent(), true),
+            'timestamp' => now()->toISOString()
+        ]);
+
         $response->assertOk()->assertJson([]);
     }
 }

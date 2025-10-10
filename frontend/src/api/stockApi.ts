@@ -39,7 +39,16 @@ export const getStockAlerts = async (
   const response = await apiClient.get(`/tenants/${tenantId}/stock-alerts`, {
     params: filters,
   });
-  return response.data;
+  
+  // Backend returns pagination in 'meta' object, transform to flat structure
+  const { data, meta } = response.data;
+  return {
+    data,
+    current_page: meta.current_page,
+    last_page: meta.last_page,
+    per_page: meta.per_page,
+    total: meta.total,
+  };
 };
 
 /**
@@ -50,7 +59,7 @@ export const getStockAlertStats = async (
   tenantId: string
 ): Promise<StockAlertStats> => {
   const response = await apiClient.get(`/tenants/${tenantId}/stock-alerts/stats`);
-  return response.data;
+  return response.data.data;
 };
 
 /**
@@ -71,7 +80,11 @@ export const acknowledgeAlert = async (
     `/tenants/${tenantId}/stock-alerts/${alertId}/acknowledge`,
     action
   );
-  return response.data;
+  // Backend wraps response in success/message/data, extract message and data
+  return {
+    message: response.data.message,
+    data: response.data.data,
+  };
 };
 
 /**
@@ -92,7 +105,11 @@ export const resolveAlert = async (
     `/tenants/${tenantId}/stock-alerts/${alertId}/resolve`,
     action
   );
-  return response.data;
+  // Backend wraps response in success/message/data, extract message and data
+  return {
+    message: response.data.message,
+    data: response.data.data,
+  };
 };
 
 /**
@@ -113,7 +130,11 @@ export const dismissAlert = async (
     `/tenants/${tenantId}/stock-alerts/${alertId}/dismiss`,
     action
   );
-  return response.data;
+  // Backend wraps response in success/message/data, extract message and data
+  return {
+    message: response.data.message,
+    data: response.data.data,
+  };
 };
 
 /**
@@ -128,7 +149,25 @@ export const getLowStockProducts = async (
     `/tenants/${tenantId}/stock-alerts/low-stock-products`,
     { params: filters }
   );
-  return response.data;
+  
+  // Backend returns pagination in 'meta' object, transform to flat structure
+  const { data, meta } = response.data;
+  
+  // Compute summary from data
+  const summary = {
+    total: data.length,
+    critical: data.filter((item: any) => item.highest_severity === 'critical').length,
+    out_of_stock: data.filter((item: any) => item.highest_severity === 'out_of_stock').length,
+  };
+  
+  return {
+    data,
+    summary,
+    current_page: meta.current_page,
+    last_page: meta.last_page,
+    per_page: meta.per_page,
+    total: meta.total,
+  };
 };
 
 // ============================================================================

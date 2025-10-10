@@ -13,15 +13,20 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
-import { supplierApi, type Supplier, type SupplierForm } from '@/api/supplierApi';
+import { supplierApi, type Supplier } from '@/api/supplierApi';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/Badge';
-import { Select } from '@/components/ui/Select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import {
   Table,
@@ -40,7 +45,10 @@ import {
   PhoneIcon,
   EnvelopeIcon,
   UserIcon,
+  MapPinIcon,
+  PhotoIcon,
 } from '@heroicons/react/24/outline';
+import { SupplierFormDialog } from './SupplierFormDialog';
 
 export default function SuppliersPage() {
   const { tenantId } = useAuth();
@@ -64,21 +72,8 @@ export default function SuppliersPage() {
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
-
-  // Form state
-  const [form, setForm] = useState<SupplierForm>({
-    name: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-    address: '',
-    status: 'active',
-    notes: '',
-  });
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -118,87 +113,20 @@ export default function SuppliersPage() {
 
   const handleOpenCreate = () => {
     setEditingSupplier(null);
-    setForm({
-      name: '',
-      contact_person: '',
-      email: '',
-      phone: '',
-      address: '',
-      status: 'active',
-      notes: '',
-    });
-    setFormErrors({});
     setModalOpen(true);
   };
 
   const handleOpenEdit = (supplier: Supplier) => {
     setEditingSupplier(supplier);
-    setForm({
-      name: supplier.name,
-      contact_person: supplier.contact_person || '',
-      email: supplier.email || '',
-      phone: supplier.phone || '',
-      address: supplier.address || '',
-      status: supplier.status,
-      notes: supplier.notes || '',
-    });
-    setFormErrors({});
     setModalOpen(true);
   };
 
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    if (!form.name.trim()) {
-      errors.name = 'Supplier name is required';
-    }
-
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errors.email = 'Invalid email address';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!tenantId || !validateForm()) return;
-
-    try {
-      setSubmitting(true);
-
-      if (editingSupplier) {
-        await supplierApi.updateSupplier(tenantId, editingSupplier.id, form);
-        toast({
-          title: 'Success',
-          description: 'Supplier updated successfully',
-        });
-      } else {
-        await supplierApi.createSupplier(tenantId, form);
-        toast({
-          title: 'Success',
-          description: 'Supplier created successfully',
-        });
-      }
-
-      setModalOpen(false);
-      fetchSuppliers();
-    } catch (error: any) {
-      console.error('Failed to save supplier:', error);
-      
-      if (error?.response?.data?.errors) {
-        setFormErrors(error.response.data.errors);
-      }
-      
-      toast({
-        title: 'Error',
-        description: error?.response?.data?.message || 'Failed to save supplier',
-        variant: 'destructive',
-      });
-    } finally {
-      setSubmitting(false);
-    }
+  const handleFormSuccess = () => {
+    toast({
+      title: 'Success',
+      description: editingSupplier ? 'Supplier updated successfully' : 'Supplier created successfully',
+    });
+    fetchSuppliers();
   };
 
   const handleDelete = async () => {
@@ -259,11 +187,16 @@ export default function SuppliersPage() {
             {/* Status Filter */}
             <Select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onValueChange={(value) => setStatusFilter(value as any)}
             >
-              <option value="all">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <SelectTrigger>
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
             </Select>
           </div>
         </CardContent>
@@ -295,93 +228,117 @@ export default function SuppliersPage() {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Supplier</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Products</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {suppliers.map((supplier) => (
-                      <TableRow key={supplier.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{supplier.name}</p>
-                            {supplier.address && (
-                              <p className="text-sm text-muted-foreground">
-                                {supplier.address}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1 text-sm">
-                            {supplier.contact_person && (
-                              <div className="flex items-center gap-2">
-                                <UserIcon className="h-3 w-3 text-muted-foreground" />
-                                <span>{supplier.contact_person}</span>
+              <div className="overflow-x-auto -mx-6 px-6">
+                <div className="inline-block min-w-full align-middle">
+                  <div className="overflow-hidden">
+                    <Table className="min-w-full">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="whitespace-nowrap">Supplier</TableHead>
+                          <TableHead className="whitespace-nowrap">Contact</TableHead>
+                          <TableHead className="whitespace-nowrap">Status</TableHead>
+                          <TableHead className="whitespace-nowrap">Products</TableHead>
+                          <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {suppliers.map((supplier) => (
+                          <TableRow key={supplier.id}>
+                            <TableCell className="whitespace-nowrap">
+                              <div className="flex items-center gap-3 min-w-[200px]">
+                                {/* Image Thumbnail */}
+                                {supplier.image_thumb_url || supplier.image_url ? (
+                                  <img
+                                    src={supplier.image_thumb_url || supplier.image_url || ''}
+                                    alt={supplier.name}
+                                    className="w-10 h-10 rounded-md object-cover flex-shrink-0 border border-border"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+                                    <BuildingStorefrontIcon className="w-5 h-5 text-muted-foreground" />
+                                  </div>
+                                )}
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-medium truncate">{supplier.name}</p>
+                                    {supplier.has_location && (
+                                      <MapPinIcon className="w-4 h-4 text-primary flex-shrink-0" title="Has location" />
+                                    )}
+                                  </div>
+                                  {supplier.address && (
+                                    <p className="text-sm text-muted-foreground line-clamp-1">
+                                      {supplier.address}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
-                            )}
-                            {supplier.phone && (
-                              <div className="flex items-center gap-2">
-                                <PhoneIcon className="h-3 w-3 text-muted-foreground" />
-                                <span>{supplier.phone}</span>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <div className="space-y-1 text-sm min-w-[180px]">
+                                {supplier.contact_person && (
+                                  <div className="flex items-center gap-2">
+                                    <UserIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                    <span className="truncate">{supplier.contact_person}</span>
+                                  </div>
+                                )}
+                                {supplier.phone && (
+                                  <div className="flex items-center gap-2">
+                                    <PhoneIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                    <span className="truncate">{supplier.phone}</span>
+                                  </div>
+                                )}
+                                {supplier.email && (
+                                  <div className="flex items-center gap-2">
+                                    <EnvelopeIcon className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                                    <span className="truncate">{supplier.email}</span>
+                                  </div>
+                                )}
                               </div>
-                            )}
-                            {supplier.email && (
-                              <div className="flex items-center gap-2">
-                                <EnvelopeIcon className="h-3 w-3 text-muted-foreground" />
-                                <span>{supplier.email}</span>
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={supplier.status === 'active' ? 'default' : 'secondary'}
-                          >
-                            {supplier.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm text-muted-foreground">
-                            {supplier.products_count || 0} products
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            {canUpdate && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleOpenEdit(supplier)}
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <Badge
+                                variant={supplier.status === 'active' ? 'default' : 'secondary'}
                               >
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                            )}
-                            {canDelete && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setSupplierToDelete(supplier);
-                                  setDeleteConfirmOpen(true);
-                                }}
-                              >
-                                <TrashIcon className="h-4 w-4 text-danger-600" />
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                                {supplier.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="whitespace-nowrap">
+                              <span className="text-sm text-muted-foreground">
+                                {supplier.products_count || 0} products
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right whitespace-nowrap">
+                              <div className="flex justify-end gap-2 min-w-[120px]">
+                                {canUpdate && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleOpenEdit(supplier)}
+                                  >
+                                    <PencilIcon className="h-4 w-4" />
+                                  </Button>
+                                )}
+                                {canDelete && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSupplierToDelete(supplier);
+                                      setDeleteConfirmOpen(true);
+                                    }}
+                                  >
+                                    <TrashIcon className="h-4 w-4 text-danger-600" />
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               </div>
 
               {/* Pagination */}
@@ -415,122 +372,14 @@ export default function SuppliersPage() {
         </CardContent>
       </Card>
 
-      {/* Create/Edit Modal */}
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>
-              {editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}
-            </DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 py-4">
-              {/* Supplier Name */}
-              <div>
-                <Label htmlFor="name">Supplier Name *</Label>
-                <Input
-                  id="name"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="e.g., ABC Wholesale"
-                />
-                {formErrors.name && (
-                  <p className="text-sm text-danger-600 mt-1">{formErrors.name}</p>
-                )}
-              </div>
-
-              {/* Contact Person */}
-              <div>
-                <Label htmlFor="contact_person">Contact Person</Label>
-                <Input
-                  id="contact_person"
-                  value={form.contact_person}
-                  onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
-                  placeholder="e.g., John Doe"
-                />
-              </div>
-
-              {/* Email & Phone */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="supplier@example.com"
-                  />
-                  {formErrors.email && (
-                    <p className="text-sm text-danger-600 mt-1">{formErrors.email}</p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+1234567890"
-                  />
-                </div>
-              </div>
-
-              {/* Address */}
-              <div>
-                <Label htmlFor="address">Address</Label>
-                <textarea
-                  id="address"
-                  className="w-full min-h-[80px] px-3 py-2 border rounded-md bg-background text-foreground"
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  placeholder="Full address..."
-                />
-              </div>
-
-              {/* Status */}
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  id="status"
-                  value={form.status}
-                  onChange={(e) => setForm({ ...form, status: e.target.value as any })}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </Select>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <textarea
-                  id="notes"
-                  className="w-full min-h-[80px] px-3 py-2 border rounded-md bg-background text-foreground"
-                  value={form.notes}
-                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                  placeholder="Internal notes about this supplier..."
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setModalOpen(false)}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={submitting}>
-                {submitting ? 'Saving...' : editingSupplier ? 'Update' : 'Create'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Create/Edit Modal with Enhancement (Image & Location) */}
+      <SupplierFormDialog
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        tenantId={tenantId || ''}
+        supplier={editingSupplier}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* Delete Confirmation */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>

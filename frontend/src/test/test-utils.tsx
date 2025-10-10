@@ -199,6 +199,179 @@ export const mockToast = {
   warning: vi.fn(),
 };
 
+// ============================================================================
+// BOM MOCK DATA GENERATORS
+// ============================================================================
+
+/**
+ * Generate mock material ID
+ */
+export const mockMaterialId = (index = 0) =>
+  `880e8400-e29b-41d4-a716-44665544${String(index).padStart(4, '0')}`;
+
+/**
+ * Generate mock recipe ID
+ */
+export const mockRecipeId = (index = 0) =>
+  `990e8400-e29b-41d4-a716-44665544${String(index).padStart(4, '0')}`;
+
+/**
+ * Generate mock material
+ * 
+ * IMMUTABLE RULES: Includes tenant_id, all IDs are UUIDs
+ * Aligned with Material interface in bom.ts
+ */
+export const mockMaterial = (overrides?: any) => ({
+  id: mockMaterialId(),
+  tenant_id: mockTenantId(),
+  name: 'Test Material',
+  sku: 'MAT-001',
+  description: 'Test material description',
+  category: 'raw_materials',
+  unit: 'kg',
+  stock_quantity: 100,
+  reorder_level: 30,
+  unit_cost: 5000,
+  supplier: 'Test Supplier',
+  is_low_stock: false,
+  stock_status: 'normal' as const,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  deleted_at: null,
+  ...overrides,
+});
+
+/**
+ * Generate mock recipe
+ * Aligned with Recipe interface in bom.ts
+ */
+export const mockRecipe = (overrides?: any) => ({
+  id: mockRecipeId(),
+  tenant_id: mockTenantId(),
+  product_id: mockProductId(),
+  name: 'Test Recipe',
+  description: 'Test recipe description',
+  yield_quantity: 10,
+  yield_unit: 'pcs' as const,
+  is_active: true,
+  notes: null,
+  total_cost: 50000,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  deleted_at: null,
+  product: {
+    id: mockProductId(),
+    name: 'Test Product',
+    sku: 'PROD-001',
+  },
+  materials: [],
+  ...overrides,
+});
+
+/**
+ * Generate mock recipe material
+ * Aligned with RecipeMaterial interface in bom.ts
+ */
+export const mockRecipeMaterial = (overrides?: any) => ({
+  id: `rm-${Math.random().toString(36).substr(2, 9)}`,
+  tenant_id: mockTenantId(),
+  recipe_id: mockRecipeId(),
+  material_id: mockMaterialId(),
+  quantity_required: 5,
+  unit: 'kg',
+  waste_percentage: 0,
+  effective_quantity: 5,
+  notes: null,
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
+  material: mockMaterial(),
+  ...overrides,
+});
+
+/**
+ * Generate mock stock status data
+ */
+export const mockStockStatus = () => ({
+  normal: 15,
+  low: 5,
+  critical: 3,
+  out_of_stock: 2,
+});
+
+/**
+ * Generate mock category breakdown
+ */
+export const mockCategoryBreakdown = () => [
+  {
+    category: 'raw_materials',
+    total_value: 5000000,
+    material_count: 10,
+    low_stock_count: 2,
+  },
+  {
+    category: 'packaging',
+    total_value: 2000000,
+    material_count: 5,
+    low_stock_count: 1,
+  },
+];
+
+/**
+ * Generate mock usage trends
+ */
+export const mockUsageTrends = () => [
+  {
+    date: '2024-01-01',
+    total_usage: 100,
+    total_cost: 500000,
+    transaction_count: 10,
+  },
+  {
+    date: '2024-01-02',
+    total_usage: 120,
+    total_cost: 600000,
+    transaction_count: 12,
+  },
+];
+
+/**
+ * Generate mock material list response
+ */
+export const mockMaterialListResponse = (count = 3) => ({
+  data: Array.from({ length: count }, (_, i) =>
+    mockMaterial({
+      id: mockMaterialId(i),
+      sku: `MAT-${String(i + 1).padStart(3, '0')}`,
+      name: `Test Material ${i + 1}`,
+    })
+  ),
+  meta: {
+    current_page: 1,
+    per_page: 20,
+    total: count,
+    last_page: 1,
+  },
+});
+
+/**
+ * Generate mock recipe list response
+ */
+export const mockRecipeListResponse = (count = 3) => ({
+  data: Array.from({ length: count }, (_, i) =>
+    mockRecipe({
+      id: mockRecipeId(i),
+      name: `Test Recipe ${i + 1}`,
+      version: i + 1,
+    })
+  ),
+  meta: {
+    current_page: 1,
+    per_page: 20,
+    total: count,
+    last_page: 1,
+  },
+});
+
 // Re-export everything from testing-library
 export * from '@testing-library/react';
 export { default as userEvent } from '@testing-library/user-event';
