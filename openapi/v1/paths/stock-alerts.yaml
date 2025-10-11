@@ -1,0 +1,57 @@
+paths:
+  /tenants/{tenantId}/stock-alerts:
+    get:
+      tags: [Stock Alerts]
+      summary: List stock alerts
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-alerts/stats:
+    get:
+      tags: [Stock Alerts]
+      summary: Stock alerts stats
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-alerts/low-stock-products:
+    get:
+      tags: [Stock Alerts]
+      summary: Low stock products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-alerts/{alertId}/acknowledge:
+    post:
+      tags: [Stock Alerts]
+      summary: Acknowledge alert
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/AlertId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-alerts/{alertId}/resolve:
+    post:
+      tags: [Stock Alerts]
+      summary: Resolve alert
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/AlertId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-alerts/{alertId}/dismiss:
+    post:
+      tags: [Stock Alerts]
+      summary: Dismiss alert
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/AlertId
+      responses:
+        '200': { description: OK }

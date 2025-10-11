@@ -1,0 +1,165 @@
+# Domain schemas for BOM (Materials, Recipes, Inventory Transactions, BOM Calc)
+Material:
+  type: object
+  required: [id, tenant_id, sku, name, unit, unit_cost, stock_quantity]
+  properties:
+    id: { type: string, format: uuid }
+    tenant_id: { type: string, format: uuid }
+    sku: { type: string }
+    name: { type: string }
+    description: { type: string, nullable: true }
+    category: { type: string, nullable: true }
+    unit: { type: string, example: kg }
+    unit_cost: { type: number, format: double }
+    stock_quantity: { type: number, format: double }
+    reorder_level: { type: number, format: double, nullable: true }
+    is_low_stock: { type: boolean }
+    stock_status:
+      type: string
+      enum: [normal, low, critical, out_of_stock]
+    created_at: { type: string, format: date-time, nullable: true }
+    updated_at: { type: string, format: date-time, nullable: true }
+    deleted_at: { type: string, format: date-time, nullable: true }
+
+MaterialCreateRequest:
+  type: object
+  required: [sku, name, unit, unit_cost, stock_quantity]
+  properties:
+    sku: { type: string }
+    name: { type: string }
+    description: { type: string, nullable: true }
+    category: { type: string, nullable: true }
+    unit: { type: string }
+    unit_cost: { type: number, format: double }
+    stock_quantity: { type: number, format: double }
+    reorder_level: { type: number, format: double, nullable: true }
+
+MaterialUpdateRequest:
+  type: object
+  properties:
+    sku: { type: string }
+    name: { type: string }
+    description: { type: string, nullable: true }
+    category: { type: string, nullable: true }
+    unit: { type: string }
+    unit_cost: { type: number, format: double }
+    stock_quantity: { type: number, format: double }
+    reorder_level: { type: number, format: double, nullable: true }
+
+InventoryTransaction:
+  type: object
+  required: [id, tenant_id, material_id, transaction_type, quantity_before, quantity_change, quantity_after, reason]
+  properties:
+    id: { type: string, format: uuid }
+    tenant_id: { type: string, format: uuid }
+    material_id: { type: string, format: uuid }
+    transaction_type:
+      type: string
+      enum: [adjustment, deduction, restock]
+    quantity_before: { type: number, format: double }
+    quantity_change: { type: number, format: double }
+    quantity_after: { type: number, format: double }
+    reason:
+      type: string
+      enum: [purchase, waste, damage, count_adjustment, production, sale, other]
+    notes: { type: string, nullable: true }
+    user_id: { type: string, format: uuid, nullable: true }
+    created_at: { type: string, format: date-time, nullable: true }
+
+AdjustStockRequest:
+  type: object
+  required: [type, quantity, reason]
+  properties:
+    type:
+      type: string
+      enum: [adjustment, deduction, restock]
+    quantity: { type: number, format: double }
+    reason:
+      type: string
+      enum: [purchase, waste, damage, count_adjustment, production, sale, other]
+    notes: { type: string, nullable: true }
+
+Recipe:
+  type: object
+  required: [id, tenant_id, product_id, name, yield_quantity, is_active]
+  properties:
+    id: { type: string, format: uuid }
+    tenant_id: { type: string, format: uuid }
+    product_id: { type: string, format: uuid }
+    name: { type: string }
+    yield_quantity: { type: number, format: double }
+    is_active: { type: boolean }
+    created_at: { type: string, format: date-time, nullable: true }
+    updated_at: { type: string, format: date-time, nullable: true }
+
+RecipeCreateRequest:
+  type: object
+  required: [product_id, name, yield_quantity]
+  properties:
+    product_id: { type: string, format: uuid }
+    name: { type: string }
+    yield_quantity: { type: number, format: double }
+    is_active: { type: boolean, default: true }
+
+RecipeUpdateRequest:
+  type: object
+  properties:
+    name: { type: string }
+    yield_quantity: { type: number, format: double }
+    is_active: { type: boolean }
+
+RecipeMaterial:
+  type: object
+  required: [id, tenant_id, recipe_id, material_id, quantity_required]
+  properties:
+    id: { type: string, format: uuid }
+    tenant_id: { type: string, format: uuid }
+    recipe_id: { type: string, format: uuid }
+    material_id: { type: string, format: uuid }
+    quantity_required: { type: number, format: double }
+
+RecipeMaterialInput:
+  type: object
+  required: [material_id, quantity_required]
+  properties:
+    material_id: { type: string, format: uuid }
+    quantity_required: { type: number, format: double }
+
+RecipeMaterialsUpsertRequest:
+  type: object
+  required: [materials]
+  properties:
+    materials:
+      type: array
+      items:
+        $ref: '#/RecipeMaterialInput'
+
+BOMCalculationRequest:
+  type: object
+  required: [product_id, quantity]
+  properties:
+    product_id: { type: string, format: uuid }
+    quantity: { type: number, format: double }
+    include_cost_breakdown: { type: boolean, default: true }
+
+BOMCalculationMaterial:
+  type: object
+  required: [material_id, sku, name, unit_cost, quantity_required, cost]
+  properties:
+    material_id: { type: string, format: uuid }
+    sku: { type: string }
+    name: { type: string }
+    unit_cost: { type: number, format: double }
+    quantity_required: { type: number, format: double }
+    cost: { type: number, format: double }
+
+BOMCalculationResult:
+  type: object
+  required: [product_id, quantity, total_cost, materials]
+  properties:
+    product_id: { type: string, format: uuid }
+    quantity: { type: number, format: double }
+    total_cost: { type: number, format: double }
+    materials:
+      type: array
+      items: { $ref: '#/BOMCalculationMaterial' }

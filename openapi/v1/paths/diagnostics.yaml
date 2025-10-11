@@ -1,0 +1,115 @@
+paths:
+  /ping:
+    get:
+      tags: [Diagnostics]
+      summary: Health check (public)
+      description: Returns 200 with ok=true. No auth required.
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+
+  /ping-basic:
+    get:
+      tags: [Diagnostics]
+      summary: Basic auth middleware check
+      description: Uses Basic Auth middleware and should 401 when credentials are missing/invalid.
+      security:
+        - basicAuth: []
+      responses:
+        '200': { description: OK }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+
+  /guard-check:
+    get:
+      tags: [Diagnostics]
+      summary: Sanctum guard check (public)
+      description: Attempts to read user from Sanctum guard and returns ok=true; never errors.
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  userId: { type: string, nullable: true, example: null }
+
+  /ping-auth:
+    get:
+      tags: [Diagnostics]
+      summary: Health check (requires bearer auth)
+      description: Returns ok=true and current userId when authenticated.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+                  userId: { type: string, example: "c1a6d2a2-..." }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+
+  /test/auth:
+    get:
+      tags: [Diagnostics]
+      summary: Auth test (requires bearer auth)
+      description: Returns authenticated userId.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId: { type: string, example: "c1a6d2a2-..." }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+
+  /tenants/{tenant}/test/context:
+    get:
+      tags: [Diagnostics]
+      summary: Tenant context check
+      description: Validates tenant context middleware is applied; returns tenant name.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tenantName: { type: string, example: "HQ" }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenant}/test/policy:
+    get:
+      tags: [Diagnostics]
+      summary: Policy authorization check
+      description: Authorizes access via Gate policy using the current tenant.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean, example: true }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }

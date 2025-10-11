@@ -1,0 +1,89 @@
+paths:
+  /tenants/{tenantId}/variant-attributes:
+    get:
+      tags: [Variant Attributes]
+      summary: List variant attributes
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Variant Attributes]
+      summary: Create variant attribute
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/variant-attributes/popular:
+    get:
+      tags: [Variant Attributes]
+      summary: Popular variant attributes
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/variant-attributes/{id}:
+    get:
+      tags: [Variant Attributes]
+      summary: Get variant attribute
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Variant Attributes]
+      summary: Update variant attribute
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Variant Attributes]
+      summary: Delete variant attribute
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/variant-attributes/{id}/values:
+    post:
+      tags: [Variant Attributes]
+      summary: Add attribute value
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+    delete:
+      tags: [Variant Attributes]
+      summary: Remove attribute values
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

@@ -1,0 +1,82 @@
+paths:
+  /tenants/{tenantId}/variant-templates:
+    get:
+      tags: [Variant Templates]
+      summary: List variant templates
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Variant Templates]
+      summary: Create variant template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/variant-templates/{id}:
+    get:
+      tags: [Variant Templates]
+      summary: Get variant template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Variant Templates]
+      summary: Update variant template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Variant Templates]
+      summary: Delete variant template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/variant-templates/{id}/apply:
+    post:
+      tags: [Variant Templates]
+      summary: Apply template to product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/variant-templates/{id}/preview:
+    post:
+      tags: [Variant Templates]
+      summary: Preview template application
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

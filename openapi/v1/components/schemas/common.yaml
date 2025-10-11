@@ -1,0 +1,43 @@
+# Shared, reusable schemas
+EnvelopeSuccess:
+  type: object
+  properties:
+    success:
+      type: boolean
+      example: true
+    message:
+      type: string
+      nullable: true
+
+Pagination:
+  type: object
+  description: Paginated response metadata
+  properties:
+    current_page: { type: integer }
+    from: { type: integer, nullable: true }
+    last_page: { type: integer }
+    per_page: { type: integer }
+    to: { type: integer, nullable: true }
+    total: { type: integer }
+
+ErrorResponse:
+  type: object
+  description: Standard error response format
+  properties:
+    message:
+      type: string
+      example: The given data was invalid.
+    errors:
+      type: object
+      additionalProperties:
+        type: array
+        items: { type: string }
+    status:
+      type: integer
+      example: 422
+    code:
+      type: string
+      example: VALIDATION_ERR
+    trace_id:
+      type: string
+      description: Correlation/trace identifier for observability

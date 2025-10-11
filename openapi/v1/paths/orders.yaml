@@ -1,0 +1,31 @@
+paths:
+  /tenants/{tenantId}/orders:
+    get:
+      tags: [Orders]
+      summary: List orders
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Orders]
+      summary: Create order
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/orders/{orderId}:
+    get:
+      tags: [Orders]
+      summary: Get order
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/OrderId
+      responses:
+        '200': { description: OK }

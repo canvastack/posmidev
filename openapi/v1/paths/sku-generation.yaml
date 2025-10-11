@@ -1,0 +1,46 @@
+paths:
+  /tenants/{tenantId}/sku-patterns:
+    get:
+      tags: [SKU]
+      summary: Get SKU patterns
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/generate-sku:
+    post:
+      tags: [SKU]
+      summary: Generate SKU
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/preview-sku:
+    post:
+      tags: [SKU]
+      summary: Preview SKU
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/validate-sku:
+    get:
+      tags: [SKU]
+      summary: Validate SKU
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }

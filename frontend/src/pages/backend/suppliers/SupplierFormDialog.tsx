@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/Select';
 import { ImageUploadWithCamera } from '@/components/common/ImageUploadWithCamera';
-import { LocationMapPicker, LocationCoordinates } from '@/components/common/LocationMapPicker';
+import LocationMapPicker, { type LocationCoordinates } from '@/components/common/LocationMapPicker';
 import { supplierApi, type Supplier, type SupplierForm } from '@/api/supplierApi';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -205,6 +205,11 @@ export function SupplierFormDialog({
           <DialogTitle>
             {isEdit ? 'Edit Supplier' : 'Add New Supplier'}
           </DialogTitle>
+          <DialogDescription>
+            {isEdit 
+              ? 'Update supplier information, upload image, and set location on map.' 
+              : 'Fill in the supplier details, upload an optional image, and mark location on the map.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
@@ -338,7 +343,7 @@ export function SupplierFormDialog({
                 </div>
 
                 <ImageUploadWithCamera
-                  value={currentImageUrl}
+                  value={currentImageUrl ? { original: currentImageUrl, thumb: currentImageUrl } : null}
                   onChange={setImageFile}
                   onDelete={isEdit ? handleDeleteImage : undefined}
                   maxSize={5}

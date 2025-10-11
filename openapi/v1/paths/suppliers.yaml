@@ -1,0 +1,92 @@
+paths:
+  /tenants/{tenantId}/suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List suppliers
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Suppliers]
+      summary: Create supplier
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/suppliers/{supplierId}:
+    get:
+      tags: [Suppliers]
+      summary: Get supplier
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Suppliers]
+      summary: Update supplier
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Suppliers]
+      summary: Delete supplier
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/suppliers/{supplierId}/upload-image:
+    post:
+      tags: [Suppliers]
+      summary: Upload supplier image
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/suppliers/{supplierId}/image:
+    delete:
+      tags: [Suppliers]
+      summary: Delete supplier image
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/suppliers/{supplierId}/products:
+    get:
+      tags: [Suppliers]
+      summary: Supplier products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/SupplierId
+      responses:
+        '200': { description: OK }

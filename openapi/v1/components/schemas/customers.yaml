@@ -1,0 +1,215 @@
+# Customer Schemas for OpenAPI v1
+# Image & Location Enhancement - Day 1
+
+CustomerBase:
+  type: object
+  description: Base customer properties (core fields)
+  required:
+    - id
+    - tenant_id
+    - name
+  properties:
+    id:
+      type: string
+      format: uuid
+      description: Customer unique identifier
+      example: "33333333-3333-3333-3333-333333333333"
+    tenant_id:
+      type: string
+      format: uuid
+      description: Tenant this customer belongs to
+      example: "11111111-1111-1111-1111-111111111111"
+    name:
+      type: string
+      description: Customer name
+      example: "PT. Maju Jaya"
+      minLength: 1
+      maxLength: 255
+    email:
+      type: string
+      format: email
+      nullable: true
+      description: Customer email address
+      example: "info@majujaya.com"
+    phone:
+      type: string
+      nullable: true
+      description: Customer phone number
+      example: "+62-21-5555-1234"
+    address:
+      type: string
+      nullable: true
+      description: Customer business address (text)
+      example: "Jl. Raya Bogor Km. 23, Depok"
+    tags:
+      type: array
+      nullable: true
+      description: Customer tags for categorization
+      items:
+        type: string
+      example: ["wholesale", "vip"]
+    created_at:
+      type: string
+      format: date-time
+      description: Customer creation timestamp
+    updated_at:
+      type: string
+      format: date-time
+      description: Customer last update timestamp
+
+CustomerImageFields:
+  type: object
+  description: Photo fields for customer
+  properties:
+    photo_url:
+      type: string
+      nullable: true
+      format: uri
+      description: Full-size customer photo URL
+      example: "http://localhost:8000/storage/customers/11111111-1111-1111-1111-111111111111/photo_def456.jpg"
+    photo_thumb_url:
+      type: string
+      nullable: true
+      format: uri
+      description: Thumbnail version of customer photo (300x300)
+      example: "http://localhost:8000/storage/customers/11111111-1111-1111-1111-111111111111/photo_def456_thumb.jpg"
+    has_photo:
+      type: boolean
+      description: Computed accessor - whether customer has photo uploaded
+      readOnly: true
+      example: true
+
+CustomerLocationFields:
+  type: object
+  description: Location fields for customer delivery address mapping
+  properties:
+    delivery_latitude:
+      type: number
+      format: double
+      nullable: true
+      description: Delivery location latitude
+      example: -6.363984
+      minimum: -90
+      maximum: 90
+    delivery_longitude:
+      type: number
+      format: double
+      nullable: true
+      description: Delivery location longitude
+      example: 106.834137
+      minimum: -180
+      maximum: 180
+    delivery_address:
+      type: string
+      nullable: true
+      description: Human-readable delivery address (reverse geocoded)
+      example: "Jl. Raya Bogor, Cimanggis, Depok, Jawa Barat"
+    has_delivery_location:
+      type: boolean
+      description: Computed accessor - whether customer has delivery location set
+      readOnly: true
+      example: true
+    delivery_location_coordinates:
+      type: object
+      nullable: true
+      readOnly: true
+      description: Computed accessor - delivery location as coordinate object
+      properties:
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+      example:
+        lat: -6.363984
+        lng: 106.834137
+
+CustomerComplete:
+  allOf:
+    - $ref: '#/CustomerBase'
+    - $ref: '#/CustomerImageFields'
+    - $ref: '#/CustomerLocationFields'
+  description: Complete customer resource with all fields
+
+CustomerListResponse:
+  type: object
+  description: Paginated list of customers
+  properties:
+    data:
+      type: array
+      items:
+        $ref: '#/CustomerComplete'
+    meta:
+      $ref: ./common.yaml#/Pagination
+
+CustomerRequest:
+  type: object
+  description: Request body for creating/updating customer
+  required:
+    - name
+  properties:
+    name:
+      type: string
+      minLength: 1
+      maxLength: 255
+      example: "PT. Sejahtera Abadi"
+    email:
+      type: string
+      format: email
+      nullable: true
+      example: "contact@sejahtera.com"
+    phone:
+      type: string
+      nullable: true
+      example: "+62-21-7777-8888"
+    address:
+      type: string
+      nullable: true
+      example: "Jl. Sudirman Kav. 52, Jakarta"
+    tags:
+      type: array
+      nullable: true
+      items:
+        type: string
+      example: ["retail", "regular"]
+    # Location fields (optional, can be set via dedicated endpoint)
+    delivery_latitude:
+      type: number
+      format: double
+      nullable: true
+      minimum: -90
+      maximum: 90
+    delivery_longitude:
+      type: number
+      format: double
+      nullable: true
+      minimum: -180
+      maximum: 180
+    delivery_address:
+      type: string
+      nullable: true
+
+CustomerPhotoUploadResponse:
+  type: object
+  description: Response after successful customer photo upload
+  properties:
+    message:
+      type: string
+      example: "Customer photo uploaded successfully."
+    photo_url:
+      type: string
+      format: uri
+      example: "http://localhost:8000/storage/customers/11111111-1111-1111-1111-111111111111/photo_def456.jpg"
+    photo_thumb_url:
+      type: string
+      format: uri
+      example: "http://localhost:8000/storage/customers/11111111-1111-1111-1111-111111111111/photo_def456_thumb.jpg"
+
+CustomerPhotoDeleteResponse:
+  type: object
+  description: Response after successful customer photo deletion
+  properties:
+    message:
+      type: string
+      example: "Customer photo deleted successfully."

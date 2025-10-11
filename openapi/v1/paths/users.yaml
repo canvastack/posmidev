@@ -1,0 +1,152 @@
+paths:
+  /tenants/{tenantId}/users:
+    get:
+      tags: [Users]
+      summary: List users
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Users]
+      summary: Create user
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get user
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Users]
+      summary: Update user
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Users]
+      summary: Delete user
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/users/{userId}/roles:
+    post:
+      tags: [Users]
+      summary: Update user roles
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  # Image & Location Enhancement - Day 3 (User Backend)
+  /tenants/{tenantId}/users/{userId}/upload-profile-photo:
+    post:
+      tags: [Users]
+      summary: Upload user profile photo
+      description: |
+        Upload profile photo for user. Users can update their own profile photo without permissions.
+        Updating other users requires `users.update` permission.
+        Maximum file size is 5MB. Supported formats are JPEG, PNG, GIF, WEBP.
+        Automatically generates 300x300 thumbnail.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - photo
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: Profile photo file (max 5MB, JPEG/PNG/GIF/WEBP)
+      responses:
+        '200':
+          description: Profile photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile photo uploaded successfully."
+                  profile_photo_url:
+                    type: string
+                    format: uri
+                    example: "https://example.com/storage/users/{userId}/abc123.jpg"
+                  profile_photo_thumb_url:
+                    type: string
+                    format: uri
+                    example: "https://example.com/storage/users/{userId}/xyz456_thumb.jpg"
+        '400':
+          description: Invalid file format or size
+        '403':
+          description: Forbidden - insufficient permissions (not self-update and no users.update permission)
+        '404':
+          description: User not found in specified tenant
+        '422':
+          description: Validation error
+        '500':
+          description: Server error during upload
+
+  /tenants/{tenantId}/users/{userId}/profile-photo:
+    delete:
+      tags: [Users]
+      summary: Delete user profile photo
+      description: |
+        Remove user profile photo and thumbnail.
+        Users can delete their own profile photo without permissions.
+        Deleting other users' photos requires `users.update` permission.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      responses:
+        '200':
+          description: Profile photo deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile photo deleted successfully."
+        '403':
+          description: Forbidden - insufficient permissions (not self-delete and no users.update permission)
+        '404':
+          description: User not found in specified tenant
+        '500':
+          description: Server error during deletion

@@ -1,0 +1,23 @@
+paths:
+  /tenants/{tenantId}/customers/{customerId}/attributes:
+    get:
+      tags: [Customer Attributes]
+      summary: Get customer attributes
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      responses:
+        '200': { description: OK }
+    put:
+      tags: [Customer Attributes]
+      summary: Replace customer attributes
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

@@ -1,0 +1,23 @@
+paths:
+  /tenants/{tenantId}/stock-adjustments/reasons:
+    get:
+      tags: [Stock Adjustments]
+      summary: Get stock adjustment reasons
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/stock-adjustments:
+    post:
+      tags: [Stock Adjustments]
+      summary: Create stock adjustment
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }

@@ -19,6 +19,13 @@ class SetPermissionsTeamFromTenant
 
         if ($tenantId) {
             app(PermissionRegistrar::class)->setPermissionsTeamId((string) $tenantId);
+            
+            // CRITICAL: Refresh user permissions cache after setting team context
+            // Without this, $user->can() will use permissions loaded BEFORE team context was set
+            if ($user = $request->user()) {
+                app(PermissionRegistrar::class)->forgetCachedPermissions();
+                $user->load('roles', 'permissions');
+            }
         }
         return $next($request);
     }

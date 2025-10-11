@@ -1,0 +1,126 @@
+paths:
+  /tenants/{tenantId}/customers:
+    get:
+      tags: [Customers]
+      summary: List customers
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Customers]
+      summary: Create customer
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/customers/search:
+    post:
+      tags: [Customers]
+      summary: Search customers
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/customers/{customerId}:
+    get:
+      tags: [Customers]
+      summary: Get customer
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Customers]
+      summary: Update customer
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Customers]
+      summary: Delete customer
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      responses:
+        '200': { description: Deleted }
+
+  # Image & Location Enhancement - Day 1
+  /tenants/{tenantId}/customers/{customerId}/upload-photo:
+    post:
+      tags: [Customers]
+      summary: Upload customer photo
+      description: Upload photo for customer. Maximum file size is 5MB. Supported formats are JPEG, PNG, GIF, WEBP.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - photo
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: Customer photo file (max 5MB)
+      responses:
+        '200':
+          description: Customer photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/customers.yaml#/CustomerPhotoUploadResponse
+        '400':
+          description: Invalid file format or size
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/ErrorResponse
+        '403':
+          description: Forbidden - insufficient permissions
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/customers/{customerId}/photo:
+    delete:
+      tags: [Customers]
+      summary: Delete customer photo
+      description: Remove customer photo and thumbnail
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/CustomerId
+      responses:
+        '200':
+          description: Customer photo deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/customers.yaml#/CustomerPhotoDeleteResponse
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Photo not found

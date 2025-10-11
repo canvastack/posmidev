@@ -1,0 +1,30 @@
+paths:
+  /tenants/{tenantId}/products/{productId}/history:
+    get:
+      tags: [Products]
+      summary: Product history
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/history/price:
+    get:
+      tags: [Products]
+      summary: Product price history
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/history/stock:
+    get:
+      tags: [Products]
+      summary: Product stock history
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }

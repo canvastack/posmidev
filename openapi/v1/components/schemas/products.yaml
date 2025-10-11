@@ -1,0 +1,73 @@
+# Product-related schemas
+Product:
+  type: object
+  description: Product entity
+  properties:
+    id: { type: string, format: uuid }
+    tenant_id: { type: string, format: uuid }
+    name: { type: string }
+    slug: { type: string }
+    sku: { type: string, nullable: true }
+    description: { type: string, nullable: true }
+    category_id: { type: string, format: uuid, nullable: true }
+    price: { type: number, format: float }
+    cost: { type: number, format: float, nullable: true }
+    currency: { type: string, example: "USD" }
+    status: { type: string, enum: [draft, active, archived] }
+    images:
+      type: array
+      items:
+        type: object
+        properties:
+          id: { type: string }
+          url: { type: string, format: uri }
+          is_primary: { type: boolean }
+    created_at: { type: string, format: date-time }
+    updated_at: { type: string, format: date-time }
+
+ProductCreateInput:
+  type: object
+  description: Payload to create a product
+  required: [name, price]
+  properties:
+    name: { type: string }
+    slug: { type: string, nullable: true }
+    sku: { type: string, nullable: true }
+    description: { type: string, nullable: true }
+    category_id: { type: string, format: uuid, nullable: true }
+    price: { type: number, format: float }
+    cost: { type: number, format: float, nullable: true }
+    currency: { type: string, example: "USD" }
+    status: { type: string, enum: [draft, active] }
+
+ProductUpdateInput:
+  type: object
+  description: Payload to update a product
+  properties:
+    name: { type: string }
+    slug: { type: string, nullable: true }
+    sku: { type: string, nullable: true }
+    description: { type: string, nullable: true }
+    category_id: { type: string, format: uuid, nullable: true }
+    price: { type: number, format: float }
+    cost: { type: number, format: float, nullable: true }
+    currency: { type: string, example: "USD" }
+    status: { type: string, enum: [draft, active, archived] }
+
+ProductList:
+  type: object
+  description: Paginated list of products
+  properties:
+    success: { type: boolean, example: true }
+    data:
+      type: array
+      items: { $ref: '#/Product' }
+    meta:
+      $ref: ./common.yaml#/Pagination
+
+ProductEnvelope:
+  type: object
+  description: Envelope containing a product
+  properties:
+    success: { type: boolean, example: true }
+    data: { $ref: '#/Product' }

@@ -1,0 +1,28 @@
+paths:
+  /tenants/{tenantId}/content/footer:
+    get:
+      tags: [Content Management]
+      summary: Get footer content
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    put:
+      tags: [Content Management]
+      summary: Update footer content
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Content Management]
+      summary: Delete footer content
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: Deleted }

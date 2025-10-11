@@ -19,6 +19,8 @@ const PosPage = lazy(() => import('./pages/backend/pos'))
 const ProductsPage = lazy(() => import('./pages/backend/products'))
 const OrdersPage = lazy(() => import('./pages/backend/orders'))
 const UsersPage = lazy(() => import('./pages/backend/users'))
+const TenantsPage = lazy(() => import('./pages/backend/tenants'))
+const TenantDetailPage = lazy(() => import('./pages/backend/tenants/[tenantId]'))
 const RolesPage = lazy(() => import('./pages/backend/roles'))
 const CustomersPage = lazy(() => import('./pages/backend/customers'))
 const SettingsPage = lazy(() => import('./pages/backend/settings'))
@@ -83,6 +85,8 @@ function App() {
                   <Route path="products/:productId/edit" element={<ProductEditPage />} />
                   <Route path="orders" element={<OrdersPage />} />
                   <Route path="users" element={<UsersPage />} />
+                  <Route path="tenants" element={<TenantsPage />} />
+                  <Route path="tenants/:tenantId" element={<TenantDetailPage />} />
                   <Route path="roles" element={<RolesPage />} />
                   <Route path="customers" element={<CustomersPage />} />
                   <Route path="settings" element={<SettingsPage />} />

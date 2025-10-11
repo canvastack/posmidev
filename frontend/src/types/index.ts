@@ -12,6 +12,15 @@ export interface User {
   photo?: string | null;
   photo_thumb?: string | null;
   phone_number?: string | null;
+  
+  // Location fields (Day 3 Enhancement)
+  latitude?: number | null;
+  longitude?: number | null;
+  address?: string | null;
+  has_photo?: boolean;
+  has_location?: boolean;
+  location_coordinates?: string | null; // Computed accessor: "lat,lng"
+  
   created_at?: string;
 }
 

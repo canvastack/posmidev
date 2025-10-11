@@ -1,0 +1,9 @@
+paths:
+  /tenants/{tenantId}/permissions:
+    get:
+      tags: [Permissions]
+      summary: List permissions
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }

@@ -19,6 +19,11 @@ class Tenant extends Model
         'address',
         'phone',
         'logo',
+        'logo_url',
+        'logo_thumb_url',
+        'latitude',
+        'longitude',
+        'location_address',
         'status',
         'settings',
         'can_auto_activate_users',
@@ -29,9 +34,17 @@ class Tenant extends Model
     protected $casts = [
         'id' => 'string',
         'settings' => 'array',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
         'can_auto_activate_users' => 'boolean',
         'auto_activate_request_pending' => 'boolean',
         'auto_activate_requested_at' => 'datetime',
+    ];
+
+    protected $appends = [
+        'has_logo',
+        'has_location',
+        'location_coordinates',
     ];
 
     public function users(): HasMany
@@ -75,5 +88,36 @@ class Tenant extends Model
     public function inventoryTransactions(): HasMany
     {
         return $this->hasMany(InventoryTransaction::class);
+    }
+
+    /**
+     * Check if tenant has logo
+     */
+    public function getHasLogoAttribute(): bool
+    {
+        return !is_null($this->logo_url);
+    }
+
+    /**
+     * Check if tenant has location data
+     */
+    public function getHasLocationAttribute(): bool
+    {
+        return !is_null($this->latitude) && !is_null($this->longitude);
+    }
+
+    /**
+     * Get location coordinates as array for map integration
+     */
+    public function getLocationCoordinatesAttribute(): ?array
+    {
+        if (!$this->has_location) {
+            return null;
+        }
+
+        return [
+            'lat' => (float) $this->latitude,
+            'lng' => (float) $this->longitude,
+        ];
     }
 }

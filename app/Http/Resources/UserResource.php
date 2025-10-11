@@ -79,6 +79,19 @@ class UserResource extends JsonResource
             'photo' => $this->photo,
             'photo_thumb' => $photoThumb,
             'phone_number' => $this->phone_number,
+            
+            // Image & Location Enhancement - Profile Photo
+            'profile_photo_url' => $this->profile_photo_url,
+            'profile_photo_thumb_url' => $this->profile_photo_thumb_url,
+            'has_profile_photo' => $this->has_profile_photo ?? false,
+            
+            // Image & Location Enhancement - Home Location
+            'home_latitude' => $this->home_latitude,
+            'home_longitude' => $this->home_longitude,
+            'home_address' => $this->home_address,
+            'has_home_location' => $this->has_home_location ?? false,
+            'home_location_coordinates' => $this->home_location_coordinates,
+            
             'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }

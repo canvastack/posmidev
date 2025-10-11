@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  title: CanvaStack POSMID API
+  version: 1.0.0
+  description: >-
+    POSMID v1 API (OpenAPI-first). All tenant-bound endpoints are namespaced under /tenants/{tenantId}.
+    Auth via Sanctum bearer tokens. Roles & permissions are strictly tenant-scoped (Teams enabled).
+servers:
+  - url: http://localhost:8000/api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Public Content
+  - name: Tenants
+  - name: Products
+  - name: Variants
+  - name: Variant Attributes
+  - name: Variant Templates
+  - name: Categories
+  - name: Roles
+  - name: Users
+  - name: Permissions
+  - name: Customers
+  - name: Suppliers
+  - name: Tags
+  - name: SKU
+  - name: Content Management
+  - name: Content Pages
+  - name: Orders
+  - name: Stock Adjustments
+  - name: Stock Alerts
+  - name: BOM / Materials
+  - name: BOM / Recipes
+  - name: BOM / Inventory
+  - name: BOM / Calculation
+  - name: BOM / Batch Production
+  - name: BOM / Material Analytics
+  - name: BOM / Alerts
+  - name: BOM / Reporting
+  - name: Tenant Analytics
+  - name: Dashboard
+  - name: Diagnostics
+paths:
+  # Auth
+  /register:
+    $ref: ./paths/auth.yaml#/paths/~1register
+  /login:
+    $ref: ./paths/auth.yaml#/paths/~1login
+  /logout:
+    $ref: ./paths/auth.yaml#/paths/~1logout
+  /user:
+    $ref: ./paths/auth.yaml#/paths/~1user
+
+  # Tenants (management)
+  /tenants:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants
+  /tenants/{tenant}:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenant}
+  /tenants/{tenantId}/status:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1status
+  /tenants/{tenantId}/auto-activation/request:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1auto-activation~1request
+  /tenants/{tenantId}/auto-activation/approve:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1auto-activation~1approve
+  /tenants/{tenantId}/auto-activation/reject:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1auto-activation~1reject
+  /tenants/{tenantId}/users/{userId}/status:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1users~1{userId}~1status
+  # Tenant Image & Location (Enhancement)
+  /tenants/{tenantId}/upload-logo:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1upload-logo
+  /tenants/{tenantId}/logo:
+    $ref: ./paths/tenants.yaml#/paths/~1tenants~1{tenantId}~1logo
+
+  # Public Content
+  /tenants/{tenant}/public/settings:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1settings
+  /tenants/{tenant}/public/products:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1products
+  /tenants/{tenant}/public/products/{productId}:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1products~1{productId}
+  /tenants/{tenant}/public/footer:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1footer
+  /tenants/{tenant}/public/pages:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1pages
+  /tenants/{tenant}/public/pages/{slug}:
+    $ref: ./paths/public-content.yaml#/paths/~1tenants~1{tenant}~1public~1pages~1{slug}
+
+  # Materials
+  /tenants/{tenantId}/materials:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials
+  /tenants/{tenantId}/materials/low-stock:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1low-stock
+  /tenants/{tenantId}/materials/export:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1export
+  /tenants/{tenantId}/materials/import:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1import
+  /tenants/{tenantId}/materials/import-template:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1import-template
+  /tenants/{tenantId}/materials/low-stock-report:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1low-stock-report
+  /tenants/{tenantId}/materials/bulk:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1bulk
+  /tenants/{tenantId}/materials/{material}:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1{material}
+  /tenants/{tenantId}/materials/{material}/adjust-stock:
+    $ref: ./paths/materials.yaml#/paths/~1tenants~1{tenantId}~1materials~1{material}~1adjust-stock
+
+  # Recipes
+  /tenants/{tenantId}/recipes:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes
+  /tenants/{tenantId}/recipes/{recipe}:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes~1{recipe}
+  /tenants/{tenantId}/recipes/{recipe}/components:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes~1{recipe}~1components
+  /tenants/{tenantId}/recipes/{recipe}/components/{component}:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes~1{recipe}~1components~1{component}
+  /tenants/{tenantId}/recipes/{recipe}/activate:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes~1{recipe}~1activate
+  /tenants/{tenantId}/recipes/{recipe}/cost-breakdown:
+    $ref: ./paths/recipes.yaml#/paths/~1tenants~1{tenantId}~1recipes~1{recipe}~1cost-breakdown
+
+  # Inventory
+  /tenants/{tenantId}/materials/{material}/transactions:
+    $ref: ./paths/inventory-transactions.yaml#/paths/~1tenants~1{tenantId}~1materials~1{material}~1transactions
+  /tenants/{tenantId}/inventory-transactions/{transactionId}:
+    $ref: ./paths/inventory-transactions.yaml#/paths/~1tenants~1{tenantId}~1inventory-transactions~1{transactionId}
+
+  # Products - base
+  /tenants/{tenantId}/products:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products
+  /tenants/{tenantId}/products/{product}:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{product}
+
+  # Products - extra modules
+  /tenants/{tenantId}/products/stats:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1stats
+  /tenants/{tenantId}/products/export:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1export
+  /tenants/{tenantId}/products/import/template:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1import~1template
+  /tenants/{tenantId}/products/import:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1import
+  /tenants/{tenantId}/products/bulk:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1bulk
+  /tenants/{tenantId}/products/bulk/status:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1bulk~1status
+  /tenants/{tenantId}/products/bulk/category:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1bulk~1category
+  /tenants/{tenantId}/products/bulk/price:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1bulk~1price
+  /tenants/{tenantId}/products/{product}/duplicate:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{product}~1duplicate
+  /tenants/{tenantId}/products/{product}/upload-image:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{product}~1upload-image
+  /tenants/{tenantId}/products/{productId}/archive:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1archive
+  /tenants/{tenantId}/products/{productId}/restore:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1restore
+  /tenants/{tenantId}/products/{productId}/permanent:
+    $ref: ./paths/products.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1permanent
+
+  # Product Images
+  /tenants/{tenantId}/products/{productId}/images:
+    $ref: ./paths/product-images.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1images
+  /tenants/{tenantId}/products/{productId}/images/{imageId}:
+    $ref: ./paths/product-images.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1images~1{imageId}
+  /tenants/{tenantId}/products/{productId}/images/{imageId}/primary:
+    $ref: ./paths/product-images.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1images~1{imageId}~1primary
+  /tenants/{tenantId}/products/{productId}/images/reorder:
+    $ref: ./paths/product-images.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1images~1reorder
+
+  # Barcode
+  /tenants/{tenantId}/products/{productId}/barcode:
+    $ref: ./paths/barcode.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1barcode
+  /tenants/{tenantId}/products/barcode/bulk:
+    $ref: ./paths/barcode.yaml#/paths/~1tenants~1{tenantId}~1products~1barcode~1bulk
+
+  # Product History
+  /tenants/{tenantId}/products/{productId}/history:
+    $ref: ./paths/product-history.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1history
+  /tenants/{tenantId}/products/{productId}/history/price:
+    $ref: ./paths/product-history.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1history~1price
+  /tenants/{tenantId}/products/{productId}/history/stock:
+    $ref: ./paths/product-history.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1history~1stock
+
+  # Product Analytics and Tracking
+  /tenants/{tenantId}/products/{productId}/analytics/sales:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1sales
+  /tenants/{tenantId}/products/{productId}/analytics/stock:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1stock
+  /tenants/{tenantId}/products/{productId}/analytics/profit:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1profit
+  /tenants/{tenantId}/products/{productId}/analytics/variants:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1variants
+  /tenants/{tenantId}/products/{productId}/analytics/overview:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1overview
+  /tenants/{tenantId}/products/{productId}/analytics/export/csv:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1export~1csv
+  /tenants/{tenantId}/products/{productId}/analytics/export/pdf:
+    $ref: ./paths/product-analytics.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1analytics~1export~1pdf
+  /tenants/{tenantId}/products/{productId}/track-view:
+    $ref: ./paths/product-view-tracking.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1track-view
+  /tenants/{tenantId}/products/{productId}/view-stats:
+    $ref: ./paths/product-view-tracking.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1view-stats
+  /tenants/{tenantId}/products/{productId}/view-trends:
+    $ref: ./paths/product-view-tracking.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1view-trends
+
+  # Variants
+  /tenants/{tenantId}/variants/export:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1export
+  /tenants/{tenantId}/variants/import/template:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1import~1template
+  /tenants/{tenantId}/variants/import:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1import
+  /tenants/{tenantId}/variants/analytics/top-performers:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1analytics~1top-performers
+  /tenants/{tenantId}/variants/analytics/compare:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1analytics~1compare
+  /tenants/{tenantId}/variants/analytics/performance-summary:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1variants~1analytics~1performance-summary
+  /tenants/{tenantId}/products/{productId}/variants:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants
+  /tenants/{tenantId}/products/{productId}/variants/bulk:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1bulk
+  /tenants/{tenantId}/products/{productId}/variants/analytics:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1analytics
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/analytics:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1{variantId}~1analytics
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1{variantId}
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/stock:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1{variantId}~1stock
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/reserve:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1{variantId}~1reserve
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/release:
+    $ref: ./paths/variants.yaml#/paths/~1tenants~1{tenantId}~1products~1{productId}~1variants~1{variantId}~1release
+
+  # Variant Attributes
+  /tenants/{tenantId}/variant-attributes:
+    $ref: ./paths/variant-attributes.yaml#/paths/~1tenants~1{tenantId}~1variant-attributes
+  /tenants/{tenantId}/variant-attributes/popular:
+    $ref: ./paths/variant-attributes.yaml#/paths/~1tenants~1{tenantId}~1variant-attributes~1popular
+  /tenants/{tenantId}/variant-attributes/{id}:
+    $ref: ./paths/variant-attributes.yaml#/paths/~1tenants~1{tenantId}~1variant-attributes~1{id}
+  /tenants/{tenantId}/variant-attributes/{id}/values:
+    $ref: ./paths/variant-attributes.yaml#/paths/~1tenants~1{tenantId}~1variant-attributes~1{id}~1values
+
+  # Variant Templates
+  /tenants/{tenantId}/variant-templates:
+    $ref: ./paths/variant-templates.yaml#/paths/~1tenants~1{tenantId}~1variant-templates
+  /tenants/{tenantId}/variant-templates/{id}:
+    $ref: ./paths/variant-templates.yaml#/paths/~1tenants~1{tenantId}~1variant-templates~1{id}
+  /tenants/{tenantId}/variant-templates/{id}/apply:
+    $ref: ./paths/variant-templates.yaml#/paths/~1tenants~1{tenantId}~1variant-templates~1{id}~1apply
+  /tenants/{tenantId}/variant-templates/{id}/preview:
+    $ref: ./paths/variant-templates.yaml#/paths/~1tenants~1{tenantId}~1variant-templates~1{id}~1preview
+
+  # Categories
+  /tenants/{tenantId}/categories:
+    $ref: ./paths/categories.yaml#/paths/~1tenants~1{tenantId}~1categories
+  /tenants/{tenantId}/categories/{id}:
+    $ref: ./paths/categories.yaml#/paths/~1tenants~1{tenantId}~1categories~1{id}
+
+  # Roles, Users, Permissions
+  /tenants/{tenantId}/roles:
+    $ref: ./paths/roles.yaml#/paths/~1tenants~1{tenantId}~1roles
+  /tenants/{tenantId}/roles/{id}:
+    $ref: ./paths/roles.yaml#/paths/~1tenants~1{tenantId}~1roles~1{id}
+  /tenants/{tenantId}/users:
+    $ref: ./paths/users.yaml#/paths/~1tenants~1{tenantId}~1users
+  /tenants/{tenantId}/users/{userId}:
+    $ref: ./paths/users.yaml#/paths/~1tenants~1{tenantId}~1users~1{userId}
+  /tenants/{tenantId}/users/{userId}/roles:
+    $ref: ./paths/users.yaml#/paths/~1tenants~1{tenantId}~1users~1{userId}~1roles
+  # User Image & Location (Enhancement)
+  /tenants/{tenantId}/users/{userId}/upload-photo:
+    $ref: ./paths/users.yaml#/paths/~1tenants~1{tenantId}~1users~1{userId}~1upload-photo
+  /tenants/{tenantId}/users/{userId}/photo:
+    $ref: ./paths/users.yaml#/paths/~1tenants~1{tenantId}~1users~1{userId}~1photo
+  /tenants/{tenantId}/permissions:
+    $ref: ./paths/permissions.yaml#/paths/~1tenants~1{tenantId}~1permissions
+
+  # Customers & Attributes
+  /tenants/{tenantId}/customers:
+    $ref: ./paths/customers.yaml#/paths/~1tenants~1{tenantId}~1customers
+  /tenants/{tenantId}/customers/search:
+    $ref: ./paths/customers.yaml#/paths/~1tenants~1{tenantId}~1customers~1search
+  /tenants/{tenantId}/customers/{customerId}:
+    $ref: ./paths/customers.yaml#/paths/~1tenants~1{tenantId}~1customers~1{customerId}
+  # Customer Image & Location (Enhancement)
+  /tenants/{tenantId}/customers/{customerId}/upload-photo:
+    $ref: ./paths/customers.yaml#/paths/~1tenants~1{tenantId}~1customers~1{customerId}~1upload-photo
+  /tenants/{tenantId}/customers/{customerId}/photo:
+    $ref: ./paths/customers.yaml#/paths/~1tenants~1{tenantId}~1customers~1{customerId}~1photo
+  /tenants/{tenantId}/customers/{customerId}/attributes:
+    $ref: ./paths/customer-attributes.yaml#/paths/~1tenants~1{tenantId}~1customers~1{customerId}~1attributes
+
+  # Suppliers
+  /tenants/{tenantId}/suppliers:
+    $ref: ./paths/suppliers.yaml#/paths/~1tenants~1{tenantId}~1suppliers
+  /tenants/{tenantId}/suppliers/{supplierId}:
+    $ref: ./paths/suppliers.yaml#/paths/~1tenants~1{tenantId}~1suppliers~1{supplierId}
+  /tenants/{tenantId}/suppliers/{supplierId}/upload-image:
+    $ref: ./paths/suppliers.yaml#/paths/~1tenants~1{tenantId}~1suppliers~1{supplierId}~1upload-image
+  /tenants/{tenantId}/suppliers/{supplierId}/image:
+    $ref: ./paths/suppliers.yaml#/paths/~1tenants~1{tenantId}~1suppliers~1{supplierId}~1image
+  /tenants/{tenantId}/suppliers/{supplierId}/products:
+    $ref: ./paths/suppliers.yaml#/paths/~1tenants~1{tenantId}~1suppliers~1{supplierId}~1products
+
+  # Tags
+  /tenants/{tenantId}/tags:
+    $ref: ./paths/tags.yaml#/paths/~1tenants~1{tenantId}~1tags
+  /tenants/{tenantId}/tags/popular:
+    $ref: ./paths/tags.yaml#/paths/~1tenants~1{tenantId}~1tags~1popular
+  /tenants/{tenantId}/tags/{tagId}:
+    $ref: ./paths/tags.yaml#/paths/~1tenants~1{tenantId}~1tags~1{tagId}
+  /tenants/{tenantId}/tags/bulk-attach:
+    $ref: ./paths/tags.yaml#/paths/~1tenants~1{tenantId}~1tags~1bulk-attach
+  /tenants/{tenantId}/tags/bulk-detach:
+    $ref: ./paths/tags.yaml#/paths/~1tenants~1{tenantId}~1tags~1bulk-detach
+
+  # SKU Generation
+  /tenants/{tenantId}/sku-patterns:
+    $ref: ./paths/sku-generation.yaml#/paths/~1tenants~1{tenantId}~1sku-patterns
+  /tenants/{tenantId}/generate-sku:
+    $ref: ./paths/sku-generation.yaml#/paths/~1tenants~1{tenantId}~1generate-sku
+  /tenants/{tenantId}/preview-sku:
+    $ref: ./paths/sku-generation.yaml#/paths/~1tenants~1{tenantId}~1preview-sku
+  /tenants/{tenantId}/validate-sku:
+    $ref: ./paths/sku-generation.yaml#/paths/~1tenants~1{tenantId}~1validate-sku
+
+  # Settings
+  /tenants/{tenantId}/settings:
+    $ref: ./paths/settings.yaml#/paths/~1tenants~1{tenantId}~1settings
+
+  # Blueprints (EAV Engine)
+  /tenants/{tenantId}/blueprints:
+    $ref: ./paths/blueprints.yaml#/paths/~1tenants~1{tenantId}~1blueprints
+  /tenants/{tenantId}/blueprints/{id}:
+    $ref: ./paths/blueprints.yaml#/paths/~1tenants~1{tenantId}~1blueprints~1{id}
+  /tenants/{tenantId}/blueprints/{id}/fields:
+    $ref: ./paths/blueprints.yaml#/paths/~1tenants~1{tenantId}~1blueprints~1{id}~1fields
+
+  # Content Management
+  /tenants/{tenantId}/content/footer:
+    $ref: ./paths/content-management.yaml#/paths/~1tenants~1{tenantId}~1content~1footer
+
+  # Content Pages Management
+  /tenants/{tenantId}/content/pages:
+    $ref: ./paths/content-pages.yaml#/paths/~1tenants~1{tenantId}~1content~1pages
+  /tenants/{tenantId}/content/pages/{id}:
+    $ref: ./paths/content-pages.yaml#/paths/~1tenants~1{tenantId}~1content~1pages~1{id}
+
+  # Orders
+  /tenants/{tenantId}/orders:
+    $ref: ./paths/orders.yaml#/paths/~1tenants~1{tenantId}~1orders
+  /tenants/{tenantId}/orders/{orderId}:
+    $ref: ./paths/orders.yaml#/paths/~1tenants~1{tenantId}~1orders~1{orderId}
+
+  # Stock Adjustments
+  /tenants/{tenantId}/stock-adjustments/reasons:
+    $ref: ./paths/stock-adjustments.yaml#/paths/~1tenants~1{tenantId}~1stock-adjustments~1reasons
+  /tenants/{tenantId}/stock-adjustments:
+    $ref: ./paths/stock-adjustments.yaml#/paths/~1tenants~1{tenantId}~1stock-adjustments
+
+  # Stock Alerts
+  /tenants/{tenantId}/stock-alerts:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts
+  /tenants/{tenantId}/stock-alerts/stats:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts~1stats
+  /tenants/{tenantId}/stock-alerts/low-stock-products:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts~1low-stock-products
+  /tenants/{tenantId}/stock-alerts/{alertId}/acknowledge:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts~1{alertId}~1acknowledge
+  /tenants/{tenantId}/stock-alerts/{alertId}/resolve:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts~1{alertId}~1resolve
+  /tenants/{tenantId}/stock-alerts/{alertId}/dismiss:
+    $ref: ./paths/stock-alerts.yaml#/paths/~1tenants~1{tenantId}~1stock-alerts~1{alertId}~1dismiss
+
+  # BOM Calculation
+  /tenants/{tenantId}/bom/calculate:
+    $ref: ./paths/bom-calculation.yaml#/paths/~1tenants~1{tenantId}~1bom~1calculate
+  /tenants/{tenantId}/bom/products/{product}/available-quantity:
+    $ref: ./paths/bom-calculation.yaml#/paths/~1tenants~1{tenantId}~1bom~1products~1{product}~1available-quantity
+  /tenants/{tenantId}/bom/bulk-availability:
+    $ref: ./paths/bom-calculation.yaml#/paths/~1tenants~1{tenantId}~1bom~1bulk-availability
+  /tenants/{tenantId}/bom/products/{product}/production-capacity:
+    $ref: ./paths/bom-calculation.yaml#/paths/~1tenants~1{tenantId}~1bom~1products~1{product}~1production-capacity
+
+  # Batch Production
+  /tenants/{tenantId}/bom/batch-requirements:
+    $ref: ./paths/batch-production.yaml#/paths/~1tenants~1{tenantId}~1bom~1batch-requirements
+  /tenants/{tenantId}/bom/optimal-batch-size:
+    $ref: ./paths/batch-production.yaml#/paths/~1tenants~1{tenantId}~1bom~1optimal-batch-size
+  /tenants/{tenantId}/bom/multi-product-plan:
+    $ref: ./paths/batch-production.yaml#/paths/~1tenants~1{tenantId}~1bom~1multi-product-plan
+
+  # Material Analytics
+  /tenants/{tenantId}/bom/analytics/stock-status:
+    $ref: ./paths/material-analytics.yaml#/paths/~1tenants~1{tenantId}~1bom~1analytics~1stock-status
+  /tenants/{tenantId}/bom/analytics/categories:
+    $ref: ./paths/material-analytics.yaml#/paths/~1tenants~1{tenantId}~1bom~1analytics~1categories
+  /tenants/{tenantId}/bom/analytics/usage-trends:
+    $ref: ./paths/material-analytics.yaml#/paths/~1tenants~1{tenantId}~1bom~1analytics~1usage-trends
+  /tenants/{tenantId}/bom/analytics/cost-analysis:
+    $ref: ./paths/material-analytics.yaml#/paths/~1tenants~1{tenantId}~1bom~1analytics~1cost-analysis
+  /tenants/{tenantId}/bom/analytics/turnover-rate:
+    $ref: ./paths/material-analytics.yaml#/paths/~1tenants~1{tenantId}~1bom~1analytics~1turnover-rate
+
+  # BOM Alerts
+  /tenants/{tenantId}/bom/alerts/active:
+    $ref: ./paths/bom-alerts.yaml#/paths/~1tenants~1{tenantId}~1bom~1alerts~1active
+  /tenants/{tenantId}/bom/alerts/predictive:
+    $ref: ./paths/bom-alerts.yaml#/paths/~1tenants~1{tenantId}~1bom~1alerts~1predictive
+  /tenants/{tenantId}/bom/alerts/reorder-recommendations:
+    $ref: ./paths/bom-alerts.yaml#/paths/~1tenants~1{tenantId}~1bom~1alerts~1reorder-recommendations
+  /tenants/{tenantId}/bom/alerts/dashboard:
+    $ref: ./paths/bom-alerts.yaml#/paths/~1tenants~1{tenantId}~1bom~1alerts~1dashboard
+
+  # Reporting
+  /tenants/{tenantId}/bom/reports/executive-dashboard:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1executive-dashboard
+  /tenants/{tenantId}/bom/reports/material-usage:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1material-usage
+  /tenants/{tenantId}/bom/reports/recipe-costing:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1recipe-costing
+  /tenants/{tenantId}/bom/reports/stock-movement:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1stock-movement
+  /tenants/{tenantId}/bom/reports/production-efficiency:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1production-efficiency
+  /tenants/{tenantId}/bom/reports/export:
+    $ref: ./paths/reporting.yaml#/paths/~1tenants~1{tenantId}~1bom~1reports~1export
+
+  # Tenant Analytics
+  /tenants/{tenantId}/analytics/overview:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1overview
+  /tenants/{tenantId}/analytics/top-products:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1top-products
+  /tenants/{tenantId}/analytics/revenue-breakdown:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1revenue-breakdown
+  /tenants/{tenantId}/analytics/profit-analysis:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1profit-analysis
+  /tenants/{tenantId}/analytics/category-performance:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1category-performance
+  /tenants/{tenantId}/analytics/most-viewed:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1most-viewed
+  /tenants/{tenantId}/analytics/search-terms:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1search-terms
+  /tenants/{tenantId}/analytics/search-trends:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1search-trends
+  /tenants/{tenantId}/analytics/search-stats:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1search-stats
+  /tenants/{tenantId}/analytics/zero-result-searches:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1zero-result-searches
+  /tenants/{tenantId}/analytics/track-search:
+    $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1track-search
+
+  # Dashboard
+  /tenants/{tenantId}/dashboard:
+    $ref: ./paths/dashboard.yaml#/paths/~1tenants~1{tenantId}~1dashboard
+
+  # Diagnostics (public + auth)
+  /ping:
+    $ref: ./paths/diagnostics.yaml#/paths/~1ping
+  /ping-basic:
+    $ref: ./paths/diagnostics.yaml#/paths/~1ping-basic
+  /guard-check:
+    $ref: ./paths/diagnostics.yaml#/paths/~1guard-check
+  /ping-auth:
+    $ref: ./paths/diagnostics.yaml#/paths/~1ping-auth
+  /test/auth:
+    $ref: ./paths/diagnostics.yaml#/paths/~1test~1auth
+  /tenants/{tenant}/test/context:
+    $ref: ./paths/diagnostics.yaml#/paths/~1tenants~1{tenant}~1test~1context
+  /tenants/{tenant}/test/policy:
+    $ref: ./paths/diagnostics.yaml#/paths/~1tenants~1{tenant}~1test~1policy
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas: {}
+  parameters: {}
+  responses: {}

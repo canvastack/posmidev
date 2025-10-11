@@ -1,0 +1,236 @@
+paths:
+  /tenants/{tenantId}/variants/export:
+    get:
+      tags: [Variants]
+      summary: Export variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: File stream }
+
+  /tenants/{tenantId}/variants/import/template:
+    get:
+      tags: [Variants]
+      summary: Download variants import template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: File stream }
+
+  /tenants/{tenantId}/variants/import:
+    post:
+      tags: [Variants]
+      summary: Import variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants:
+    get:
+      tags: [Variants]
+      summary: List product variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Variants]
+      summary: Create variant for product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/products/{productId}/variants/bulk:
+    post:
+      tags: [Variants]
+      summary: Bulk create variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Variants]
+      summary: Bulk update variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+    delete:
+      tags: [Variants]
+      summary: Bulk delete variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants/analytics:
+    get:
+      tags: [Variants]
+      summary: Product variants analytics overview
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/variants/analytics/top-performers:
+    get:
+      tags: [Variants]
+      summary: Top performer variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/variants/analytics/compare:
+    post:
+      tags: [Variants]
+      summary: Compare variants
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/variants/analytics/performance-summary:
+    get:
+      tags: [Variants]
+      summary: Variants performance summary
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/analytics:
+    get:
+      tags: [Variants]
+      summary: Variant analytics detail
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}:
+    get:
+      tags: [Variants]
+      summary: Get variant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Variants]
+      summary: Update variant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Variants]
+      summary: Delete variant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/stock:
+    post:
+      tags: [Variants]
+      summary: Update variant stock
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/reserve:
+    post:
+      tags: [Variants]
+      summary: Reserve variant stock
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/variants/{variantId}/release:
+    post:
+      tags: [Variants]
+      summary: Release reserved variant stock
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/VariantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

@@ -1,0 +1,33 @@
+paths:
+  /tenants/{tenantId}/bom/alerts/active:
+    get:
+      tags: [BOM / Alerts]
+      summary: Active BOM alerts
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/alerts/predictive:
+    get:
+      tags: [BOM / Alerts]
+      summary: Predictive BOM alerts
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/alerts/reorder-recommendations:
+    get:
+      tags: [BOM / Alerts]
+      summary: Reorder recommendations
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/alerts/dashboard:
+    get:
+      tags: [BOM / Alerts]
+      summary: BOM alerts dashboard
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }

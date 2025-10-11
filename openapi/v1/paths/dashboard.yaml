@@ -1,0 +1,9 @@
+paths:
+  /tenants/{tenantId}/dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Tenant dashboard overview
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }

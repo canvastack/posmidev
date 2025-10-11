@@ -1,7 +1,7 @@
 ﻿# BOM Engine - End-to-End Implementation Roadmap
 
 ## Document Information
-- **Version**: 1.7.1
+- **Version**: 1.7.2
 - **Created**: 2024
 - **Last Updated**: January 2025
 - **Status**: IN PROGRESS - Week 3 100% COMPLETE ✅ Week 4 97% COMPLETE 🚀 (Critical Fixes Applied!)
@@ -9,6 +9,7 @@
 - **Current Progress**: 98% (Week 1-3 complete + Week 4 frontend 97% + Critical bug fixes applied)
 - **Target**: Complete Bill of Materials Engine with Material Management, Recipe Management, and Stock Calculation
 - **Latest Update**: Alert API data structure fixed, file naming consistency achieved, ready for final testing
+- **Next Phase**: Image & Location Enhancement for Tenant, User, Customer (3 weeks post-BOM completion)
 
 ---
 
@@ -76,6 +77,10 @@ Recent Fixes (Latest Update):
 ✅ File naming consistency (index.tsx pattern) applied
 ✅ All import references updated
 ✅ Dashboard crash error eliminated
+
+Next Enhancement (Post-BOM):
+🎯 Image & Location Features for Tenant, User, Customer
+📁 See: frontend/.devs/BOMBS/PHASE-1/IMAGE-LOCATION-ENHANCEMENT-ROADMAP.md
 ```
 
 ### Week 1: Database Foundation & Core Models ✅ COMPLETE

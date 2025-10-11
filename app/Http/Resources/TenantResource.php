@@ -15,6 +15,19 @@ class TenantResource extends JsonResource
             'address' => $this->address,
             'phone' => $this->phone,
             'logo' => $this->logo,
+            
+            // Image fields
+            'logo_url' => $this->logo_url,
+            'logo_thumb_url' => $this->logo_thumb_url,
+            'has_logo' => $this->has_logo,
+            
+            // Location fields
+            'latitude' => $this->latitude ? (float) $this->latitude : null,
+            'longitude' => $this->longitude ? (float) $this->longitude : null,
+            'location_address' => $this->location_address,
+            'has_location' => $this->has_location,
+            'location_coordinates' => $this->location_coordinates,
+            
             'status' => $this->status ?? 'pending',
             'can_auto_activate_users' => (bool)($this->can_auto_activate_users ?? false),
             'auto_activate_request_pending' => (bool)($this->auto_activate_request_pending ?? false),

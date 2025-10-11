@@ -1,0 +1,35 @@
+paths:
+  /tenants/{tenantId}/products/{productId}/track-view:
+    post:
+      tags: [Products]
+      summary: Track product view
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/view-stats:
+    get:
+      tags: [Products]
+      summary: Get product view stats
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/view-trends:
+    get:
+      tags: [Products]
+      summary: Get product view trends
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }

@@ -1,0 +1,59 @@
+paths:
+  /tenants/{tenantId}/blueprints:
+    get:
+      tags: [Blueprints]
+      summary: List blueprints
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Blueprints]
+      summary: Create blueprint
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/blueprints/{id}:
+    get:
+      tags: [Blueprints]
+      summary: Get blueprint
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Blueprints]
+      summary: Update blueprint
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+
+  /tenants/{tenantId}/blueprints/{id}/fields:
+    post:
+      tags: [Blueprints]
+      summary: Add blueprint field
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

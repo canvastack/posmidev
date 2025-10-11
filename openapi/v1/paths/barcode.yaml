@@ -1,0 +1,24 @@
+paths:
+  /tenants/{tenantId}/products/{productId}/barcode:
+    get:
+      tags: [Products]
+      summary: Generate product barcode
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/barcode/bulk:
+    post:
+      tags: [Products]
+      summary: Bulk generate barcodes
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

@@ -7,6 +7,8 @@ import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@
 import { useDebounce } from '@/hooks/useDebounce'
 import { useAuth } from '@/hooks/useAuth'
 import { CustomerEavPanel } from '@/components/domain/customers/CustomerEavPanel'
+import { CustomerFormDialog } from '@/components/domain/customers/CustomerFormDialog'
+import { MapPin, UserCircle, Plus, Edit } from 'lucide-react'
 
 // Customers page behavior:
 // - HQ user with tenants.view: list tenants (top table), expandable to show that tenant's customers (AJAX) with pagination
@@ -67,16 +69,60 @@ export function CustomersPage() {
 
   const custColumns = useMemo(
     () => [
+      {
+        key: 'photo',
+        header: 'Photo',
+        render: (r: Customer) =>
+          r.photo_thumb_url || r.photo_url ? (
+            <img
+              src={r.photo_thumb_url || r.photo_url}
+              alt={r.name}
+              className="w-10 h-10 rounded-full object-cover border border-border"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+              <UserCircle className="h-6 w-6 text-muted-foreground" />
+            </div>
+          ),
+      },
       { key: 'name', header: 'Name' },
-      { key: 'email', header: 'Email' },
-      { key: 'phone', header: 'Phone' },
-      { key: 'tags', header: 'Tags', render: (r: Customer) => (r.tags || []).join(', ') },
-      { key: '__actions', header: 'Actions', render: (r: Customer) => (
-        <button
-          className="text-primary-700 hover:underline"
-          onClick={() => openEav(r)}
-        >EAV</button>
-      ) },
+      { key: 'email', header: 'Email', render: (r: Customer) => r.email || '-' },
+      { key: 'phone', header: 'Phone', render: (r: Customer) => r.phone || '-' },
+      {
+        key: 'location',
+        header: 'Delivery Location',
+        render: (r: Customer) =>
+          r.has_delivery_location ? (
+            <div className="flex items-center gap-1 text-xs text-success-600 dark:text-success-400">
+              <MapPin className="h-3 w-3" />
+              <span>Tersedia</span>
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">-</span>
+          ),
+      },
+      { key: 'tags', header: 'Tags', render: (r: Customer) => (r.tags || []).join(', ') || '-' },
+      {
+        key: '__actions',
+        header: 'Actions',
+        render: (r: Customer, targetTenantId?: string) => (
+          <div className="flex items-center gap-2">
+            <button
+              className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+              onClick={() => openEditDialog(r, targetTenantId)}
+              title="Edit customer"
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+            <button
+              className="text-primary-700 hover:underline text-sm"
+              onClick={() => openEav(r)}
+            >
+              EAV
+            </button>
+          </div>
+        ),
+      },
     ],
     []
   )
@@ -141,17 +187,29 @@ export function CustomersPage() {
                     </TableRow>
                     {state.expanded && (
                       <tr>
-                        <td colSpan={4} className="bg-gray-50">
+                        <td colSpan={4} className="bg-gray-50 dark:bg-gray-900/20">
                           <div className="p-4 space-y-3">
                             <div className="flex items-center justify-between">
-                              <Input
-                                value={state.q}
-                                onChange={(e) => setRowState(prev => ({ ...prev, [t.id]: { ...ensureRowState(t.id), q: e.target.value, expanded: true } }))}
-                                onKeyDown={(e) => { if (e.key === 'Enter') fetchTenantCustomers(t.id, 1, state.perPage, state.q) }}
-                                placeholder="Search customers..."
-                                className="w-64"
-                              />
-                              <div className="text-sm text-gray-600">Page {state.data?.current_page || 1} of {state.data?.last_page || 1} — {state.data?.total || 0} customers</div>
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  value={state.q}
+                                  onChange={(e) => setRowState(prev => ({ ...prev, [t.id]: { ...ensureRowState(t.id), q: e.target.value, expanded: true } }))}
+                                  onKeyDown={(e) => { if (e.key === 'Enter') fetchTenantCustomers(t.id, 1, state.perPage, state.q) }}
+                                  placeholder="Search customers..."
+                                  className="w-64"
+                                />
+                                <Button onClick={() => fetchTenantCustomers(t.id, 1, state.perPage, state.q)}>Search</Button>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="text-sm text-muted-foreground">Page {state.data?.current_page || 1} of {state.data?.last_page || 1} — {state.data?.total || 0} customers</div>
+                                <Button 
+                                  onClick={() => openCreateDialog(t.id)} 
+                                  className="btn btn-primary flex items-center gap-2"
+                                >
+                                  <Plus className="h-4 w-4" />
+                                  Tambah Customer
+                                </Button>
+                              </div>
                             </div>
                             <Table>
                               <TableHeader>
@@ -168,7 +226,7 @@ export function CustomersPage() {
                                   state.data.data.map((r) => (
                                     <TableRow key={r.id}>
                                       {custColumns.map((c) => (
-                                        <TableCell key={c.key}>{c.render ? c.render(r) : (r as any)[c.key]}</TableCell>
+                                        <TableCell key={c.key}>{c.render ? c.render(r, t.id) : (r as any)[c.key]}</TableCell>
                                       ))}
                                     </TableRow>
                                   ))
@@ -213,17 +271,60 @@ export function CustomersPage() {
   const [eavOpen, setEavOpen] = useState(false)
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null)
 
+  // Local state for Customer Form Dialog
+  const [formDialogOpen, setFormDialogOpen] = useState(false)
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+  const [dialogTenantId, setDialogTenantId] = useState<string | null>(null)
+
   const openEav = (c: Customer) => {
     setSelectedCustomerId(c.id)
     setEavOpen(true)
   }
 
+  const openCreateDialog = (targetTenantId?: string) => {
+    setEditingCustomer(null)
+    setDialogTenantId(targetTenantId || tenantId || null)
+    setFormDialogOpen(true)
+  }
+
+  const openEditDialog = (c: Customer, targetTenantId?: string) => {
+    setEditingCustomer(c)
+    setDialogTenantId(targetTenantId || tenantId || null)
+    setFormDialogOpen(true)
+  }
+
+  const handleFormSuccess = () => {
+    // Refresh customer list
+    if (isHqUser && canViewTenants) {
+      // Reload tenants and refresh expanded rows
+      setTenantsPage((p) => p) // Trigger re-fetch
+      // Also refresh the specific tenant's customer list if it's expanded
+      if (dialogTenantId) {
+        const state = ensureRowState(dialogTenantId)
+        if (state.expanded) {
+          fetchTenantCustomers(dialogTenantId, state.page, state.perPage, state.q)
+        }
+      }
+    } else {
+      // Reload local customer list
+      setCustPage((p) => p) // Trigger re-fetch via useEffect
+    }
+    setFormDialogOpen(false)
+    setDialogTenantId(null)
+  }
+
   // Non-HQ table
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers..." className="w-64" />
-        <Button onClick={() => setCustPage(1)}>Search</Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers..." className="w-64" />
+          <Button onClick={() => setCustPage(1)}>Search</Button>
+        </div>
+        <Button onClick={openCreateDialog} className="btn btn-primary flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Tambah Customer
+        </Button>
       </div>
 
       <Table>
@@ -264,6 +365,19 @@ export function CustomersPage() {
           customerId={selectedCustomerId}
           open={eavOpen}
           onClose={() => setEavOpen(false)}
+        />
+      )}
+
+      {(tenantId || dialogTenantId) && (
+        <CustomerFormDialog
+          isOpen={formDialogOpen}
+          onClose={() => {
+            setFormDialogOpen(false)
+            setDialogTenantId(null)
+          }}
+          tenantId={dialogTenantId || tenantId!}
+          customer={editingCustomer}
+          onSuccess={handleFormSuccess}
         />
       )}
     </div>

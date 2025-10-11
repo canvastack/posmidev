@@ -1,0 +1,49 @@
+paths:
+  /tenants/{tenantId}/materials/{material}/transactions:
+    get:
+      tags: [BOM / Inventory]
+      summary: List inventory transactions for a material
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Material
+        - $ref: ../components/parameters/common.yaml#/Page
+        - $ref: ../components/parameters/common.yaml#/PerPage
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.view"]
+      responses:
+        '200':
+          description: Paginated transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { type: object }
+                  meta:
+                    $ref: ../components/schemas/common.yaml#/Pagination
+
+  /tenants/{tenantId}/inventory-transactions/{transactionId}:
+    get:
+      tags: [BOM / Inventory]
+      summary: Get an inventory transaction by ID
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/InventoryTransactionId
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.view"]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }

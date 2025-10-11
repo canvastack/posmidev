@@ -1,0 +1,58 @@
+paths:
+  /tenants/{tenant}/public/settings:
+    get:
+      tags: [Public Content]
+      summary: Get public tenant settings
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenant}/public/products:
+    get:
+      tags: [Public Content]
+      summary: List public products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenant}/public/products/{productId}:
+    get:
+      tags: [Public Content]
+      summary: Get public product detail
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+
+  /tenants/{tenant}/public/footer:
+    get:
+      tags: [Public Content]
+      summary: Get public footer content
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenant}/public/pages:
+    get:
+      tags: [Public Content]
+      summary: List public pages
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenant}/public/pages/{slug}:
+    get:
+      tags: [Public Content]
+      summary: Get page by slug
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+        - $ref: ../components/parameters/common.yaml#/Slug
+      responses:
+        '200': { description: OK }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }

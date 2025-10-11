@@ -1,0 +1,254 @@
+paths:
+  /tenants/{tenantId}/recipes:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/TenantId
+    get:
+      tags: [BOM / Recipes]
+      summary: List recipes
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.view"]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Search
+        - $ref: ../components/parameters/common.yaml#/Page
+        - $ref: ../components/parameters/common.yaml#/PerPage
+      responses:
+        '200':
+          description: Paginated recipes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { type: object }
+                  meta:
+                    $ref: ../components/schemas/common.yaml#/Pagination
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    post:
+      tags: [BOM / Recipes]
+      summary: Create a recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.create"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/recipes/{recipe}:
+    get:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      tags: [BOM / Recipes]
+      summary: Get a recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.view"]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    patch:
+      tags: [BOM / Recipes]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      summary: Update a recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.update"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    delete:
+      tags: [BOM / Recipes]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      summary: Delete a recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.delete"]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: Recipe deleted }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/recipes/{recipe}/components:
+    post:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      tags: [BOM / Recipes]
+      summary: Add a component to recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.manage_components"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /tenants/{tenantId}/recipes/{recipe}/components/{component}:
+    put:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+        - $ref: ../components/parameters/common.yaml#/ComponentId
+      tags: [BOM / Recipes]
+      summary: Update a recipe component
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.manage_components"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+    delete:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+        - $ref: ../components/parameters/common.yaml#/ComponentId
+      tags: [BOM / Recipes]
+      summary: Remove a recipe component
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.manage_components"]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  message: { type: string }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+
+  /tenants/{tenantId}/recipes/{recipe}/activate:
+    post:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      tags: [BOM / Recipes]
+      summary: Activate recipe
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.update"]
+      responses:
+        '200':
+          description: Activated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/recipes/{recipe}/cost-breakdown:
+    get:
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Recipe
+      tags: [BOM / Recipes]
+      summary: Get recipe cost breakdown
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["recipes.view"]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }

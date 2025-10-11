@@ -14,7 +14,12 @@ class Customer
         private ?string $phone = null,
         private ?string $address = null,
         private ?\DateTimeInterface $createdAt = null,
-        private ?\DateTimeInterface $updatedAt = null
+        private ?\DateTimeInterface $updatedAt = null,
+        private ?string $photoUrl = null,
+        private ?string $photoThumbUrl = null,
+        private ?float $deliveryLatitude = null,
+        private ?float $deliveryLongitude = null,
+        private ?string $deliveryAddress = null
     ) {}
 
     public function getId(): string
@@ -109,6 +114,78 @@ class Customer
         $this->updatedAt = $updatedAt;
     }
 
+    public function getPhotoUrl(): ?string
+    {
+        return $this->photoUrl;
+    }
+
+    public function setPhotoUrl(?string $photoUrl): void
+    {
+        $this->photoUrl = $photoUrl;
+    }
+
+    public function getPhotoThumbUrl(): ?string
+    {
+        return $this->photoThumbUrl;
+    }
+
+    public function setPhotoThumbUrl(?string $photoThumbUrl): void
+    {
+        $this->photoThumbUrl = $photoThumbUrl;
+    }
+
+    public function getDeliveryLatitude(): ?float
+    {
+        return $this->deliveryLatitude;
+    }
+
+    public function setDeliveryLatitude(?float $deliveryLatitude): void
+    {
+        $this->deliveryLatitude = $deliveryLatitude;
+    }
+
+    public function getDeliveryLongitude(): ?float
+    {
+        return $this->deliveryLongitude;
+    }
+
+    public function setDeliveryLongitude(?float $deliveryLongitude): void
+    {
+        $this->deliveryLongitude = $deliveryLongitude;
+    }
+
+    public function getDeliveryAddress(): ?string
+    {
+        return $this->deliveryAddress;
+    }
+
+    public function setDeliveryAddress(?string $deliveryAddress): void
+    {
+        $this->deliveryAddress = $deliveryAddress;
+    }
+
+    public function hasPhoto(): bool
+    {
+        return !empty($this->photoUrl);
+    }
+
+    public function hasDeliveryLocation(): bool
+    {
+        return !is_null($this->deliveryLatitude) && !is_null($this->deliveryLongitude);
+    }
+
+    public function getDeliveryLocationCoordinates(): ?array
+    {
+        if (!$this->hasDeliveryLocation()) {
+            return null;
+        }
+
+        return [
+            'lat' => $this->deliveryLatitude,
+            'lng' => $this->deliveryLongitude,
+        ];
+    }
+
     public function toArray(): array
     {
         return [
@@ -119,6 +196,14 @@ class Customer
             'phone' => $this->phone,
             'address' => $this->address,
             'tags' => $this->tags,
+            'photo_url' => $this->photoUrl,
+            'photo_thumb_url' => $this->photoThumbUrl,
+            'has_photo' => $this->hasPhoto(),
+            'delivery_latitude' => $this->deliveryLatitude,
+            'delivery_longitude' => $this->deliveryLongitude,
+            'delivery_address' => $this->deliveryAddress,
+            'has_delivery_location' => $this->hasDeliveryLocation(),
+            'delivery_location_coordinates' => $this->getDeliveryLocationCoordinates(),
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];

@@ -118,6 +118,12 @@ Route::prefix('v1')->group(function () {
         Route::post('tenants/{tenantId}/auto-activation/approve', [TenantController::class, 'approveAutoActivation']);
         Route::post('tenants/{tenantId}/auto-activation/reject', [TenantController::class, 'rejectAutoActivation']);
         Route::post('tenants/{tenantId}/users/{userId}/status', [TenantController::class, 'setUserStatus']);
+        
+        // Image & Location Enhancement - Tenant Logo (with team context middleware)
+        Route::middleware('team.tenant')->group(function () {
+            Route::post('tenants/{tenantId}/upload-logo', [TenantController::class, 'uploadLogo']);
+            Route::delete('tenants/{tenantId}/logo', [TenantController::class, 'deleteLogo']);
+        });
 
         // Tenant-specific routes
         Route::prefix('tenants/{tenantId}')->middleware('team.tenant')->group(function () {
@@ -251,11 +257,18 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
             Route::post('uploads/user-photo', [UserController::class, 'uploadPhoto']); // upload user photo to storage
             Route::post('users/{userId}/roles', [UserController::class, 'updateRoles']); // assign roles per tenant (team-scoped)
+            
+            // Image & Location Enhancement - User Profile Photo (with team context middleware)
+            Route::post('users/{userId}/upload-profile-photo', [UserController::class, 'uploadProfilePhoto']);
+            Route::delete('users/{userId}/profile-photo', [UserController::class, 'deleteProfilePhoto']);
+            
             Route::get('permissions', [PermissionController::class, 'index']);
 
             // Customers
             Route::apiResource('customers', \App\Http\Controllers\Api\CustomerController::class);
             Route::post('customers/search', [\App\Http\Controllers\Api\CustomerController::class, 'search']);
+            Route::post('customers/{customerId}/upload-photo', [\App\Http\Controllers\Api\CustomerController::class, 'uploadPhoto']);
+            Route::delete('customers/{customerId}/photo', [\App\Http\Controllers\Api\CustomerController::class, 'deletePhoto']);
 
             // Phase 9: Suppliers
             Route::apiResource('suppliers', SupplierController::class);
@@ -332,6 +345,10 @@ Route::prefix('v1')->group(function () {
             Route::post('materials/bulk', [\App\Http\Controllers\Api\MaterialController::class, 'bulkStore']);
             Route::post('materials/{material}/adjust-stock', [\App\Http\Controllers\Api\MaterialController::class, 'adjustStock']);
             Route::apiResource('materials', \App\Http\Controllers\Api\MaterialController::class);
+            
+            // Inventory Transactions
+            Route::get('materials/{material}/transactions', [\App\Http\Controllers\Api\InventoryTransactionController::class, 'index']);
+            Route::get('inventory-transactions/{transaction}', [\App\Http\Controllers\Api\InventoryTransactionController::class, 'show']);
             
             // Recipe Management
             Route::post('recipes/{recipe}/activate', [\App\Http\Controllers\Api\RecipeController::class, 'activate']);

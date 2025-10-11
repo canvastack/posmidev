@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Tests\Traits\TenantTestTrait;
 use Src\Pms\Infrastructure\Models\Material;
 use Src\Pms\Infrastructure\Models\Tenant;
+use Src\Pms\Infrastructure\Models\InventoryTransaction;
 
 class MaterialApiTest extends TestCase
 {
@@ -387,6 +388,355 @@ class MaterialApiTest extends TestCase
         $materials = $response->json('data');
         $this->assertCount(1, $materials);
         $this->assertEquals('Flour', $materials[0]['name']);
+    }
+
+    /** @test */
+    public function it_can_list_material_transactions(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create transactions directly via factory for predictable results
+        \Src\Pms\Infrastructure\Models\InventoryTransaction::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'material_id' => $material->id,
+            'transaction_type' => 'restock',
+            'quantity_change' => 50,
+            'reason' => 'purchase',
+            'notes' => 'Restocking from supplier',
+        ]);
+
+        \Src\Pms\Infrastructure\Models\InventoryTransaction::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'material_id' => $material->id,
+            'transaction_type' => 'deduction',
+            'quantity_change' => -20,
+            'reason' => 'production',
+            'notes' => 'Used in production',
+        ]);
+
+        // Act
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk()
+            ->assertJsonStructure([
+                'success',
+                'material' => [
+                    'id',
+                    'name',
+                    'current_stock',
+                ],
+                'data' => [
+                    '*' => [
+                        'id',
+                        'transaction_type',
+                        'quantity_change',
+                        'quantity_before',
+                        'quantity_after',
+                        'reason',
+                        'notes',
+                        'user_name',
+                        'created_at',
+                        'is_increase',
+                        'is_decrease',
+                        'direction',
+                        'absolute_change',
+                    ]
+                ],
+                'meta' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ]
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('material.id', $material->id);
+
+        $transactions = $response->json('data');
+        $this->assertCount(2, $transactions);
+    }
+
+    /** @test */
+    public function it_filters_transactions_by_type(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create different transaction types
+        $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/adjust-stock",
+            ['type' => 'restock', 'quantity' => 50, 'reason' => 'purchase'],
+            $this->authenticatedRequest()['headers']
+        );
+
+        $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/adjust-stock",
+            ['type' => 'deduction', 'quantity' => 20, 'reason' => 'production'],
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Act - Filter by restock type
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions?transaction_type=restock",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk();
+        $transactions = $response->json('data');
+        $this->assertCount(1, $transactions);
+        $this->assertEquals('restock', $transactions[0]['transaction_type']);
+    }
+
+    /** @test */
+    public function it_filters_transactions_by_reason(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create transactions with different reasons
+        $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/adjust-stock",
+            ['type' => 'restock', 'quantity' => 50, 'reason' => 'purchase'],
+            $this->authenticatedRequest()['headers']
+        );
+
+        $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/adjust-stock",
+            ['type' => 'restock', 'quantity' => 30, 'reason' => 'return'],
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Act - Filter by purchase reason
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions?reason=purchase",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk();
+        $transactions = $response->json('data');
+        $this->assertCount(1, $transactions);
+        $this->assertEquals('purchase', $transactions[0]['reason']);
+    }
+
+    /** @test */
+    public function it_filters_transactions_by_direction(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create transactions with different directions
+        InventoryTransaction::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'material_id' => $material->id,
+            'quantity_change' => 10,
+            'transaction_type' => 'restock',
+        ]);
+
+        InventoryTransaction::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'material_id' => $material->id,
+            'quantity_change' => -5,
+            'transaction_type' => 'deduction',
+        ]);
+
+        // Act - Filter by increases only (direction=in)
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions?direction=in",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk();
+        $transactions = $response->json('data');
+        $this->assertCount(1, $transactions);
+        $this->assertTrue($transactions[0]['is_increase']);
+    }
+
+    /** @test */
+    public function it_filters_transactions_by_date_range(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create a transaction
+        $this->postJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/adjust-stock",
+            ['type' => 'restock', 'quantity' => 50, 'reason' => 'purchase'],
+            $this->authenticatedRequest()['headers']
+        );
+
+        $today = now()->format('Y-m-d');
+        $tomorrow = now()->addDay()->format('Y-m-d');
+
+        // Act - Filter by today's date
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions?date_from={$today}&date_to={$tomorrow}",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk();
+        $transactions = $response->json('data');
+        $this->assertCount(1, $transactions);
+    }
+
+    /** @test */
+    public function it_can_show_single_transaction_details(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create a transaction directly
+        $transaction = \Src\Pms\Infrastructure\Models\InventoryTransaction::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'material_id' => $material->id,
+            'user_id' => $this->user->id,
+            'transaction_type' => 'restock',
+            'quantity_change' => 50,
+            'reason' => 'purchase',
+            'notes' => 'Supplier ABC delivery',
+        ]);
+
+        // Act
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/inventory-transactions/{$transaction->id}",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk()
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    'id',
+                    'transaction_type',
+                    'quantity_change',
+                    'quantity_before',
+                    'quantity_after',
+                    'reason',
+                    'notes',
+                    'created_at',
+                    'is_increase',
+                    'is_decrease',
+                    'direction',
+                    'absolute_change',
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                    ],
+                    'material' => [
+                        'id',
+                        'name',
+                        'sku',
+                        'unit',
+                        'current_stock',
+                    ],
+                ]
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.id', $transaction->id)
+            ->assertJsonPath('data.transaction_type', 'restock')
+            ->assertJsonPath('data.notes', 'Supplier ABC delivery')
+            ->assertJsonPath('data.user.name', $this->user->name);
+    }
+
+    /** @test */
+    public function it_cannot_access_transaction_from_another_tenant(): void
+    {
+        // Arrange
+        $otherTenant = $this->createOtherTenant();
+        $material = Material::factory()->create([
+            'tenant_id' => $otherTenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create transaction for other tenant (using factory directly)
+        $transaction = \Src\Pms\Infrastructure\Models\InventoryTransaction::factory()->create([
+            'tenant_id' => $otherTenant->id,
+            'material_id' => $material->id,
+        ]);
+
+        // Act - Try to access other tenant's transaction
+        $response = $this->getJson(
+            "/api/v1/tenants/{$otherTenant->id}/inventory-transactions/{$transaction->id}",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertForbidden();
+    }
+
+    /** @test */
+    public function it_returns_404_for_nonexistent_transaction(): void
+    {
+        // Arrange
+        $fakeTransactionId = (string)\Ramsey\Uuid\Uuid::uuid4();
+
+        // Act
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/inventory-transactions/{$fakeTransactionId}",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertNotFound();
+    }
+
+    /** @test */
+    public function it_paginates_material_transactions(): void
+    {
+        // Arrange
+        $material = Material::factory()->create([
+            'tenant_id' => $this->tenant->id,
+            'stock_quantity' => 100,
+        ]);
+
+        // Create 25 transactions
+        for ($i = 0; $i < 25; $i++) {
+            \Src\Pms\Infrastructure\Models\InventoryTransaction::factory()->create([
+                'tenant_id' => $this->tenant->id,
+                'material_id' => $material->id,
+            ]);
+        }
+
+        // Act - Request first page
+        $response = $this->getJson(
+            "/api/v1/tenants/{$this->tenant->id}/materials/{$material->id}/transactions?per_page=10",
+            $this->authenticatedRequest()['headers']
+        );
+
+        // Assert
+        $response->assertOk()
+            ->assertJsonPath('meta.per_page', 10)
+            ->assertJsonPath('meta.total', 25);
+
+        $this->assertCount(10, $response->json('data'));
     }
 
     /** @test */

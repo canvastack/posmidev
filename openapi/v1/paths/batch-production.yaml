@@ -1,0 +1,51 @@
+paths:
+  /tenants/{tenantId}/bom/batch-requirements:
+    post:
+      tags: [BOM / Batch Production]
+      summary: Calculate batch requirements
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /tenants/{tenantId}/bom/optimal-batch-size:
+    post:
+      tags: [BOM / Batch Production]
+      summary: Calculate optimal batch size
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /tenants/{tenantId}/bom/multi-product-plan:
+    post:
+      tags: [BOM / Batch Production]
+      summary: Create multi-product production plan
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }

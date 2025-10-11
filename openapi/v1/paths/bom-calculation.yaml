@@ -1,0 +1,91 @@
+paths:
+  /tenants/{tenantId}/bom/calculate:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/TenantId
+    post:
+      tags: [BOM / Calculation]
+      summary: Calculate BOM requirements and cost for a product
+      description: |
+        **⚠️ IMPLEMENTATION STATUS: NOT YET IMPLEMENTED**
+        
+        This endpoint is documented but not yet implemented in routes/api.php.
+        
+        **Implementation Guidance:**
+        - Create route in `routes/api.php` under BOM section
+        - Controller: `BOMCalculationController@calculate` or similar
+        - Accepts: product_id, quantity, optional tenant context
+        - Returns: material requirements, total cost, stock availability status
+        - Should leverage existing BOM calculation services
+        - Related endpoints already implemented:
+          - `GET /bom/products/{product}/available-quantity` ✅
+          - `POST /bom/bulk-availability` ✅
+          - `GET /bom/products/{product}/production-capacity` ✅
+        
+        **Alternative:** Consider using `/bom/products/{product}/available-quantity` 
+        with quantity parameter instead of this generic calculate endpoint.
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["bom.calculate"]
+      x-implementation-status: pending
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Calculation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/bom/products/{product}/available-quantity:
+    get:
+      tags: [BOM / Calculation]
+      summary: Get available quantity for a product based on BOM
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200': { description: OK }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+
+  /tenants/{tenantId}/bom/bulk-availability:
+    post:
+      tags: [BOM / Calculation]
+      summary: Bulk available quantity for multiple products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /tenants/{tenantId}/bom/products/{product}/production-capacity:
+    get:
+      tags: [BOM / Calculation]
+      summary: Get production capacity for a product based on BOM
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200': { description: OK }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }

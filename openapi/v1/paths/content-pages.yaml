@@ -1,0 +1,52 @@
+paths:
+  /tenants/{tenantId}/content/pages:
+    get:
+      tags: [Content Pages]
+      summary: List content pages
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Content Pages]
+      summary: Create content page
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/content/pages/{id}:
+    get:
+      tags: [Content Pages]
+      summary: Get content page
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Content Pages]
+      summary: Update content page
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Content Pages]
+      summary: Delete content page
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: Deleted }

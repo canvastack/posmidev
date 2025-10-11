@@ -16,6 +16,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Building2,
+  Building,
   Tags,
   TrendingUp,
   Factory,
@@ -40,6 +41,7 @@ const menuItems = [
   // Users & Settings
   { icon: IdCard, label: 'Users', path: '/admin/users' },
   { icon: BrainCircuit, label: 'Roles', path: '/admin/roles' },
+  { icon: Building, label: 'Tenants', path: '/admin/tenants' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
   { icon: FileText, label: 'Content Pages', path: '/admin/content-pages' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },

@@ -1,15 +1,15 @@
 import React from 'react'
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
+  type SortingState,
   useReactTable,
-  ColumnFiltersState,
+  type ColumnFiltersState,
   getFilteredRowModel,
-  VisibilityState,
+  type VisibilityState,
 } from '@tanstack/react-table'
 import { cn } from '@/utils/cn'
 import { Checkbox } from '@/components/ui/Checkbox'

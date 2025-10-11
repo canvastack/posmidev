@@ -7,6 +7,7 @@ use App\Http\Requests\CustomerRequest;
 use App\Http\Resources\CustomerResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Src\Pms\Core\Application\Services\CustomerService;
 use Src\Pms\Infrastructure\Models\Customer;
 
@@ -100,16 +101,47 @@ class CustomerController extends Controller
         $this->authorize('update', [Customer::class, $tenantId]);
 
         try {
-            $customer = $this->customerService->updateCustomer(
-                customerId: $id,
-                name: (string) $request->input('name', ''),
-                email: $request->input('email'),
-                phone: $request->input('phone'),
-                address: $request->input('address'),
-                tags: $request->has('tags') ? (array) $request->input('tags') : []
-            );
+            // Prepare data array with new location fields
+            $data = [
+                'name' => (string) $request->input('name', ''),
+                'email' => $request->input('email'),
+                'phone' => $request->input('phone'),
+                'address' => $request->input('address'),
+                'tags' => $request->has('tags') ? (array) $request->input('tags') : [],
+            ];
 
-            return response()->json(new CustomerResource($customer));
+            // Add location fields if provided
+            if ($request->has('delivery_latitude')) {
+                $request->validate([
+                    'delivery_latitude' => ['nullable', 'numeric', 'min:-90', 'max:90'],
+                ]);
+                $data['delivery_latitude'] = $request->input('delivery_latitude');
+            }
+            if ($request->has('delivery_longitude')) {
+                $request->validate([
+                    'delivery_longitude' => ['nullable', 'numeric', 'min:-180', 'max:180'],
+                ]);
+                $data['delivery_longitude'] = $request->input('delivery_longitude');
+            }
+            if ($request->has('delivery_address')) {
+                $request->validate([
+                    'delivery_address' => ['nullable', 'string', 'max:500'],
+                ]);
+                $data['delivery_address'] = $request->input('delivery_address');
+            }
+
+            // Get customer model directly to update with new fields
+            $customerModel = Customer::findOrFail($id);
+            if ($customerModel->tenant_id !== $tenantId) {
+                return response()->json(['message' => 'Customer not found'], 404);
+            }
+
+            // Update using model (includes new fields)
+            $customerModel->update($data);
+
+            return response()->json(new CustomerResource(
+                $this->customerService->getCustomer($id)
+            ));
         } catch (\InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
         }
@@ -125,6 +157,122 @@ class CustomerController extends Controller
             return response()->json(null, 204);
         } catch (\InvalidArgumentException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
+        }
+    }
+
+    /**
+     * Upload photo for customer
+     * 
+     * POST /api/v1/tenants/{tenantId}/customers/{customerId}/upload-photo
+     * Permission: customers.update (tenant-scoped)
+     */
+    public function uploadPhoto(Request $request, string $tenantId, string $customerId): JsonResponse
+    {
+        $customer = Customer::findOrFail($customerId);
+        
+        if ($customer->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'Customer not found'], 404);
+        }
+
+        // Check permission to update customer
+        $this->authorize('updateCustomer', $customer);
+
+        $validated = $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
+        ]);
+
+        try {
+            $image = $request->file('photo');
+            $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            // Save original image
+            $path = "customers/{$customerId}/{$filename}";
+            Storage::disk('public')->put($path, file_get_contents($image));
+            $imageUrl = Storage::disk('public')->url($path);
+
+            // Create thumbnail (300x300)
+            $thumbnailFilename = \Illuminate\Support\Str::uuid() . '_thumb.' . $image->getClientOriginalExtension();
+            $thumbnailPath = "customers/{$customerId}/{$thumbnailFilename}";
+            
+            $thumbnail = \Intervention\Image\Facades\Image::make($image)->fit(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->encode();
+            
+            Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+            $thumbnailUrl = Storage::disk('public')->url($thumbnailPath);
+
+            // Delete old images if exist
+            if ($customer->photo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($customer->photo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($customer->photo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($customer->photo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update customer
+            $customer->update([
+                'photo_url' => $imageUrl,
+                'photo_thumb_url' => $thumbnailUrl,
+            ]);
+
+            return response()->json([
+                'message' => 'Customer photo uploaded successfully.',
+                'photo_url' => $imageUrl,
+                'photo_thumb_url' => $thumbnailUrl,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload customer photo.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete customer photo
+     * 
+     * DELETE /api/v1/tenants/{tenantId}/customers/{customerId}/photo
+     * Permission: customers.update (tenant-scoped)
+     */
+    public function deletePhoto(string $tenantId, string $customerId): JsonResponse
+    {
+        $customer = Customer::findOrFail($customerId);
+        
+        if ($customer->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'Customer not found'], 404);
+        }
+
+        // Check permission to update customer
+        $this->authorize('updateCustomer', $customer);
+
+        try {
+            // Delete images from storage
+            if ($customer->photo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($customer->photo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($customer->photo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($customer->photo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update customer
+            $customer->update([
+                'photo_url' => null,
+                'photo_thumb_url' => null,
+            ]);
+
+            return response()->json([
+                'message' => 'Customer photo deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete customer photo.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

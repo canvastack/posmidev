@@ -1,0 +1,52 @@
+paths:
+  /tenants/{tenantId}/roles:
+    get:
+      tags: [Roles]
+      summary: List roles
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Roles]
+      summary: Create role
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/roles/{id}:
+    get:
+      tags: [Roles]
+      summary: Get role
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Roles]
+      summary: Update role
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Roles]
+      summary: Delete role
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Id
+      responses:
+        '200': { description: Deleted }

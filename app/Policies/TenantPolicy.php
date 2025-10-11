@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use Src\Pms\Infrastructure\Models\User;
+use Src\Pms\Infrastructure\Models\Tenant;
 
 class TenantPolicy
 {
@@ -24,6 +25,17 @@ class TenantPolicy
     public function update(User $user): bool
     {
         return $user->can('tenants.update');
+    }
+
+    /**
+     * Determine if user can update a specific tenant (for logo upload, location update, etc.)
+     * Tenant admin can update their own tenant, or HQ admin can update any tenant
+     */
+    public function updateTenant(User $user, Tenant $tenant): bool
+    {
+        // User must have tenants.update permission AND belong to the same tenant
+        // OR HQ Super Admin (handled by Gate::before in AuthServiceProvider)
+        return ((string) $user->tenant_id === (string) $tenant->id) && $user->can('tenants.update');
     }
 
     public function delete(User $user): bool

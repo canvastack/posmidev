@@ -1,0 +1,78 @@
+paths:
+  /register:
+    post:
+      tags: [Auth]
+      summary: Register tenant and admin user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Registration successful }
+                  user: { type: object }
+                  token: { type: string }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Login successful }
+                  user: { type: object }
+                  token: { type: string }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+
+  /logout:
+    post:
+      security:
+        - bearerAuth: []
+      tags: [Auth]
+      summary: Logout current user
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Logged out successfully }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+
+  /user:
+    get:
+      security:
+        - bearerAuth: []
+      tags: [Auth]
+      summary: Get current authenticated user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: object }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }

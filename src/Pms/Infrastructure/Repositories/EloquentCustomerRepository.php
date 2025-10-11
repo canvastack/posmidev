@@ -79,6 +79,11 @@ class EloquentCustomerRepository implements CustomerRepositoryInterface
                 'phone' => $customer->getPhone(),
                 'address' => $customer->getAddress(),
                 'tags' => $customer->getTags(),
+                'photo_url' => $customer->getPhotoUrl(),
+                'photo_thumb_url' => $customer->getPhotoThumbUrl(),
+                'delivery_latitude' => $customer->getDeliveryLatitude(),
+                'delivery_longitude' => $customer->getDeliveryLongitude(),
+                'delivery_address' => $customer->getDeliveryAddress(),
             ]
         );
     }
@@ -90,7 +95,7 @@ class EloquentCustomerRepository implements CustomerRepositoryInterface
 
     private function toDomainEntity(CustomerModel $model): CustomerEntity
     {
-        return new CustomerEntity(
+        $entity = new CustomerEntity(
             id: $model->id,
             tenantId: $model->tenant_id,
             name: $model->name,
@@ -98,7 +103,17 @@ class EloquentCustomerRepository implements CustomerRepositoryInterface
             phone: $model->phone,
             address: $model->address,
             createdAt: $model->created_at,
-            updatedAt: $model->updated_at
+            updatedAt: $model->updated_at,
+            photoUrl: $model->photo_url,
+            photoThumbUrl: $model->photo_thumb_url,
+            deliveryLatitude: $model->delivery_latitude ? (float) $model->delivery_latitude : null,
+            deliveryLongitude: $model->delivery_longitude ? (float) $model->delivery_longitude : null,
+            deliveryAddress: $model->delivery_address
         );
+        
+        // Set tags after construction
+        $entity->setTags($model->tags ?? []);
+        
+        return $entity;
     }
 }

@@ -97,6 +97,9 @@ class UserController extends Controller
             'photo' => ['nullable','string'],
             'phone_number' => ['nullable','string','max:32'],
             'password' => ['nullable','string','min:6'],
+            'home_latitude' => ['nullable', 'numeric', 'min:-90', 'max:90'],
+            'home_longitude' => ['nullable', 'numeric', 'min:-180', 'max:180'],
+            'home_address' => ['nullable', 'string', 'max:500'],
         ]);
         $user->fill(collect($data)->except('password')->toArray());
         if (!empty($data['password'])) {
@@ -217,5 +220,121 @@ class UserController extends Controller
         $user->syncRoles($roleModels);
 
         return response()->json(['message' => 'Roles updated']);
+    }
+
+    /**
+     * Upload profile photo for user
+     * 
+     * POST /api/v1/tenants/{tenantId}/users/{userId}/upload-profile-photo
+     * Permission: users.update OR self-update (user can update their own profile photo)
+     */
+    public function uploadProfilePhoto(Request $request, string $tenantId, string $userId): JsonResponse
+    {
+        $user = User::findOrFail($userId);
+        
+        if ($user->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Allow self-update OR users.update permission
+        $this->authorize('updateUser', $user);
+
+        $validated = $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
+        ]);
+
+        try {
+            $image = $request->file('photo');
+            $filename = \Illuminate\Support\Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            // Save original image
+            $path = "users/{$userId}/{$filename}";
+            Storage::disk('public')->put($path, file_get_contents($image));
+            $imageUrl = Storage::disk('public')->url($path);
+
+            // Create thumbnail (300x300)
+            $thumbnailFilename = \Illuminate\Support\Str::uuid() . '_thumb.' . $image->getClientOriginalExtension();
+            $thumbnailPath = "users/{$userId}/{$thumbnailFilename}";
+            
+            $thumbnail = \Intervention\Image\Facades\Image::make($image)->fit(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->encode();
+            
+            Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+            $thumbnailUrl = Storage::disk('public')->url($thumbnailPath);
+
+            // Delete old images if exist
+            if ($user->profile_photo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($user->profile_photo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($user->profile_photo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($user->profile_photo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update user
+            $user->update([
+                'profile_photo_url' => $imageUrl,
+                'profile_photo_thumb_url' => $thumbnailUrl,
+            ]);
+
+            return response()->json([
+                'message' => 'Profile photo uploaded successfully.',
+                'profile_photo_url' => $imageUrl,
+                'profile_photo_thumb_url' => $thumbnailUrl,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload profile photo.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete user profile photo
+     * 
+     * DELETE /api/v1/tenants/{tenantId}/users/{userId}/profile-photo
+     * Permission: users.update OR self-update
+     */
+    public function deleteProfilePhoto(string $tenantId, string $userId): JsonResponse
+    {
+        $user = User::findOrFail($userId);
+        
+        if ($user->tenant_id !== $tenantId) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Allow self-update OR users.update permission
+        $this->authorize('updateUser', $user);
+
+        try {
+            // Delete images from storage
+            if ($user->profile_photo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($user->profile_photo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($user->profile_photo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($user->profile_photo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update user
+            $user->update([
+                'profile_photo_url' => null,
+                'profile_photo_thumb_url' => null,
+            ]);
+
+            return response()->json([
+                'message' => 'Profile photo deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete profile photo.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

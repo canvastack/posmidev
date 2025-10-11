@@ -1,0 +1,41 @@
+paths:
+  /tenants/{tenantId}/bom/analytics/stock-status:
+    get:
+      tags: [BOM / Material Analytics]
+      summary: Stock status analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/analytics/categories:
+    get:
+      tags: [BOM / Material Analytics]
+      summary: Material categories analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/analytics/usage-trends:
+    get:
+      tags: [BOM / Material Analytics]
+      summary: Usage trends analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/analytics/cost-analysis:
+    get:
+      tags: [BOM / Material Analytics]
+      summary: Cost analysis analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/analytics/turnover-rate:
+    get:
+      tags: [BOM / Material Analytics]
+      summary: Turnover rate analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }

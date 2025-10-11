@@ -1,0 +1,54 @@
+paths:
+  /tenants/{tenantId}/bom/reports/executive-dashboard:
+    get:
+      tags: [BOM / Reporting]
+      summary: Executive dashboard
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/reports/material-usage:
+    get:
+      tags: [BOM / Reporting]
+      summary: Material usage report
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/reports/recipe-costing:
+    get:
+      tags: [BOM / Reporting]
+      summary: Recipe costing report
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/reports/stock-movement:
+    get:
+      tags: [BOM / Reporting]
+      summary: Stock movement report
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/reports/production-efficiency:
+    get:
+      tags: [BOM / Reporting]
+      summary: Production efficiency report
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/bom/reports/export:
+    post:
+      tags: [BOM / Reporting]
+      summary: Export reports
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

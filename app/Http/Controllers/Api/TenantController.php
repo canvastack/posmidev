@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\TenantResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Intervention\Image\Facades\Image;
 use Src\Pms\Infrastructure\Models\Tenant;
 use Src\Pms\Infrastructure\Models\User;
 
@@ -86,6 +89,9 @@ class TenantController extends Controller
             'address' => ['nullable','string'],
             'phone' => ['nullable','string','max:50'],
             'logo' => ['nullable','string'],
+            'latitude' => ['nullable','numeric','between:-90,90'],
+            'longitude' => ['nullable','numeric','between:-180,180'],
+            'location_address' => ['nullable','string','max:500'],
             'status' => ['nullable', Rule::in(['active','inactive','pending','banned'])],
             'can_auto_activate_users' => ['nullable','boolean'],
         ]);
@@ -208,5 +214,109 @@ class TenantController extends Controller
         $user->save();
 
         return response()->json(['message' => 'Status updated']);
+    }
+
+    /**
+     * Upload logo for tenant
+     * 
+     * POST /api/v1/tenants/{tenantId}/upload-logo
+     * Permission: tenants.update (or HQ Super Admin)
+     */
+    public function uploadLogo(Request $request, string $tenantId): JsonResponse
+    {
+        $tenant = Tenant::findOrFail($tenantId);
+        $this->authorize('updateTenant', $tenant);
+
+        $validated = $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // Max 5MB
+        ]);
+
+        try {
+            $image = $request->file('logo');
+            $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+
+            // Save original image
+            $path = "tenants/{$tenantId}/{$filename}";
+            Storage::disk('public')->put($path, file_get_contents($image));
+            $imageUrl = Storage::disk('public')->url($path);
+
+            // Create thumbnail (300x300)
+            $thumbnailFilename = Str::uuid() . '_thumb.' . $image->getClientOriginalExtension();
+            $thumbnailPath = "tenants/{$tenantId}/{$thumbnailFilename}";
+            
+            $thumbnail = Image::make($image)->fit(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->encode();
+            
+            Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+            $thumbnailUrl = Storage::disk('public')->url($thumbnailPath);
+
+            // Delete old images if exist
+            if ($tenant->logo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($tenant->logo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($tenant->logo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($tenant->logo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update tenant
+            $tenant->update([
+                'logo_url' => $imageUrl,
+                'logo_thumb_url' => $thumbnailUrl,
+            ]);
+
+            return response()->json([
+                'message' => 'Logo uploaded successfully.',
+                'logo_url' => $imageUrl,
+                'logo_thumb_url' => $thumbnailUrl,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to upload logo.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete tenant logo
+     * 
+     * DELETE /api/v1/tenants/{tenantId}/logo
+     * Permission: tenants.update (or HQ Super Admin)
+     */
+    public function deleteLogo(string $tenantId): JsonResponse
+    {
+        $tenant = Tenant::findOrFail($tenantId);
+        $this->authorize('updateTenant', $tenant);
+
+        try {
+            // Delete images from storage
+            if ($tenant->logo_url) {
+                $oldPath = str_replace('/storage/', '', parse_url($tenant->logo_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            if ($tenant->logo_thumb_url) {
+                $oldThumbPath = str_replace('/storage/', '', parse_url($tenant->logo_thumb_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldThumbPath);
+            }
+
+            // Update tenant
+            $tenant->update([
+                'logo_url' => null,
+                'logo_thumb_url' => null,
+            ]);
+
+            return response()->json([
+                'message' => 'Logo deleted successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to delete logo.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

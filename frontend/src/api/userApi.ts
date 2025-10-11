@@ -33,6 +33,10 @@ export interface UpdateUserPayload {
   status?: User['status'];
   photo?: string | null;
   phone_number?: string | null;
+  // Location fields (Day 3 Enhancement)
+  latitude?: number | null;
+  longitude?: number | null;
+  address?: string | null;
 }
 
 export const userApi = {
@@ -85,5 +89,34 @@ export const userApi = {
     roles: string[]
   ): Promise<void> => {
     await apiClient.post(`/tenants/${tenantId}/users/${userId}/roles`, { roles });
+  },
+
+  // Day 3 Enhancement: Photo Upload & Delete
+  uploadPhoto: async (
+    tenantId: string,
+    userId: string,
+    file: File,
+    onUploadProgress?: (progress: number) => void
+  ): Promise<{ photo_url: string; photo_thumb_url: string | null }> => {
+    const formData = new FormData();
+    formData.append('photo', file);
+    const response = await apiClient.post(
+      `/tenants/${tenantId}/users/${userId}/upload-photo`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (e) => {
+          if (onUploadProgress && e.total) {
+            const pct = Math.round((e.loaded * 100) / e.total);
+            onUploadProgress(pct);
+          }
+        },
+      }
+    );
+    return response.data;
+  },
+
+  deletePhoto: async (tenantId: string, userId: string): Promise<void> => {
+    await apiClient.delete(`/tenants/${tenantId}/users/${userId}/photo`);
   },
 };

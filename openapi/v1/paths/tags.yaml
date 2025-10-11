@@ -1,0 +1,89 @@
+paths:
+  /tenants/{tenantId}/tags:
+    get:
+      tags: [Tags]
+      summary: List tags
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Tags]
+      summary: Create tag
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenantId}/tags/popular:
+    get:
+      tags: [Tags]
+      summary: Popular tags
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/tags/{tagId}:
+    get:
+      tags: [Tags]
+      summary: Get tag
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/TagId
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Tags]
+      summary: Update tag
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/TagId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Tags]
+      summary: Delete tag
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/TagId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/tags/bulk-attach:
+    post:
+      tags: [Tags]
+      summary: Bulk attach tags to products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/tags/bulk-detach:
+    post:
+      tags: [Tags]
+      summary: Bulk detach tags from products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

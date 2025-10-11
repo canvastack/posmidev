@@ -1,0 +1,94 @@
+paths:
+  /tenants/{tenantId}/analytics/overview:
+    get:
+      tags: [Tenant Analytics]
+      summary: Tenant analytics overview
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/top-products:
+    get:
+      tags: [Tenant Analytics]
+      summary: Top products analytics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/revenue-breakdown:
+    get:
+      tags: [Tenant Analytics]
+      summary: Revenue breakdown
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/profit-analysis:
+    get:
+      tags: [Tenant Analytics]
+      summary: Profit analysis
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/category-performance:
+    get:
+      tags: [Tenant Analytics]
+      summary: Category performance
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/most-viewed:
+    get:
+      tags: [Tenant Analytics]
+      summary: Most viewed products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/search-terms:
+    get:
+      tags: [Tenant Analytics]
+      summary: Search terms
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/search-trends:
+    get:
+      tags: [Tenant Analytics]
+      summary: Search trends
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/search-stats:
+    get:
+      tags: [Tenant Analytics]
+      summary: Search stats
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/zero-result-searches:
+    get:
+      tags: [Tenant Analytics]
+      summary: Zero result searches
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+  /tenants/{tenantId}/analytics/track-search:
+    post:
+      tags: [Tenant Analytics]
+      summary: Track search query
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

@@ -1,0 +1,65 @@
+paths:
+  /tenants/{tenantId}/products/{productId}/images:
+    get:
+      tags: [Products]
+      summary: List product images
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Products]
+      summary: Upload product image
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/images/{imageId}:
+    delete:
+      tags: [Products]
+      summary: Delete product image
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/ImageId
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/products/{productId}/images/{imageId}/primary:
+    patch:
+      tags: [Products]
+      summary: Set primary product image
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+        - $ref: ../components/parameters/common.yaml#/ImageId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/images/reorder:
+    patch:
+      tags: [Products]
+      summary: Reorder product images
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }

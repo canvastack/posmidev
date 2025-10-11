@@ -1,0 +1,244 @@
+paths:
+  /tenants/{tenantId}/products:
+    get:
+      tags: [Products]
+      summary: List products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Search
+        - $ref: ../components/parameters/common.yaml#/Page
+        - $ref: ../components/parameters/common.yaml#/PerPage
+      responses:
+        '200':
+          description: Paginated products
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/products.yaml#/ProductList
+    post:
+      tags: [Products]
+      summary: Create product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/products.yaml#/ProductCreateInput
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/products.yaml#/ProductEnvelope
+
+  /tenants/{tenantId}/products/{product}:
+    get:
+      tags: [Products]
+      summary: Get product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/products.yaml#/ProductEnvelope
+    patch:
+      tags: [Products]
+      summary: Update product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/products.yaml#/ProductUpdateInput
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/products.yaml#/ProductEnvelope
+    delete:
+      tags: [Products]
+      summary: Delete product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/EnvelopeSuccess
+
+  /tenants/{tenantId}/products/stats:
+    get:
+      tags: [Products]
+      summary: Product stats
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/export:
+    get:
+      tags: [Products]
+      summary: Export products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: File stream }
+
+  /tenants/{tenantId}/products/import/template:
+    get:
+      tags: [Products]
+      summary: Download import template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: File stream }
+
+  /tenants/{tenantId}/products/import:
+    post:
+      tags: [Products]
+      summary: Import products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/bulk:
+    delete:
+      tags: [Products]
+      summary: Bulk delete products
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/bulk/status:
+    patch:
+      tags: [Products]
+      summary: Bulk update status
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/bulk/category:
+    patch:
+      tags: [Products]
+      summary: Bulk update category
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/bulk/price:
+    patch:
+      tags: [Products]
+      summary: Bulk update price
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{product}/duplicate:
+    post:
+      tags: [Products]
+      summary: Duplicate product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{product}/upload-image:
+    post:
+      tags: [Products]
+      summary: Upload image for product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Product
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/archive:
+    patch:
+      tags: [Products]
+      summary: Archive product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/restore:
+    patch:
+      tags: [Products]
+      summary: Restore product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/permanent:
+    delete:
+      tags: [Products]
+      summary: Permanently delete product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }

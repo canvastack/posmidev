@@ -1,8 +1,8 @@
-# Canvastack POSMID - Laravel Backend
+# CanvaStack POSMID - Laravel Backend
 
 ## Overview
 
-Canvastack POSMID adalah sistem Point of Sale (P.O.S.) multi-tenant yang dibangun dengan arsitektur Hexagonal (Ports and Adapters) menggunakan Laravel 10. Sistem ini dirancang dengan pendekatan API-First dan mengikuti prinsip-prinsip clean architecture.
+CanvaStack POSMID adalah sistem Point of Sale (P.O.S.) multi-tenant yang dibangun dengan arsitektur Hexagonal (Ports and Adapters) menggunakan Laravel 10. Sistem ini dirancang dengan pendekatan API-First dan mengikuti prinsip-prinsip clean architecture.
 
 ## Arsitektur
 
@@ -195,4 +195,4 @@ php artisan view:cache
 
 ## License
 
-This project is proprietary software developed by Canvastack.
+This project is proprietary software developed by CanvaStack.

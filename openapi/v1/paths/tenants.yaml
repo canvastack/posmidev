@@ -1,0 +1,159 @@
+paths:
+  /tenants:
+    get:
+      tags: [Tenants]
+      summary: List tenants
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Tenants]
+      summary: Create tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201': { description: Created }
+
+  /tenants/{tenant}:
+    get:
+      tags: [Tenants]
+      summary: Get tenant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: OK }
+    patch:
+      tags: [Tenants]
+      summary: Update tenant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: Updated }
+    delete:
+      tags: [Tenants]
+      summary: Delete tenant
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Tenant
+      responses:
+        '200': { description: Deleted }
+
+  /tenants/{tenantId}/status:
+    post:
+      tags: [Tenants]
+      summary: Set tenant status
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/auto-activation/request:
+    post:
+      tags: [Tenants]
+      summary: Request auto activation
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/auto-activation/approve:
+    post:
+      tags: [Tenants]
+      summary: Approve auto activation
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/auto-activation/reject:
+    post:
+      tags: [Tenants]
+      summary: Reject auto activation
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/users/{userId}/status:
+    post:
+      tags: [Tenants]
+      summary: Set tenant user status
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/UserId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200': { description: OK }
+
+  # Image & Location Enhancement - Day 1
+  /tenants/{tenantId}/upload-logo:
+    post:
+      tags: [Tenants]
+      summary: Upload tenant logo
+      description: Upload logo image for tenant branding. Maximum file size is 5MB. Supported formats are JPEG, PNG, GIF, WEBP.
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - logo
+              properties:
+                logo:
+                  type: string
+                  format: binary
+                  description: Logo image file (max 5MB)
+      responses:
+        '200':
+          description: Logo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/tenants.yaml#/ImageUploadResponse
+        '400':
+          description: Invalid file format or size
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/common.yaml#/ErrorResponse
+        '403':
+          description: Forbidden - insufficient permissions
+        '422':
+          description: Validation error
+
+  /tenants/{tenantId}/logo:
+    delete:
+      tags: [Tenants]
+      summary: Delete tenant logo
+      description: Remove tenant logo image and thumbnail
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200':
+          description: Logo deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: ../components/schemas/tenants.yaml#/ImageDeleteResponse
+        '403':
+          description: Forbidden - insufficient permissions
+        '404':
+          description: Logo not found

@@ -1,0 +1,70 @@
+paths:
+  /tenants/{tenantId}/products/{productId}/analytics/sales:
+    get:
+      tags: [Products]
+      summary: Product sales metrics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/analytics/stock:
+    get:
+      tags: [Products]
+      summary: Product stock metrics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/analytics/profit:
+    get:
+      tags: [Products]
+      summary: Product profit metrics
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/analytics/variants:
+    get:
+      tags: [Products]
+      summary: Variant performance for product
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/analytics/overview:
+    get:
+      tags: [Products]
+      summary: Product analytics overview
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: OK }
+
+  /tenants/{tenantId}/products/{productId}/analytics/export/csv:
+    get:
+      tags: [Products]
+      summary: Export product analytics CSV
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: File stream }
+
+  /tenants/{tenantId}/products/{productId}/analytics/export/pdf:
+    get:
+      tags: [Products]
+      summary: Export product analytics PDF
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/ProductId
+      responses:
+        '200': { description: File stream }

@@ -1,0 +1,50 @@
+Unauthorized:
+  description: Authentication required or token invalid
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+            example: Unauthenticated.
+
+Forbidden:
+  description: Insufficient permissions or unauthorized action
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+            example: This action is unauthorized.
+
+NotFound:
+  description: Resource not found
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+            example: Resource not found
+
+ValidationError:
+  description: Validation error (422 Unprocessable Entity)
+  content:
+    application/json:
+      schema:
+        $ref: ../schemas/common.yaml#/ErrorResponse
+
+ServerError:
+  description: Internal server error
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          message:
+            type: string
+            example: Server Error

@@ -98,18 +98,45 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
     };
   }, []);
 
-  // Update marker when value changes externally
+  // Update marker when value changes externally (without triggering onChange)
   useEffect(() => {
-    if (value && mapRef.current) {
-      addMarker(value.lat, value.lng);
-      mapRef.current.setView([value.lat, value.lng], 13);
-      setManualLat(value.lat.toString());
-      setManualLng(value.lng.toString());
-      setDetectedAddress(value.address || '');
-    }
-  }, [value]);
+    if (!value || !mapRef.current) return;
 
-  const addMarker = (lat: number, lng: number) => {
+    // Check if value actually changed to prevent infinite loops
+    const currentLat = parseFloat(manualLat);
+    const currentLng = parseFloat(manualLng);
+    
+    if (
+      !isNaN(currentLat) && 
+      !isNaN(currentLng) && 
+      Math.abs(currentLat - value.lat) < 0.0000001 && 
+      Math.abs(currentLng - value.lng) < 0.0000001
+    ) {
+      return; // Value hasn't changed, skip update
+    }
+
+    // Update marker without calling onChange (external update)
+    if (markerRef.current) {
+      mapRef.current.removeLayer(markerRef.current);
+    }
+
+    const marker = L.marker([value.lat, value.lng], {
+      draggable: !disabled,
+    }).addTo(mapRef.current);
+
+    marker.on('dragend', (e) => {
+      const position = e.target.getLatLng();
+      reverseGeocode(position.lat, position.lng);
+    });
+
+    markerRef.current = marker;
+    mapRef.current.setView([value.lat, value.lng], 13);
+    setManualLat(value.lat.toString());
+    setManualLng(value.lng.toString());
+    setDetectedAddress(value.address || '');
+  }, [value, disabled, manualLat, manualLng]);
+
+  const addMarker = (lat: number, lng: number, address?: string) => {
     if (!mapRef.current) return;
 
     // Remove existing marker
@@ -131,13 +158,18 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
     markerRef.current = marker;
 
     // Update state
-    setManualLat(lat.toFixed(8));
-    setManualLng(lng.toFixed(8));
+    const formattedLat = parseFloat(lat.toFixed(8));
+    const formattedLng = parseFloat(lng.toFixed(8));
+    const finalAddress = address !== undefined ? address : detectedAddress;
 
+    setManualLat(formattedLat.toString());
+    setManualLng(formattedLng.toString());
+
+    // Call onChange with user interaction
     onChange({
-      lat: parseFloat(lat.toFixed(8)),
-      lng: parseFloat(lng.toFixed(8)),
-      address: detectedAddress,
+      lat: formattedLat,
+      lng: formattedLng,
+      address: finalAddress,
     });
   };
 
@@ -150,10 +182,16 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
       const data = await response.json();
       
       if (data.display_name) {
+        const formattedLat = parseFloat(lat.toFixed(8));
+        const formattedLng = parseFloat(lng.toFixed(8));
+        
         setDetectedAddress(data.display_name);
+        setManualLat(formattedLat.toString());
+        setManualLng(formattedLng.toString());
+        
         onChange({
-          lat: parseFloat(lat.toFixed(8)),
-          lng: parseFloat(lng.toFixed(8)),
+          lat: formattedLat,
+          lng: formattedLng,
           address: data.display_name,
         });
       }
@@ -178,9 +216,9 @@ export const LocationMapPicker: React.FC<LocationMapPickerProps> = ({
         const latitude = parseFloat(lat);
         const longitude = parseFloat(lon);
 
-        addMarker(latitude, longitude);
-        mapRef.current?.setView([latitude, longitude], 15);
         setDetectedAddress(display_name);
+        addMarker(latitude, longitude, display_name);
+        mapRef.current?.setView([latitude, longitude], 15);
         setSearchQuery('');
       } else {
         alert('Lokasi tidak ditemukan. Coba kata kunci lain.');

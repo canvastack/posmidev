@@ -1,5 +1,5 @@
 import React from 'react'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable, selectionColumn } from '@/components/data/DataTable'
 import { toCSV } from '@/utils/csv'
 

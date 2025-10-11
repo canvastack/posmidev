@@ -1,0 +1,277 @@
+paths:
+  /tenants/{tenantId}/materials:
+    parameters:
+      - $ref: ../components/parameters/common.yaml#/TenantId
+    get:
+      tags: [BOM / Materials]
+      summary: List materials
+      description: Returns paginated materials list.
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.view"]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/Search
+        - $ref: ../components/parameters/common.yaml#/Page
+        - $ref: ../components/parameters/common.yaml#/PerPage
+      responses:
+        '200':
+          description: Paginated materials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { type: object }
+                  meta:
+                    $ref: ../components/schemas/common.yaml#/Pagination
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    post:
+      tags: [BOM / Materials]
+      summary: Create a material
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.create"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/materials/low-stock:
+    get:
+      tags: [BOM / Materials]
+      summary: Low stock materials
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: array
+                    items: { type: object }
+
+  /tenants/{tenantId}/materials/export:
+    get:
+      tags: [BOM / Materials]
+      summary: Export materials
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200': { description: Export file stream }
+
+  /tenants/{tenantId}/materials/import:
+    post:
+      tags: [BOM / Materials]
+      summary: Import materials
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Imported
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+
+  /tenants/{tenantId}/materials/import-template:
+    get:
+      tags: [BOM / Materials]
+      summary: Download import template
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200': { description: Template file stream }
+
+  /tenants/{tenantId}/materials/low-stock-report:
+    get:
+      tags: [BOM / Materials]
+      summary: Low stock report
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+
+  /tenants/{tenantId}/materials/bulk:
+    post:
+      tags: [BOM / Materials]
+      summary: Bulk create/update materials
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      x-guard: api
+      x-tenant-scoped: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { type: object }
+
+  /tenants/{tenantId}/materials/{material}:
+    get:
+      tags: [BOM / Materials]
+      summary: Get a material
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.view"]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Material
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    patch:
+      tags: [BOM / Materials]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Material
+      summary: Update a material
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.update"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+    delete:
+      tags: [BOM / Materials]
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Material
+      summary: Delete a material
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.delete"]
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  message: { type: string, example: Material deleted }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
+
+  /tenants/{tenantId}/materials/{material}/adjust-stock:
+    post:
+      tags: [BOM / Materials]
+      summary: Adjust material stock and create transaction
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - $ref: ../components/parameters/common.yaml#/Material
+      x-guard: api
+      x-tenant-scoped: true
+      x-permissions: ["materials.adjust_stock"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Stock adjusted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: object }
+        '404': { $ref: ../components/responses/common.yaml#/NotFound }
+        '422': { $ref: ../components/responses/common.yaml#/ValidationError }
+        '401': { $ref: ../components/responses/common.yaml#/Unauthorized }
+        '403': { $ref: ../components/responses/common.yaml#/Forbidden }
