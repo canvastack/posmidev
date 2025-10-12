@@ -75,7 +75,7 @@ export const ImportButton: React.FC<ImportButtonProps> = ({ onSuccess, disabled 
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const url = `${import.meta.env.VITE_API_URL}/tenants/${tenantId}/products/import`;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:9000/api/v1'}/tenants/${tenantId}/products/import`;
       
       const response = await fetch(url, {
         method: 'POST',
@@ -117,7 +117,7 @@ export const ImportButton: React.FC<ImportButtonProps> = ({ onSuccess, disabled 
     if (!tenantId || !token) return;
 
     try {
-      const url = `${import.meta.env.VITE_API_URL}/tenants/${tenantId}/products/import/template`;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:9000/api/v1'}/tenants/${tenantId}/products/import/template`;
       
       const response = await fetch(url, {
         headers: {

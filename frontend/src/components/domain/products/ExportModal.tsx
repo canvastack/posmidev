@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/stores/authStore';
 import { productApi } from '@/api/productApi';
 
 interface ExportModalProps {
@@ -47,12 +48,13 @@ export function ExportModal({
       if (filters.max_price !== undefined) params.append('max_price', filters.max_price.toString());
 
       // Call export API
+      const token = useAuthStore.getState().token;
       const response = await fetch(
         `/api/v1/tenants/${tenantId}/products/export?${params.toString()}`,
         {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
         }
       );

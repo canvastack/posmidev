@@ -96,6 +96,11 @@ export interface Product {
   
   // Phase 11: Archive & Soft Delete
   deleted_at?: string | null; // Soft delete timestamp
+  
+  // Phase 4A Day 5: Material Cost Tracking
+  has_recipe?: boolean;
+  material_cost_per_unit?: number;
+  profit_margin?: number;
 }
 
 export interface Category {
@@ -311,3 +316,67 @@ export * from './stock';
 
 // Export variant types (Phase 6)
 export * from './variant';
+
+// Export analytics types (Phase 4A)
+export * from './analytics';
+
+// Export customer display types (Phase 4A)
+export * from './customer-display';
+
+// ========================================
+// Phase 4A Day 5: Material Cost Tracking Types
+// ========================================
+
+export interface MaterialBreakdown {
+  material_id: string;
+  material_name: string;
+  quantity_required: number;
+  waste_percentage: number;
+  effective_quantity: number;
+  unit: string;
+  unit_cost: number;
+  component_cost: number;
+}
+
+export interface CostAlert {
+  type: 'warning' | 'error';
+  message: string;
+}
+
+export interface ProductCostAnalysis {
+  product_id: string;
+  product_name: string;
+  sku: string;
+  quantity: number;
+  selling_price: number;
+  has_recipe: boolean;
+  material_cost_per_unit: number;
+  total_material_cost: number;
+  total_selling_price: number;
+  profit_amount: number;
+  profit_margin: number;
+  material_breakdown: MaterialBreakdown[];
+  alert: CostAlert | null;
+}
+
+export interface CostSummary {
+  total_cost: number;
+  total_revenue: number;
+  total_profit: number;
+  overall_profit_margin: number;
+}
+
+export interface MaterialCostResponse {
+  data: {
+    products: ProductCostAnalysis[];
+    summary: CostSummary;
+  };
+}
+
+export interface MaterialCostRequest {
+  products: {
+    product_id: string;
+    quantity: number;
+    selling_price?: number;
+  }[];
+}

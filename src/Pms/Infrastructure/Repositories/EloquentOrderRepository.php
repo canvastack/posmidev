@@ -46,7 +46,7 @@ class EloquentOrderRepository implements OrderRepositoryInterface
                 'payment_method' => $order->getPaymentMethod(),
                 'amount_paid' => $order->getAmountPaid(),
                 'change_amount' => $order->getChange(),
-                'status' => 'completed',
+                'status' => 'paid', // Fixed: Analytics expects 'paid' status for completed transactions
             ]
         );
 

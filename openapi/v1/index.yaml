@@ -39,6 +39,7 @@ tags:
   - name: BOM / Alerts
   - name: BOM / Reporting
   - name: Tenant Analytics
+  - name: POS Analytics
   - name: Dashboard
   - name: Diagnostics
 paths:
@@ -456,6 +457,16 @@ paths:
     $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1zero-result-searches
   /tenants/{tenantId}/analytics/track-search:
     $ref: ./paths/tenant-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1track-search
+
+  # POS Analytics
+  /tenants/{tenantId}/analytics/pos/overview:
+    $ref: ./paths/pos-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1pos~1overview
+  /tenants/{tenantId}/analytics/pos/trends:
+    $ref: ./paths/pos-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1pos~1trends
+  /tenants/{tenantId}/analytics/pos/best-sellers:
+    $ref: ./paths/pos-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1pos~1best-sellers
+  /tenants/{tenantId}/analytics/pos/cashier-performance:
+    $ref: ./paths/pos-analytics.yaml#/paths/~1tenants~1{tenantId}~1analytics~1pos~1cashier-performance
 
   # Dashboard
   /tenants/{tenantId}/dashboard:

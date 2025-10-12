@@ -32,7 +32,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({ currentFilters = {},
         }
       });
 
-      const url = `${import.meta.env.VITE_API_URL}/tenants/${tenantId}/products/export?${params.toString()}`;
+      const url = `${import.meta.env.VITE_API_URL || 'http://localhost:9000/api/v1'}/tenants/${tenantId}/products/export?${params.toString()}`;
       
       const response = await fetch(url, {
         headers: {

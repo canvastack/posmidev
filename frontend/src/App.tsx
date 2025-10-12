@@ -16,6 +16,8 @@ const RegisterPage = lazy(() => import('./pages/frontend/auth/register'))
 // Admin (backend) pages
 const DashboardPage = lazy(() => import('./pages/backend/dashboard'))
 const PosPage = lazy(() => import('./pages/backend/pos'))
+// Phase 4A: Customer Display (standalone page - no layout)
+const CustomerDisplayPage = lazy(() => import('./pages/backend/pos/CustomerDisplayPage'))
 const ProductsPage = lazy(() => import('./pages/backend/products'))
 const OrdersPage = lazy(() => import('./pages/backend/orders'))
 const UsersPage = lazy(() => import('./pages/backend/users'))
@@ -40,6 +42,9 @@ const ProductTagsPage = lazy(() => import('./pages/backend/product-tags'))
 
 // Phase 10: Analytics & Reporting
 const TenantAnalyticsDashboard = lazy(() => import('./pages/backend/analytics'))
+
+// Phase 4A: POS Analytics Dashboard (Advanced Analytics)
+const AnalyticsPage = lazy(() => import('./pages/backend/analytics/AnalyticsPage'))
 
 // BOM Engine (Phase 1 MVP - Week 4)
 const MaterialsPage = lazy(() => import('./pages/backend/materials'))
@@ -76,6 +81,9 @@ function App() {
                 </Route>
 
                 {/* Protected routes under BackendLayout (admin-only) */}
+                {/* Phase 4A: Customer Display - Standalone route (no layout) */}
+                <Route path="/admin/pos/customer-display" element={<CustomerDisplayPage />} />
+
                 <Route path="/admin" element={<ProtectedRoute><BackendLayout /></ProtectedRoute>}>
                   <Route index element={<Navigate to="/admin/dashboard" replace />} />
                   <Route path="dashboard" element={<DashboardPage />} />
@@ -98,7 +106,9 @@ function App() {
                   <Route path="suppliers" element={<SuppliersPage />} />
                   <Route path="product-tags" element={<ProductTagsPage />} />
                   {/* Phase 10: Analytics & Reporting */}
-                  <Route path="analytics" element={<TenantAnalyticsDashboard />} />
+                  <Route path="analytics-old" element={<TenantAnalyticsDashboard />} />
+                  {/* Phase 4A: POS Analytics Dashboard */}
+                  <Route path="analytics" element={<AnalyticsPage />} />
                   {/* BOM Engine (Phase 1 MVP - Week 4) */}
                   <Route path="bom-dashboard" element={<BOMDashboardPage />} />
                   <Route path="materials" element={<MaterialsPage />} />

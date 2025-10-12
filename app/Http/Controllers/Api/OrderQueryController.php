@@ -43,4 +43,30 @@ class OrderQueryController extends Controller
         }
         return response()->json(new OrderResource($order));
     }
+
+    public function getTodayStats(string $tenantId): JsonResponse
+    {
+        $this->authorize('viewAny', [\Src\Pms\Infrastructure\Models\Order::class, $tenantId]);
+
+        // Get today's orders for this tenant
+        $todayOrders = \Src\Pms\Infrastructure\Models\Order::query()
+            ->where('tenant_id', $tenantId)
+            ->whereDate('created_at', today())
+            ->get();
+
+        // Calculate total items sold from order_items
+        $itemsSold = \Src\Pms\Infrastructure\Models\OrderItem::query()
+            ->whereIn('order_id', $todayOrders->pluck('id'))
+            ->sum('quantity');
+
+        $stats = [
+            'total_sales' => $todayOrders->sum('total_amount'),
+            'transaction_count' => $todayOrders->count(),
+            'average_transaction' => $todayOrders->avg('total_amount') ?? 0,
+            'items_sold' => (int) $itemsSold,
+            'last_updated' => now()->toIso8601String(),
+        ];
+
+        return response()->json($stats);
+    }
 }

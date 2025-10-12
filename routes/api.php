@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\ProductTagController;
 use App\Http\Controllers\Api\SkuGenerationController;
 use App\Http\Controllers\Api\TenantAnalyticsController;
+use App\Http\Controllers\Api\PosAnalyticsController;
 use App\Http\Controllers\Api\ProductViewTrackingController;
 use App\Http\Controllers\Api\SearchAnalyticsController;
 
@@ -146,6 +147,15 @@ Route::prefix('v1')->group(function () {
                 
                 // Tracking endpoints (can be called without strict auth for public views)
                 Route::post('track-search', [SearchAnalyticsController::class, 'trackSearch']);
+                
+                // Phase 4A: POS Analytics (Advanced Analytics Dashboard)
+                Route::prefix('pos')->group(function () {
+                    Route::post('overview', [PosAnalyticsController::class, 'posOverview']);
+                    Route::post('trends', [PosAnalyticsController::class, 'posTrends']);
+                    Route::post('best-sellers', [PosAnalyticsController::class, 'bestSellers']);
+                    Route::post('cashier-performance', [PosAnalyticsController::class, 'cashierPerformance']);
+                    Route::post('material-costs', [PosAnalyticsController::class, 'materialCosts']); // Phase 4A Day 5: Material Cost Tracking
+                });
             });
             
             // Bulk operations (must be before apiResource to avoid route conflicts)
@@ -316,6 +326,7 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('content/pages', \App\Http\Controllers\Api\ContentPagesController::class);
 
             // Orders
+            Route::get('orders/today-stats', [OrderQueryController::class, 'getTodayStats']);
             Route::get('orders', [OrderQueryController::class, 'index']);
             Route::get('orders/{orderId}', [OrderQueryController::class, 'show']);
             Route::post('orders', [OrderController::class, 'store']);

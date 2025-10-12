@@ -69,7 +69,7 @@ class ProductStatsController extends Controller
             ->whereHas('order', function ($query) use ($tenantId, $currentMonthStart) {
                 $query->where('tenant_id', $tenantId)
                     ->where('created_at', '>=', $currentMonthStart)
-                    ->where('status', 'completed'); // Only count completed orders
+                    ->where('status', 'paid'); // Only count paid orders
             })
             ->groupBy('product_id', 'product_name')
             ->orderByDesc('total_sold')
@@ -84,7 +84,7 @@ class ProductStatsController extends Controller
         $totalRevenue = OrderItem::whereHas('order', function ($query) use ($tenantId, $currentMonthStart) {
                 $query->where('tenant_id', $tenantId)
                     ->where('created_at', '>=', $currentMonthStart)
-                    ->where('status', 'completed');
+                    ->where('status', 'paid');
             })
             ->sum('subtotal') ?? 0;
 
@@ -92,7 +92,7 @@ class ProductStatsController extends Controller
         $totalProductsSold = OrderItem::whereHas('order', function ($query) use ($tenantId, $currentMonthStart) {
                 $query->where('tenant_id', $tenantId)
                     ->where('created_at', '>=', $currentMonthStart)
-                    ->where('status', 'completed');
+                    ->where('status', 'paid');
             })
             ->sum('quantity') ?? 0;
 

@@ -1,163 +1,126 @@
 /**
- * Product Analytics Type Definitions
+ * Analytics Types
  * 
- * Type-safe interfaces for product analytics data including:
- * - Sales metrics and trends
- * - Stock metrics and movements
- * - Profit analysis
- * - Variant performance comparison
- * 
- * All data is tenant-scoped and tied to specific products
+ * Type definitions for Phase 4A: Advanced Analytics Dashboard
+ * Aligns with backend API responses from PosAnalyticsController
  */
 
 /**
- * Time-series data point for charts
+ * POS Overview Metrics
+ * Data returned from POST /api/v1/tenants/{tenantId}/analytics/pos/overview
  */
-export interface TimeSeriesData {
-  date: string; // ISO 8601 date string (YYYY-MM-DD)
-  value: number;
-  label?: string;
-}
-
-/**
- * Sales trend data point with multiple metrics
- */
-export interface SalesTrendData {
-  date: string; // ISO 8601 date string
-  quantity: number;
-  revenue: number;
-}
-
-/**
- * Profit trend data point
- */
-export interface ProfitTrendData {
-  date: string; // ISO 8601 date string
-  revenue: number;
-  cost: number;
-  profit: number;
-}
-
-/**
- * Stock movement data point
- */
-export interface StockMovement {
-  date: string; // ISO 8601 date string
-  adjustment_type: 'in' | 'out' | 'adjustment' | 'return' | 'damage';
-  total_change: number;
-}
-
-/**
- * Period information for analytics queries
- */
-export interface AnalyticsPeriod {
-  start: string; // ISO 8601 datetime string
-  end: string; // ISO 8601 datetime string
-}
-
-/**
- * Product sales metrics
- */
-export interface ProductSalesMetrics {
+export interface PosOverview {
   total_revenue: number;
-  total_quantity_sold: number;
-  total_orders: number;
-  average_order_value: number;
-  sales_trend: SalesTrendData[];
-  period: AnalyticsPeriod;
+  total_transactions: number;
+  average_ticket: number;
+  top_cashier: TopCashier | null;
+  best_product: BestProduct | null;
 }
 
 /**
- * Product stock metrics
+ * Top Cashier Information
  */
-export interface ProductStockMetrics {
-  current_stock: number;
-  stock_value: number;
-  stock_movements: StockMovement[];
-  low_stock_alerts: number;
-  period: AnalyticsPeriod;
-}
-
-/**
- * Product profit metrics
- */
-export interface ProductProfitMetrics {
-  total_cost: number;
-  total_revenue: number;
-  gross_profit: number;
-  profit_margin: number; // Percentage (0-100)
-  profit_trend: ProfitTrendData[];
-  period: AnalyticsPeriod;
-}
-
-/**
- * Variant performance data
- */
-export interface VariantPerformance {
-  variant_id: string; // UUID
-  variant_name: string;
-  variant_sku: string;
-  total_sold: number;
+export interface TopCashier {
+  id: string;
+  name: string;
+  transactions: number;
   revenue: number;
-  stock_remaining: number;
 }
 
 /**
- * Combined analytics overview
+ * Best Selling Product Summary
  */
-export interface ProductAnalyticsOverview {
-  sales: ProductSalesMetrics;
-  stock: ProductStockMetrics;
-  profit: ProductProfitMetrics;
-  variants: VariantPerformance[];
+export interface BestProduct {
+  id: string;
+  name: string;
+  sku: string;
+  units_sold: number;
+  revenue: number;
 }
 
 /**
- * Analytics API response wrapper
+ * Sales Trend Data Point
+ * Used for charting revenue/transactions over time
  */
-export interface AnalyticsResponse<T> {
-  success: boolean;
+export interface SalesTrend {
+  date: string; // ISO date string (YYYY-MM-DD or YYYY-Www for week)
+  revenue: number;
+  transactions: number;
+  average_ticket: number;
+}
+
+/**
+ * Best Seller Product Details
+ */
+export interface BestSeller {
+  rank: number;
+  product_id: string;
+  product_name: string;
+  sku: string;
+  category: string;
+  units_sold: number;
+  revenue: number;
+  profit_margin: number | null; // null when recipe not available
+}
+
+/**
+ * Cashier Performance Metrics
+ */
+export interface CashierPerformance {
+  cashier_id: string;
+  cashier_name: string;
+  transactions_handled: number;
+  revenue_generated: number;
+  average_transaction_time: number | null; // null when not tracked
+  average_ticket: number;
+}
+
+/**
+ * Time Period for Trend Analysis
+ */
+export type TrendPeriod = 'day' | 'week' | 'month';
+
+/**
+ * Sort Criteria for Best Sellers
+ */
+export type BestSellersSortBy = 'revenue' | 'quantity';
+
+/**
+ * Analytics API Request Parameters
+ */
+export interface AnalyticsOverviewRequest {
+  date?: string; // YYYY-MM-DD, defaults to today
+}
+
+export interface AnalyticsTrendsRequest {
+  period?: TrendPeriod; // defaults to 'week'
+  start_date?: string; // YYYY-MM-DD
+  end_date?: string; // YYYY-MM-DD
+}
+
+export interface AnalyticsBestSellersRequest {
+  limit?: number; // 1-100, defaults to 10
+  sort_by?: BestSellersSortBy; // defaults to 'revenue'
+  start_date?: string; // YYYY-MM-DD, defaults to 30 days ago
+  end_date?: string; // YYYY-MM-DD, defaults to today
+}
+
+export interface AnalyticsCashierPerformanceRequest {
+  start_date?: string; // YYYY-MM-DD, defaults to 30 days ago
+  end_date?: string; // YYYY-MM-DD, defaults to today
+}
+
+/**
+ * API Response Wrapper
+ */
+export interface AnalyticsApiResponse<T> {
   data: T;
 }
 
 /**
- * Analytics query parameters
+ * Error State
  */
-export interface AnalyticsParams {
-  period_start?: string; // ISO 8601 date string (YYYY-MM-DD)
-  period_end?: string; // ISO 8601 date string (YYYY-MM-DD)
-  limit?: number; // For variant performance
-}
-
-/**
- * Period preset options for date range selector
- */
-export type AnalyticsPeriodPreset = 
-  | 'last_7_days'
-  | 'last_30_days'
-  | 'last_90_days'
-  | 'this_month'
-  | 'last_month'
-  | 'this_year'
-  | 'custom';
-
-/**
- * Period preset configuration
- */
-export interface PeriodPresetConfig {
-  label: string;
-  value: AnalyticsPeriodPreset;
-  getDates: () => { start: string; end: string };
-}
-
-/**
- * Metric card display data
- */
-export interface MetricCardData {
-  title: string;
-  value: number | string;
-  format: 'currency' | 'number' | 'percentage';
-  change?: number; // Percentage change from previous period
-  trend?: 'up' | 'down' | 'neutral';
-  icon?: React.ComponentType<{ className?: string }>;
+export interface AnalyticsError {
+  message: string;
+  code?: string;
 }

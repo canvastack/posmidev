@@ -3,6 +3,7 @@ import { Upload, Download, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthStore } from '@/stores/authStore';
 import { cn } from '@/lib/utils';
 
 interface ImportModalProps {
@@ -57,12 +58,13 @@ export function ImportModal({
 
   const handleDownloadTemplate = async () => {
     try {
+      const token = useAuthStore.getState().token;
       const response = await fetch(
         `/api/v1/tenants/${tenantId}/products/import/template`,
         {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
         }
       );
@@ -138,12 +140,13 @@ export function ImportModal({
       const formData = new FormData();
       formData.append('file', selectedFile);
 
+      const token = useAuthStore.getState().token;
       const response = await fetch(
         `/api/v1/tenants/${tenantId}/products/import`,
         {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
           },
           body: formData,
         }

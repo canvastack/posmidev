@@ -59,14 +59,30 @@ class BOMCalculationController extends Controller
 
         $productIds = $request->validated('product_ids');
         $results = [];
+        $errors = [];
 
         foreach ($productIds as $productId) {
-            $results[$productId] = $this->inventoryCalculationService->calculateAvailableQuantity($productId, $tenantId);
+            try {
+                $results[$productId] = $this->inventoryCalculationService->calculateAvailableQuantity($productId, $tenantId);
+            } catch (\InvalidArgumentException $e) {
+                // Skip products that don't exist or don't have recipes
+                $errors[$productId] = $e->getMessage();
+                \Log::debug("BOM calculation skipped for product {$productId}: " . $e->getMessage());
+                continue;
+            } catch (\Exception $e) {
+                // Log unexpected errors but don't fail the whole request
+                $errors[$productId] = 'Calculation failed';
+                \Log::error("BOM calculation error for product {$productId}: " . $e->getMessage());
+                continue;
+            }
         }
 
         return response()->json([
             'success' => true,
-            'data' => $results,
+            'data' => [
+                'results' => $results,
+                'errors' => $errors,
+            ],
         ]);
     }
 

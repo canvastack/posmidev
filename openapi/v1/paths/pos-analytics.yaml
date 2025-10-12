@@ -1,0 +1,525 @@
+paths:
+  /tenants/{tenantId}/analytics/pos/overview:
+    post:
+      tags: [POS Analytics]
+      summary: Get POS overview metrics for a specific date
+      description: |
+        Returns comprehensive POS metrics including:
+        - Total revenue
+        - Total transactions
+        - Average ticket size
+        - Top cashier
+        - Best selling product
+        Supports filtering by date (defaults to today).
+      operationId: getPosOverview
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  format: date
+                  description: Date to fetch metrics for (YYYY-MM-DD). Defaults to today.
+                  example: "2025-01-15"
+      responses:
+        '200':
+          description: POS overview metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total_revenue:
+                        type: number
+                        format: float
+                        description: Total revenue for the specified date
+                        example: 12500000
+                      total_transactions:
+                        type: integer
+                        description: Total number of transactions
+                        example: 85
+                      average_ticket:
+                        type: number
+                        format: float
+                        description: Average transaction value
+                        example: 147058.82
+                      top_cashier:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                            example: "John Doe"
+                          transactions:
+                            type: integer
+                            example: 45
+                          revenue:
+                            type: number
+                            format: float
+                            example: 6500000
+                      best_product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                            example: "Kopi Susu"
+                          sku:
+                            type: string
+                            example: "KOP-001"
+                          units_sold:
+                            type: integer
+                            example: 150
+                          revenue:
+                            type: number
+                            format: float
+                            example: 750000
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - User doesn't have permission to view analytics
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/trends:
+    post:
+      tags: [POS Analytics]
+      summary: Get POS sales trends over time
+      description: |
+        Returns sales trends data for charting.
+        Supports daily, weekly, or monthly aggregation.
+      operationId: getPosTrends
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                period:
+                  type: string
+                  enum: [day, week, month]
+                  default: week
+                  description: Aggregation period
+                  example: "week"
+                start_date:
+                  type: string
+                  format: date
+                  description: Start date for trend analysis (defaults to 7 days ago for 'day', 4 weeks ago for 'week', 6 months ago for 'month')
+                  example: "2025-01-01"
+                end_date:
+                  type: string
+                  format: date
+                  description: End date for trend analysis (defaults to today)
+                  example: "2025-01-15"
+      responses:
+        '200':
+          description: Sales trends data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                          example: "2025-01-15"
+                        revenue:
+                          type: number
+                          format: float
+                          example: 12500000
+                        transactions:
+                          type: integer
+                          example: 85
+                        average_ticket:
+                          type: number
+                          format: float
+                          example: 147058.82
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/best-sellers:
+    post:
+      tags: [POS Analytics]
+      summary: Get best selling products
+      description: |
+        Returns top performing products sorted by revenue or quantity.
+        Includes profit margin for recipe-based products.
+      operationId: getPosBestSellers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 10
+                  description: Maximum number of products to return
+                  example: 10
+                sort_by:
+                  type: string
+                  enum: [revenue, quantity]
+                  default: revenue
+                  description: Sort criteria
+                  example: "revenue"
+                start_date:
+                  type: string
+                  format: date
+                  description: Start date for analysis (defaults to 30 days ago)
+                  example: "2024-12-15"
+                end_date:
+                  type: string
+                  format: date
+                  description: End date for analysis (defaults to today)
+                  example: "2025-01-15"
+      responses:
+        '200':
+          description: Best selling products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                          example: 1
+                        product_id:
+                          type: string
+                          format: uuid
+                        product_name:
+                          type: string
+                          example: "Kopi Susu"
+                        sku:
+                          type: string
+                          example: "KOP-001"
+                        category:
+                          type: string
+                          example: "Beverages"
+                        units_sold:
+                          type: integer
+                          example: 150
+                        revenue:
+                          type: number
+                          format: float
+                          example: 750000
+                        profit_margin:
+                          type: number
+                          format: float
+                          nullable: true
+                          description: Profit margin percentage (for recipe-based products only)
+                          example: 65.5
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/cashier-performance:
+    post:
+      tags: [POS Analytics]
+      summary: Get cashier performance metrics
+      description: |
+        Returns performance metrics for all cashiers including:
+        - Transactions handled
+        - Revenue generated
+        - Average transaction time
+      operationId: getCashierPerformance
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date
+                  description: Start date for analysis (defaults to 30 days ago)
+                  example: "2024-12-15"
+                end_date:
+                  type: string
+                  format: date
+                  description: End date for analysis (defaults to today)
+                  example: "2025-01-15"
+      responses:
+        '200':
+          description: Cashier performance metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cashier_id:
+                          type: string
+                          format: uuid
+                        cashier_name:
+                          type: string
+                          example: "John Doe"
+                        transactions_handled:
+                          type: integer
+                          example: 245
+                        revenue_generated:
+                          type: number
+                          format: float
+                          example: 35000000
+                        average_transaction_time:
+                          type: number
+                          format: float
+                          description: Average time per transaction in seconds
+                          example: 120.5
+                        average_ticket:
+                          type: number
+                          format: float
+                          example: 142857.14
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/material-costs:
+    post:
+      tags: [POS Analytics]
+      summary: Analyze material costs for products (Phase 4A Day 5)
+      description: |
+        Calculates profit margins and material costs for recipe-based products.
+        Used in POS cart to show real-time profitability.
+        Returns detailed cost breakdown including material components.
+      operationId: getMaterialCosts
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - products
+              properties:
+                products:
+                  type: array
+                  description: List of products to analyze
+                  items:
+                    type: object
+                    required:
+                      - product_id
+                      - quantity
+                    properties:
+                      product_id:
+                        type: string
+                        format: uuid
+                        description: Product UUID
+                        example: "9d3e8f12-a4b5-4c6d-8e9f-0123456789ab"
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        description: Quantity to analyze
+                        example: 2
+                      selling_price:
+                        type: number
+                        format: float
+                        description: Override selling price (optional, uses product price if not provided)
+                        example: 15000
+            example:
+              products:
+                - product_id: "9d3e8f12-a4b5-4c6d-8e9f-0123456789ab"
+                  quantity: 2
+                  selling_price: 15000
+                - product_id: "8c2d7e11-b3a4-5b7c-9d8e-f123456789cd"
+                  quantity: 1
+      responses:
+        '200':
+          description: Material cost analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            product_id:
+                              type: string
+                              format: uuid
+                            product_name:
+                              type: string
+                              example: "Kopi Susu"
+                            sku:
+                              type: string
+                              example: "KOP-001"
+                            quantity:
+                              type: integer
+                              example: 2
+                            selling_price:
+                              type: number
+                              format: float
+                              example: 15000
+                            has_recipe:
+                              type: boolean
+                              description: Whether product has active recipe
+                              example: true
+                            material_cost_per_unit:
+                              type: number
+                              format: float
+                              description: Material cost per single unit
+                              example: 5200
+                            total_material_cost:
+                              type: number
+                              format: float
+                              description: Total material cost (cost_per_unit * quantity)
+                              example: 10400
+                            total_selling_price:
+                              type: number
+                              format: float
+                              description: Total selling price (selling_price * quantity)
+                              example: 30000
+                            profit_amount:
+                              type: number
+                              format: float
+                              description: Profit in currency
+                              example: 19600
+                            profit_margin:
+                              type: number
+                              format: float
+                              description: Profit margin percentage
+                              example: 65.33
+                            material_breakdown:
+                              type: array
+                              description: Detailed breakdown of material costs
+                              items:
+                                type: object
+                                properties:
+                                  material_id:
+                                    type: string
+                                    format: uuid
+                                  material_name:
+                                    type: string
+                                    example: "Kopi Bubuk"
+                                  quantity_required:
+                                    type: number
+                                    format: float
+                                    example: 15
+                                  waste_percentage:
+                                    type: number
+                                    format: float
+                                    example: 5
+                                  effective_quantity:
+                                    type: number
+                                    format: float
+                                    description: Quantity including waste
+                                    example: 15.75
+                                  unit:
+                                    type: string
+                                    example: "gram"
+                                  unit_cost:
+                                    type: number
+                                    format: float
+                                    example: 190.48
+                                  component_cost:
+                                    type: number
+                                    format: float
+                                    description: Total cost for this component
+                                    example: 3000
+                            alert:
+                              type: object
+                              nullable: true
+                              description: Alert if profit margin is low
+                              properties:
+                                type:
+                                  type: string
+                                  enum: [warning, error]
+                                  example: "warning"
+                                message:
+                                  type: string
+                                  example: "Warning: Low profit margin (below 30%)"
+                      summary:
+                        type: object
+                        description: Overall transaction summary
+                        properties:
+                          total_cost:
+                            type: number
+                            format: float
+                            description: Total material cost for all products
+                            example: 10400
+                          total_revenue:
+                            type: number
+                            format: float
+                            description: Total revenue for all products
+                            example: 30000
+                          total_profit:
+                            type: number
+                            format: float
+                            description: Total profit (revenue - cost)
+                            example: 19600
+                          overall_profit_margin:
+                            type: number
+                            format: float
+                            description: Overall profit margin percentage
+                            example: 65.33
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant or Product not found
+        '422':
+          description: Validation error

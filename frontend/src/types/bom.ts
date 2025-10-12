@@ -224,7 +224,8 @@ export interface BulkAvailabilityRequest {
 }
 
 export interface BulkAvailabilityResponse {
-  results: BOMCalculationResult[];
+  results: Record<string, BOMCalculationResult>; // Keyed by product_id
+  errors?: Record<string, string>; // Optional errors keyed by product_id
 }
 
 export interface BatchRequirementsRequest {
