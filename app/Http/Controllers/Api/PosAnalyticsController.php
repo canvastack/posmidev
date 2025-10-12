@@ -45,6 +45,8 @@ class PosAnalyticsController extends Controller
      * - Top cashier
      * - Best selling product
      * 
+     * Phase 4A+: Now supports historical comparison with previous periods
+     * 
      * @param Request $request
      * @param string $tenantId
      * @return JsonResponse
@@ -54,9 +56,10 @@ class PosAnalyticsController extends Controller
         // Permission check (products.view implies can view analytics)
         $this->authorize('view', [Product::class, $tenantId]);
         
-        // Validate request
+        // Validate request (Phase 4A+: added comparison_period)
         $validated = $request->validate([
             'date' => 'nullable|date',
+            'comparison_period' => 'nullable|in:previous_day,previous_week,previous_month,previous_year',
         ]);
         
         // If date is not provided, use last 30 days instead of just today
@@ -71,11 +74,54 @@ class PosAnalyticsController extends Controller
             $endOfDay = Carbon::now()->endOfDay();
         }
         
+        // Get current period metrics
+        $current = $this->getMetrics($tenantId, $startOfDay, $endOfDay);
+        
+        // Phase 4A+: Calculate comparison metrics if comparison_period is provided
+        $comparison = null;
+        $variance = null;
+        
+        if (isset($validated['comparison_period'])) {
+            $comparisonDates = $this->calculateComparisonDates(
+                $startOfDay,
+                $endOfDay,
+                $validated['comparison_period']
+            );
+            
+            $comparison = $this->getMetrics(
+                $tenantId,
+                $comparisonDates['start'],
+                $comparisonDates['end']
+            );
+            
+            $variance = $this->calculateVariance($current, $comparison);
+        }
+        
+        return response()->json([
+            'data' => [
+                'current' => $current,
+                'comparison' => $comparison,
+                'variance' => $variance,
+            ],
+        ]);
+    }
+    
+    /**
+     * Get metrics for a specific date range
+     * Helper method for posOverview (Phase 4A+)
+     * 
+     * @param string $tenantId
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @return array
+     */
+    private function getMetrics(string $tenantId, $startDate, $endDate): array
+    {
         // Query orders for the specified date range
         $orders = DB::table('orders')
             ->where('tenant_id', $tenantId)
             ->where('status', 'paid')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('COUNT(*) as total_transactions'),
                 DB::raw('SUM(total_amount) as total_revenue'),
@@ -113,7 +159,7 @@ class PosAnalyticsController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.tenant_id', $tenantId)
             ->where('orders.status', 'paid')
-            ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
+            ->whereBetween('orders.created_at', [$startDate, $endDate])
             ->select(
                 'order_items.product_id',
                 DB::raw('SUM(order_items.quantity) as units_sold'),
@@ -141,15 +187,99 @@ class PosAnalyticsController extends Controller
             }
         }
         
-        return response()->json([
-            'data' => [
-                'total_revenue' => (float) $totalRevenue,
-                'total_transactions' => (int) $totalTransactions,
-                'average_ticket' => (float) $averageTicket,
-                'top_cashier' => $topCashier,
-                'best_product' => $bestProduct,
+        return [
+            'total_revenue' => (float) $totalRevenue,
+            'total_transactions' => (int) $totalTransactions,
+            'average_ticket' => (float) $averageTicket,
+            'top_cashier' => $topCashier,
+            'best_product' => $bestProduct,
+        ];
+    }
+    
+    /**
+     * Calculate comparison date range based on period type
+     * Phase 4A+: Historical Comparison
+     * 
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @param string $period
+     * @return array
+     */
+    private function calculateComparisonDates($startDate, $endDate, string $period): array
+    {
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+        $duration = $end->diffInDays($start);
+        
+        return match($period) {
+            'previous_day' => [
+                'start' => $start->copy()->subDay(),
+                'end' => $end->copy()->subDay(),
             ],
-        ]);
+            'previous_week' => [
+                'start' => $start->copy()->subWeek(),
+                'end' => $end->copy()->subWeek(),
+            ],
+            'previous_month' => [
+                'start' => $start->copy()->subMonth(),
+                'end' => $end->copy()->subMonth(),
+            ],
+            'previous_year' => [
+                'start' => $start->copy()->subYear(),
+                'end' => $end->copy()->subYear(),
+            ],
+            default => [
+                'start' => $start,
+                'end' => $end,
+            ],
+        };
+    }
+    
+    /**
+     * Calculate variance between current and comparison metrics
+     * Phase 4A+: Historical Comparison
+     * 
+     * @param array $current
+     * @param array $comparison
+     * @return array|null
+     */
+    private function calculateVariance(array $current, array $comparison): ?array
+    {
+        if (!$comparison) {
+            return null;
+        }
+        
+        return [
+            'revenue_change' => $this->percentChange(
+                $comparison['total_revenue'], 
+                $current['total_revenue']
+            ),
+            'transactions_change' => $this->percentChange(
+                $comparison['total_transactions'], 
+                $current['total_transactions']
+            ),
+            'average_ticket_change' => $this->percentChange(
+                $comparison['average_ticket'], 
+                $current['average_ticket']
+            ),
+        ];
+    }
+    
+    /**
+     * Calculate percentage change between two values
+     * Phase 4A+: Historical Comparison
+     * 
+     * @param float $old
+     * @param float $new
+     * @return float
+     */
+    private function percentChange($old, $new): float
+    {
+        if ($old == 0) {
+            return $new > 0 ? 100.0 : 0.0;
+        }
+        
+        return (($new - $old) / $old) * 100;
     }
     
     /**

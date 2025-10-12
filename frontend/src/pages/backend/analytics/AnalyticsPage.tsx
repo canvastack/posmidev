@@ -1,11 +1,12 @@
 /**
- * Analytics Page (Phase 4A Day 4 - COMPLETE, Phase 4A Day 6 - Enhanced with Cost Analysis)
+ * Analytics Page (Phase 4A Day 4 - COMPLETE, Phase 4A Day 6 - Enhanced with Cost Analysis, Phase 4A+ Day 1 - Historical Comparison)
  * 
  * Main analytics dashboard for POS system
  * Displays real-time metrics, trends, best sellers, and cashier performance
  * 
  * Features:
  * - Overview metric cards
+ * - Historical comparison (Phase 4A+ Day 1)
  * - Sales trend charts (line/bar)
  * - Best sellers table (sortable)
  * - Cashier performance table (sortable)
@@ -37,7 +38,7 @@ import {
   InfoIcon,
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils/currency';
-import type { TrendPeriod } from '@/types';
+import type { TrendPeriod, ComparisonPeriod } from '@/types';
 
 // Import analytics components
 import SalesOverviewCard from '@/components/analytics/SalesOverviewCard';
@@ -45,9 +46,33 @@ import SalesTrendChart from '@/components/analytics/SalesTrendChart';
 import BestSellersTable from '@/components/analytics/BestSellersTable';
 import CashierPerformanceTable from '@/components/analytics/CashierPerformanceTable';
 
+// Phase 4A+ Day 1: Historical Comparison Components
+import { ComparisonSelector, ComparisonCards } from '@/components/analytics/historical';
+
+// Phase 4A+ Day 2: Forecasting & Benchmarking Components
+import { TrendForecastChart, ForecastControls, BenchmarkCards } from '@/components/analytics/forecast';
+
+// Phase 4A+ Day 3: Anomaly Detection Components
+import { AnomalyAlertsPanel } from '@/components/analytics/anomaly';
+
+// Phase 4A+ Day 4: Export Components
+import { ExportModal } from '@/components/analytics/export';
+
 // Phase 4A Day 6: Cost Analysis Components
 import { MaterialCostSummary } from '@/components/cost/MaterialCostSummary';
 import { ProfitMarginIndicator } from '@/components/cost/ProfitMarginIndicator';
+
+// Phase 4A+ Day 2: Forecast & Benchmark Utilities
+import { generateForecast, assessForecastReliability } from '@/utils/forecast';
+import { calculateBenchmarkData } from '@/utils/benchmark';
+
+// Phase 4A+ Day 3: Anomaly Detection Utilities
+import { detectAnomalies, getAnomalySummary } from '@/utils/anomalyDetection';
+
+// Phase 4A+ Day 4: Export Utilities
+import type { AnalyticsExportData } from '@/utils/export';
+
+import type { ForecastResult, ForecastPeriod, BenchmarkData, BenchmarkBaselineType, AnomalyDetectionResult } from '@/types';
 
 /**
  * Analytics Dashboard Page
@@ -71,6 +96,27 @@ export default function AnalyticsPage() {
   // State for chart type
   const [chartType, setChartType] = useState<'line' | 'bar'>('line');
 
+  // Phase 4A+ Day 1: State for historical comparison
+  const [comparisonPeriod, setComparisonPeriod] = useState<ComparisonPeriod>(null);
+
+  // Phase 4A+ Day 2: State for forecasting & benchmarking
+  const [forecastPeriod, setForecastPeriod] = useState<ForecastPeriod>(30);
+  const [forecastMetric, setForecastMetric] = useState<'revenue' | 'transactions' | 'average_ticket'>('revenue');
+  const [forecastResult, setForecastResult] = useState<ForecastResult | null>(null);
+  const [baselineType, setBaselineType] = useState<BenchmarkBaselineType>('avg_30_days');
+  const [benchmarkData, setBenchmarkData] = useState<BenchmarkData | null>(null);
+
+  // Phase 4A+ Day 3: State for anomaly detection
+  const [anomalyResults, setAnomalyResults] = useState<Record<string, AnomalyDetectionResult>>({});
+  const [selectedAnomalyMetric, setSelectedAnomalyMetric] = useState<'revenue' | 'transactions' | 'average_ticket'>('revenue');
+
+  // Phase 4A+ Day 4: State for export modal
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Phase 4A+ Day 4: Refs for chart capture (PDF export)
+  const trendChartRef = React.useRef<HTMLDivElement>(null);
+  const forecastChartRef = React.useRef<HTMLDivElement>(null);
+
   // Analytics hook with auto-refresh every 30 seconds
   const analytics = useAnalytics({
     tenantId,
@@ -89,6 +135,84 @@ export default function AnalyticsPage() {
   }, [trendPeriod, tenantId, analytics.fetchTrends]);
 
   /**
+   * Phase 4A+ Day 1: Fetch overview with comparison when comparisonPeriod changes
+   */
+  useEffect(() => {
+    if (tenantId) {
+      analytics.fetchOverview({
+        comparison_period: comparisonPeriod || undefined,
+      });
+    }
+  }, [comparisonPeriod, tenantId, analytics.fetchOverview]);
+
+  /**
+   * Phase 4A+ Day 2: Generate forecast when trends data or settings change
+   */
+  useEffect(() => {
+    if (analytics.trends.length >= 2) {
+      try {
+        const forecast = generateForecast(
+          analytics.trends,
+          forecastMetric,
+          forecastPeriod
+        );
+        // generateForecast returns null if insufficient valid data (after filtering invalid dates)
+        setForecastResult(forecast);
+      } catch (error) {
+        // Catch unexpected errors only (not insufficient data, which returns null gracefully)
+        console.error('Error generating forecast:', error);
+        setForecastResult(null);
+      }
+    } else {
+      setForecastResult(null);
+    }
+  }, [analytics.trends, forecastMetric, forecastPeriod]);
+
+  /**
+   * Phase 4A+ Day 2: Calculate benchmarks when trends data or baseline type changes
+   */
+  useEffect(() => {
+    if (analytics.overview && analytics.trends.length > 0) {
+      try {
+        const benchmarks = calculateBenchmarkData(
+          analytics.overview.total_revenue,
+          analytics.overview.total_transactions,
+          analytics.overview.average_ticket,
+          analytics.trends,
+          baselineType
+        );
+        setBenchmarkData(benchmarks);
+      } catch (error) {
+        console.error('Error calculating benchmarks:', error);
+        setBenchmarkData(null);
+      }
+    } else {
+      setBenchmarkData(null);
+    }
+  }, [analytics.overview, analytics.trends, baselineType]);
+
+  /**
+   * Phase 4A+ Day 3: Detect anomalies when trends data changes
+   */
+  useEffect(() => {
+    if (analytics.trends.length >= 14) {
+      try {
+        const results: Record<string, AnomalyDetectionResult> = {
+          revenue: detectAnomalies(analytics.trends, 'revenue'),
+          transactions: detectAnomalies(analytics.trends, 'transactions'),
+          average_ticket: detectAnomalies(analytics.trends, 'average_ticket'),
+        };
+        setAnomalyResults(results);
+      } catch (error) {
+        console.error('Error detecting anomalies:', error);
+        setAnomalyResults({});
+      }
+    } else {
+      setAnomalyResults({});
+    }
+  }, [analytics.trends]);
+
+  /**
    * Manual refresh handler
    */
   const handleManualRefresh = () => {
@@ -96,53 +220,29 @@ export default function AnalyticsPage() {
   };
 
   /**
-   * Export analytics data to CSV
+   * Phase 4A+ Day 4: Open export modal with prepared data
    */
-  const handleExportCSV = () => {
-    try {
-      // Prepare CSV data
-      let csvContent = 'data:text/csv;charset=utf-8,';
-      
-      // Overview data
-      csvContent += 'OVERVIEW METRICS\n';
-      csvContent += 'Metric,Value\n';
-      if (analytics.overview) {
-        csvContent += `Total Revenue,${analytics.overview.total_revenue}\n`;
-        csvContent += `Total Transactions,${analytics.overview.total_transactions}\n`;
-        csvContent += `Average Ticket,${analytics.overview.average_ticket}\n`;
-        if (analytics.overview.top_cashier) {
-          csvContent += `Top Cashier,${analytics.overview.top_cashier.name}\n`;
-        }
-      }
-      csvContent += '\n';
+  const handleExport = () => {
+    setIsExportModalOpen(true);
+  };
 
-      // Best Sellers data
-      csvContent += 'BEST SELLERS\n';
-      csvContent += 'Rank,Product,SKU,Category,Units Sold,Revenue\n';
-      analytics.bestSellers.forEach((item) => {
-        csvContent += `${item.rank},"${item.product_name}",${item.sku},"${item.category}",${item.units_sold},${item.revenue}\n`;
-      });
-      csvContent += '\n';
-
-      // Cashier Performance data
-      csvContent += 'CASHIER PERFORMANCE\n';
-      csvContent += 'Cashier,Transactions,Revenue,Avg Ticket\n';
-      analytics.cashierPerformance.forEach((item) => {
-        csvContent += `"${item.cashier_name}",${item.transactions_handled},${item.revenue_generated},${item.average_ticket}\n`;
-      });
-
-      // Create download link
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `analytics_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error('Error exporting CSV:', error);
-      alert('Failed to export CSV. Please try again.');
-    }
+  /**
+   * Phase 4A+ Day 4: Prepare export data
+   */
+  const getExportData = (): AnalyticsExportData => {
+    return {
+      overview: analytics.overview || undefined,
+      trends: analytics.trends.length > 0 ? analytics.trends : undefined,
+      forecast: forecastResult || undefined,
+      benchmarks: benchmarkData || undefined,
+      anomalies: anomalyResults[selectedAnomalyMetric] || undefined,
+      bestSellers: analytics.bestSellers.length > 0 ? analytics.bestSellers : undefined,
+      cashierPerformance: analytics.cashierPerformance.length > 0 ? analytics.cashierPerformance : undefined,
+      dateRange: analytics.trends.length > 0 ? {
+        startDate: analytics.trends[0].date,
+        endDate: analytics.trends[analytics.trends.length - 1].date,
+      } : undefined,
+    };
   };
 
   /**
@@ -170,14 +270,15 @@ export default function AnalyticsPage() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Export CSV Button */}
+            {/* Export Button (Phase 4A+ Day 4: Multi-format export) */}
             <button
-              onClick={handleExportCSV}
+              onClick={handleExport}
               disabled={!analytics.overview}
               className="flex items-center gap-2 px-4 py-2 bg-success-600 hover:bg-success-700 disabled:bg-gray-400 text-white rounded-lg transition-colors shadow-sm"
+              title="Export analytics data (CSV, Excel, JSON, PDF)"
             >
               <DownloadIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">Export CSV</span>
+              <span className="hidden sm:inline">Export</span>
             </button>
 
             {/* Manual refresh button */}
@@ -250,6 +351,14 @@ export default function AnalyticsPage() {
               ))}
             </div>
           </div>
+
+          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block" />
+
+          {/* Phase 4A+ Day 1: Historical Comparison Selector */}
+          <ComparisonSelector
+            value={comparisonPeriod}
+            onChange={setComparisonPeriod}
+          />
         </div>
       </div>
 
@@ -327,6 +436,20 @@ export default function AnalyticsPage() {
             />
           </div>
 
+          {/* Phase 4A+ Day 1: Historical Comparison Cards */}
+          {analytics.comparisonData && comparisonPeriod && (
+            <ComparisonCards comparisonData={analytics.comparisonData} />
+          )}
+
+          {/* Phase 4A+ Day 2: Performance Benchmarks */}
+          {benchmarkData && (
+            <BenchmarkCards
+              benchmarkData={benchmarkData}
+              baselineType={baselineType}
+              onBaselineTypeChange={setBaselineType}
+            />
+          )}
+
           {/* Sales Trend Chart */}
           <SalesTrendChart
             data={analytics.trends}
@@ -336,6 +459,71 @@ export default function AnalyticsPage() {
             isLoading={analytics.isLoadingTrends}
             height={350}
           />
+
+          {/* Phase 4A+ Day 2-3: Trend Forecast & Anomaly Detection */}
+          {forecastResult && analytics.trends.length >= 7 && (
+            <div className="space-y-4">
+              <ForecastControls
+                forecastPeriod={forecastPeriod}
+                onPeriodChange={setForecastPeriod}
+                metric={forecastMetric}
+                onMetricChange={(metric) => {
+                  setForecastMetric(metric);
+                  setSelectedAnomalyMetric(metric);
+                }}
+                onRefresh={() => {
+                  analytics.fetchTrends({ period: trendPeriod });
+                }}
+                isLoading={analytics.isLoadingTrends}
+              />
+              
+              {/* Wrapped with ref for PDF export */}
+              <div ref={forecastChartRef}>
+                <TrendForecastChart
+                  forecastResult={forecastResult}
+                  anomalies={anomalyResults[forecastMetric]?.anomalies || []}
+                  height={450}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Phase 4A+ Day 3: Anomaly Detection Panel */}
+          {anomalyResults[selectedAnomalyMetric] && analytics.trends.length >= 14 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    Anomaly Detection
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Unusual patterns detected in your data
+                  </p>
+                </div>
+                
+                {/* Anomaly Metric Selector */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Metric:
+                  </label>
+                  <select
+                    value={selectedAnomalyMetric}
+                    onChange={(e) => setSelectedAnomalyMetric(e.target.value as typeof selectedAnomalyMetric)}
+                    className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="revenue">Revenue</option>
+                    <option value="transactions">Transactions</option>
+                    <option value="average_ticket">Average Ticket</option>
+                  </select>
+                </div>
+              </div>
+              
+              <AnomalyAlertsPanel
+                result={anomalyResults[selectedAnomalyMetric]}
+                metric={selectedAnomalyMetric}
+              />
+            </div>
+          )}
 
           {/* Tables Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -548,6 +736,14 @@ export default function AnalyticsPage() {
           </div>
         </div>
       )}
+
+      {/* Phase 4A+ Day 4: Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        data={getExportData()}
+        chartRefs={[trendChartRef, forecastChartRef]}
+      />
     </div>
   );
 }

@@ -10,7 +10,9 @@ paths:
         - Average ticket size
         - Top cashier
         - Best selling product
-        Supports filtering by date (defaults to today).
+        
+        Phase 4A+: Now supports historical comparison with previous periods.
+        When comparison_period is provided, returns variance between current and previous period.
       operationId: getPosOverview
       security:
         - bearerAuth: []
@@ -26,11 +28,16 @@ paths:
                 date:
                   type: string
                   format: date
-                  description: Date to fetch metrics for (YYYY-MM-DD). Defaults to today.
+                  description: Date to fetch metrics for (YYYY-MM-DD). Defaults to last 30 days.
                   example: "2025-01-15"
+                comparison_period:
+                  type: string
+                  enum: [previous_day, previous_week, previous_month, previous_year]
+                  description: Compare with previous period (Phase 4A+ Historical Comparison)
+                  example: "previous_month"
       responses:
         '200':
-          description: POS overview metrics
+          description: POS overview metrics with optional comparison
           content:
             application/json:
               schema:
@@ -39,55 +46,103 @@ paths:
                   data:
                     type: object
                     properties:
-                      total_revenue:
-                        type: number
-                        format: float
-                        description: Total revenue for the specified date
-                        example: 12500000
-                      total_transactions:
-                        type: integer
-                        description: Total number of transactions
-                        example: 85
-                      average_ticket:
-                        type: number
-                        format: float
-                        description: Average transaction value
-                        example: 147058.82
-                      top_cashier:
+                      current:
                         type: object
+                        description: Current period metrics
                         properties:
-                          id:
-                            type: string
-                            format: uuid
-                          name:
-                            type: string
-                            example: "John Doe"
-                          transactions:
-                            type: integer
-                            example: 45
-                          revenue:
+                          total_revenue:
                             type: number
                             format: float
-                            example: 6500000
-                      best_product:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            format: uuid
-                          name:
-                            type: string
-                            example: "Kopi Susu"
-                          sku:
-                            type: string
-                            example: "KOP-001"
-                          units_sold:
+                            description: Total revenue for the specified date
+                            example: 12500000
+                          total_transactions:
                             type: integer
-                            example: 150
-                          revenue:
+                            description: Total number of transactions
+                            example: 85
+                          average_ticket:
                             type: number
                             format: float
-                            example: 750000
+                            description: Average transaction value
+                            example: 147058.82
+                          top_cashier:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                                example: "John Doe"
+                              transactions:
+                                type: integer
+                                example: 45
+                              revenue:
+                                type: number
+                                format: float
+                                example: 6500000
+                          best_product:
+                            type: object
+                            nullable: true
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                                example: "Kopi Susu"
+                              sku:
+                                type: string
+                                example: "KOP-001"
+                              units_sold:
+                                type: integer
+                                example: 150
+                              revenue:
+                                type: number
+                                format: float
+                                example: 750000
+                      comparison:
+                        type: object
+                        nullable: true
+                        description: Previous period metrics (only when comparison_period is provided)
+                        properties:
+                          total_revenue:
+                            type: number
+                            format: float
+                            example: 11000000
+                          total_transactions:
+                            type: integer
+                            example: 78
+                          average_ticket:
+                            type: number
+                            format: float
+                            example: 141025.64
+                          top_cashier:
+                            type: object
+                            nullable: true
+                          best_product:
+                            type: object
+                            nullable: true
+                      variance:
+                        type: object
+                        nullable: true
+                        description: Percentage change between current and comparison (Phase 4A+)
+                        properties:
+                          revenue_change:
+                            type: number
+                            format: float
+                            description: Percentage change in revenue
+                            example: 13.64
+                          transactions_change:
+                            type: number
+                            format: float
+                            description: Percentage change in transactions
+                            example: 8.97
+                          average_ticket_change:
+                            type: number
+                            format: float
+                            description: Percentage change in average ticket
+                            example: 4.28
         '401':
           description: Unauthorized
         '403':

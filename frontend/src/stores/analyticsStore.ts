@@ -18,6 +18,7 @@ import type {
   AnalyticsBestSellersRequest,
   AnalyticsCashierPerformanceRequest,
   AnalyticsApiResponse,
+  AnalyticsComparison,
   TrendPeriod,
   BestSellersSortBy,
 } from '@/types';
@@ -28,6 +29,7 @@ import type {
 interface AnalyticsState {
   // Data
   overview: PosOverview | null;
+  comparisonData: AnalyticsComparison | null; // Phase 4A+: Historical Comparison
   trends: SalesTrend[];
   bestSellers: BestSeller[];
   cashierPerformance: CashierPerformance[];
@@ -77,6 +79,7 @@ const getApiBaseUrl = (): string => {
 export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
   // Initial state
   overview: null,
+  comparisonData: null, // Phase 4A+
   trends: [],
   bestSellers: [],
   cashierPerformance: [],
@@ -98,29 +101,57 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
 
   /**
    * Fetch POS Overview Metrics
+   * Phase 4A+: Now supports historical comparison
    */
   fetchOverview: async (tenantId: string, params?: AnalyticsOverviewRequest) => {
     set({ isLoadingOverview: true, overviewError: null });
 
     try {
       const token = useAuthStore.getState().token;
-      const response = await axios.post<AnalyticsApiResponse<PosOverview>>(
-        `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/overview`,
-        params || {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      
+      // Phase 4A+: Response structure changes based on comparison_period
+      if (params?.comparison_period) {
+        // Fetch with comparison
+        const response = await axios.post<AnalyticsApiResponse<AnalyticsComparison>>(
+          `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/overview`,
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-      set({
-        overview: response.data.data,
-        isLoadingOverview: false,
-        overviewError: null,
-        lastOverviewFetch: new Date(),
-      });
+        set({
+          overview: response.data.data.current,
+          comparisonData: response.data.data,
+          isLoadingOverview: false,
+          overviewError: null,
+          lastOverviewFetch: new Date(),
+        });
+      } else {
+        // Fetch without comparison (backward compatible)
+        const response = await axios.post<AnalyticsApiResponse<AnalyticsComparison>>(
+          `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/overview`,
+          params || {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        // Backend always returns {current, comparison, variance} structure now
+        set({
+          overview: response.data.data.current,
+          comparisonData: response.data.data.comparison ? response.data.data : null,
+          isLoadingOverview: false,
+          overviewError: null,
+          lastOverviewFetch: new Date(),
+        });
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Failed to fetch overview metrics';
       set({
@@ -239,7 +270,7 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
   /**
    * Clear individual data sets
    */
-  clearOverview: () => set({ overview: null, overviewError: null, lastOverviewFetch: null }),
+  clearOverview: () => set({ overview: null, comparisonData: null, overviewError: null, lastOverviewFetch: null }),
   clearTrends: () => set({ trends: [], trendsError: null, lastTrendsFetch: null }),
   clearBestSellers: () => set({ bestSellers: [], bestSellersError: null, lastBestSellersFetch: null }),
   clearCashierPerformance: () => set({ cashierPerformance: [], cashierPerformanceError: null, lastCashierPerformanceFetch: null }),
@@ -249,6 +280,7 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
    */
   clearAll: () => set({
     overview: null,
+    comparisonData: null,
     trends: [],
     bestSellers: [],
     cashierPerformance: [],

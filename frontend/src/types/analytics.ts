@@ -2,6 +2,7 @@
  * Analytics Types
  * 
  * Type definitions for Phase 4A: Advanced Analytics Dashboard
+ * Phase 4A+: Historical Trends & Comparison
  * Aligns with backend API responses from PosAnalyticsController
  */
 
@@ -16,6 +17,50 @@ export interface PosOverview {
   top_cashier: TopCashier | null;
   best_product: BestProduct | null;
 }
+
+/**
+ * Analytics Comparison Response (Phase 4A+)
+ * Includes current metrics, comparison metrics, and variance
+ */
+export interface AnalyticsComparison {
+  current: PosOverview;
+  comparison: PosOverview | null;
+  variance: {
+    revenue_change: number;
+    transactions_change: number;
+    average_ticket_change: number;
+  } | null;
+}
+
+/**
+ * Comparison Period Types (Phase 4A+)
+ */
+export type ComparisonPeriod = 
+  | 'previous_day' 
+  | 'previous_week' 
+  | 'previous_month' 
+  | 'previous_year'
+  | null;
+
+/**
+ * Date Range for Custom Period Selection (Phase 4A+)
+ */
+export interface DateRange {
+  startDate: string; // YYYY-MM-DD
+  endDate: string;   // YYYY-MM-DD
+}
+
+/**
+ * Date Range Presets (Phase 4A+)
+ */
+export type DateRangePreset = 
+  | 'last_7_days'
+  | 'last_30_days'
+  | 'last_90_days'
+  | 'this_month'
+  | 'last_month'
+  | 'this_year'
+  | 'custom';
 
 /**
  * Top Cashier Information
@@ -89,7 +134,8 @@ export type BestSellersSortBy = 'revenue' | 'quantity';
  * Analytics API Request Parameters
  */
 export interface AnalyticsOverviewRequest {
-  date?: string; // YYYY-MM-DD, defaults to today
+  date?: string; // YYYY-MM-DD, defaults to last 30 days
+  comparison_period?: ComparisonPeriod; // Phase 4A+: Historical Comparison
 }
 
 export interface AnalyticsTrendsRequest {
@@ -123,4 +169,152 @@ export interface AnalyticsApiResponse<T> {
 export interface AnalyticsError {
   message: string;
   code?: string;
+}
+
+/**
+ * Phase 4A+ Day 2: Forecasting & Benchmarking Types
+ */
+
+/**
+ * Forecast Data Point
+ * Represents a predicted future value with confidence intervals
+ */
+export interface ForecastPoint {
+  date: string; // YYYY-MM-DD
+  value: number; // Predicted value
+  lower: number; // Lower bound of confidence interval
+  upper: number; // Upper bound of confidence interval
+  isForecasted: true; // Flag to distinguish from historical data
+}
+
+/**
+ * Forecast Result
+ * Contains historical data + forecasted values
+ */
+export interface ForecastResult {
+  historical: SalesTrend[];
+  forecast: ForecastPoint[];
+  metric: 'revenue' | 'transactions' | 'average_ticket';
+  rSquared: number; // Goodness of fit (0-1, higher is better)
+  slope: number; // Trend direction
+  intercept: number; // Y-intercept
+}
+
+/**
+ * Forecast Period Options
+ */
+export type ForecastPeriod = 7 | 14 | 30 | 60 | 90;
+
+/**
+ * Benchmark Baseline Types
+ */
+export type BenchmarkBaselineType = 
+  | 'avg_7_days'
+  | 'avg_30_days' 
+  | 'avg_90_days' 
+  | 'all_time'
+  | 'custom_target';
+
+/**
+ * Benchmark Status
+ */
+export type BenchmarkStatus = 'below_target' | 'on_track' | 'above_target';
+
+/**
+ * Benchmark Metric
+ * Compares current performance vs baseline
+ */
+export interface BenchmarkMetric {
+  label: string;
+  current: number;
+  baseline: number;
+  baselineType: BenchmarkBaselineType;
+  variance: number; // Percentage difference
+  status: BenchmarkStatus;
+  unit?: string; // e.g., 'Rp', 'transactions'
+}
+
+/**
+ * Benchmark Data
+ * Collection of all benchmark metrics
+ */
+export interface BenchmarkData {
+  revenue: BenchmarkMetric;
+  transactions: BenchmarkMetric;
+  averageTicket: BenchmarkMetric;
+  calculatedAt: string; // ISO timestamp
+}
+
+/**
+ * Phase 4A+ Day 3: Anomaly Detection Types
+ */
+
+/**
+ * Anomaly Type
+ * Classification of detected anomalies
+ */
+export type AnomalyType = 'spike' | 'drop' | 'flat';
+
+/**
+ * Anomaly Severity
+ * Level of deviation from normal patterns
+ */
+export type AnomalySeverity = 'low' | 'medium' | 'high' | 'critical';
+
+/**
+ * Detected Anomaly
+ * Represents an unusual pattern in the data
+ */
+export interface Anomaly {
+  date: string; // YYYY-MM-DD
+  type: AnomalyType;
+  severity: AnomalySeverity;
+  metric: 'revenue' | 'transactions' | 'average_ticket';
+  value: number; // Actual value
+  expectedValue: number; // Expected value (rolling average)
+  variance: number; // Percentage difference
+  zScore: number; // Standard deviations from mean
+  description: string; // Human-readable description
+}
+
+/**
+ * Anomaly Detection Result
+ * Complete anomaly analysis for a dataset
+ */
+export interface AnomalyDetectionResult {
+  anomalies: Anomaly[];
+  totalAnomalies: number;
+  spikesCount: number;
+  dropsCount: number;
+  flatCount: number;
+  detectionParams: {
+    windowSize: number; // Rolling window size (days)
+    threshold: number; // Z-score threshold (standard deviations)
+    minDataPoints: number; // Minimum required data points
+  };
+  calculatedAt: string; // ISO timestamp
+}
+
+/**
+ * Anomaly Detection Configuration
+ */
+export interface AnomalyDetectionConfig {
+  windowSize?: number; // Default: 7 days
+  threshold?: number; // Default: 2 (standard deviations)
+  flatThreshold?: number; // Default: 5% (variance threshold for "flat")
+  minDataPoints?: number; // Default: 14 (minimum data points required)
+}
+
+/**
+ * Anomaly Alert
+ * User-facing alert for significant anomalies
+ */
+export interface AnomalyAlert {
+  id: string;
+  anomaly: Anomaly;
+  alertLevel: 'info' | 'warning' | 'critical';
+  message: string;
+  suggestedAction?: string;
+  timestamp: string; // ISO timestamp
+  dismissed: boolean;
 }

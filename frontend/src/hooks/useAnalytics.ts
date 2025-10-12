@@ -57,6 +57,7 @@ export function useAnalytics(options: UseAnalyticsOptions) {
   // Get store state and actions
   const {
     overview,
+    comparisonData,
     trends,
     bestSellers,
     cashierPerformance,
@@ -187,6 +188,7 @@ export function useAnalytics(options: UseAnalyticsOptions) {
   return {
     // Data
     overview,
+    comparisonData,
     trends,
     bestSellers,
     cashierPerformance,
