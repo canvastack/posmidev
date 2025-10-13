@@ -1,6 +1,7 @@
 /**
  * Anomaly Detection Components
- * Phase 4A+ Day 3: Anomaly Detection & Advanced Visualization
+ * Phase 4A+ & Phase 5
  */
 
 export { default as AnomalyAlertsPanel } from './AnomalyAlertsPanel';
+export { default as AnomalyAlertsPanelBackend } from './AnomalyAlertsPanelBackend';

@@ -12,6 +12,23 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        // Phase 5: POS Analytics - Daily Forecast Generation
+        // Runs daily at 00:00 AM (Asia/Jakarta timezone)
+        // Generates revenue, transaction, and average ticket forecasts for all tenants
+        // Forecasts are stored in analytics_forecasts table for 30 days ahead
+        $schedule->job(new \App\Jobs\Analytics\GenerateDailyForecastJob)
+            ->dailyAt('00:00')
+            ->timezone('Asia/Jakarta')
+            ->withoutOverlapping();
+
+        // Phase 5: POS Analytics - Anomaly Detection
+        // Runs every 5 minutes
+        // Detects anomalies in sales data using Z-Score analysis
+        // Critical anomalies trigger email notifications
+        $schedule->job(new \App\Jobs\Analytics\DetectAnomaliesJob)
+            ->everyFiveMinutes()
+            ->withoutOverlapping();
+
         // Phase 5: Stock Management - Low Stock Alert Check
         // Runs daily at 09:00 AM (Asia/Jakarta timezone)
         // Checks all products across all tenants for low stock conditions

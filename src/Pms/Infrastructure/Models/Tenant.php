@@ -91,6 +91,24 @@ class Tenant extends Model
     }
 
     /**
+     * Phase 5: Backend Analytics relationships
+     */
+    public function analyticsAnomalies(): HasMany
+    {
+        return $this->hasMany(AnalyticsAnomaly::class);
+    }
+
+    public function analyticsForecasts(): HasMany
+    {
+        return $this->hasMany(AnalyticsForecast::class);
+    }
+
+    public function analyticsPreferences(): HasMany
+    {
+        return $this->hasMany(AnalyticsUserPreference::class);
+    }
+
+    /**
      * Check if tenant has logo
      */
     public function getHasLogoAttribute(): bool

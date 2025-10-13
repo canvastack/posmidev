@@ -578,3 +578,573 @@ paths:
           description: Tenant or Product not found
         '422':
           description: Validation error
+
+  /tenants/{tenantId}/analytics/pos/forecast:
+    post:
+      tags: [POS Analytics]
+      summary: Generate sales forecast
+      description: |
+        Phase 5: Backend-powered forecasting using statistical algorithms.
+        Generates revenue/transaction forecasts for future dates.
+      operationId: postPosForecast
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metric_type:
+                  type: string
+                  enum: [revenue, transactions, average_ticket]
+                  default: revenue
+                  description: Metric to forecast
+                  example: "revenue"
+                days_ahead:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  default: 30
+                  description: Number of days to forecast
+                  example: 30
+                algorithm:
+                  type: string
+                  enum: [linear_regression, exponential_smoothing]
+                  default: linear_regression
+                  description: Forecasting algorithm to use
+                  example: "linear_regression"
+      responses:
+        '200':
+          description: Forecast generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      forecasts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            predicted_date:
+                              type: string
+                              format: date
+                              example: "2025-02-15"
+                            predicted_value:
+                              type: number
+                              format: float
+                              example: 12800000
+                            confidence_lower:
+                              type: number
+                              format: float
+                              description: 95% confidence interval lower bound
+                              example: 11500000
+                            confidence_upper:
+                              type: number
+                              format: float
+                              description: 95% confidence interval upper bound
+                              example: 14100000
+                      r_squared:
+                        type: number
+                        format: float
+                        description: Goodness of fit (0-1), higher is better
+                        example: 0.87
+                      algorithm:
+                        type: string
+                        example: "linear_regression"
+                      historical_days_used:
+                        type: integer
+                        description: Number of historical days used in calculation
+                        example: 90
+        '400':
+          description: Bad request - Invalid parameters
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/anomalies/detect:
+    post:
+      tags: [POS Analytics]
+      summary: Run anomaly detection
+      description: |
+        Phase 5: Detect anomalies (spikes, drops) using Z-Score analysis.
+        Compares actual values against expected values based on rolling window.
+      operationId: postPosAnomaliesDetect
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date
+                  description: Start date for analysis (defaults to yesterday)
+                  example: "2025-01-01"
+                end_date:
+                  type: string
+                  format: date
+                  description: End date for analysis (defaults to today)
+                  example: "2025-01-26"
+                metric_type:
+                  type: string
+                  enum: [revenue, transactions, average_ticket]
+                  default: revenue
+                  description: Metric to analyze
+                  example: "revenue"
+      responses:
+        '200':
+          description: Anomalies detected and stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      anomalies:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Anomaly'
+                      total_count:
+                        type: integer
+                        description: Number of anomalies detected
+                        example: 3
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/anomalies:
+    get:
+      tags: [POS Analytics]
+      summary: Get historical anomalies
+      description: |
+        Phase 5: Retrieve stored anomalies with filtering and pagination.
+      operationId: getPosAnomalies
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Filter by detected date (start)
+          example: "2025-01-01"
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Filter by detected date (end)
+          example: "2025-01-26"
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+          description: Filter by severity
+          example: "high"
+        - name: acknowledged
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: Filter by acknowledgment status
+          example: false
+        - name: metric_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [revenue, transactions, average_ticket]
+          description: Filter by metric type
+          example: "revenue"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+          example: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Results per page
+          example: 20
+      responses:
+        '200':
+          description: List of anomalies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Anomaly'
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 3
+                      per_page:
+                        type: integer
+                        example: 20
+                      to:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 47
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+  /tenants/{tenantId}/analytics/pos/anomalies/{anomalyId}/acknowledge:
+    post:
+      tags: [POS Analytics]
+      summary: Acknowledge an anomaly
+      description: |
+        Phase 5: Mark an anomaly as acknowledged by current user.
+      operationId: postPosAnomalyAcknowledge
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+        - name: anomalyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Anomaly ID
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      responses:
+        '200':
+          description: Anomaly acknowledged successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Anomaly'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Anomaly not found
+
+  /tenants/{tenantId}/analytics/pos/preferences:
+    get:
+      tags: [POS Analytics]
+      summary: Get analytics preferences
+      description: |
+        Phase 5: Get user or tenant-wide analytics preferences.
+      operationId: getPosPreferences
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      responses:
+        '200':
+          description: Analytics preferences
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnalyticsPreferences'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Preferences not found
+    
+    put:
+      tags: [POS Analytics]
+      summary: Update analytics preferences
+      description: |
+        Phase 5: Update user analytics preferences.
+      operationId: putPosPreferences
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: ../components/parameters/common.yaml#/TenantId
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                anomaly_window_days:
+                  type: integer
+                  minimum: 3
+                  maximum: 90
+                  description: Rolling window size for anomaly detection
+                  example: 7
+                anomaly_threshold_low:
+                  type: number
+                  format: float
+                  minimum: 1.0
+                  maximum: 5.0
+                  description: Z-score threshold for low severity
+                  example: 1.5
+                anomaly_threshold_medium:
+                  type: number
+                  format: float
+                  minimum: 1.0
+                  maximum: 5.0
+                  description: Z-score threshold for medium severity
+                  example: 2.0
+                anomaly_threshold_high:
+                  type: number
+                  format: float
+                  minimum: 1.0
+                  maximum: 5.0
+                  description: Z-score threshold for high severity
+                  example: 2.5
+                anomaly_threshold_critical:
+                  type: number
+                  format: float
+                  minimum: 1.0
+                  maximum: 5.0
+                  description: Z-score threshold for critical severity
+                  example: 3.0
+                forecast_days_ahead:
+                  type: integer
+                  minimum: 1
+                  maximum: 365
+                  description: Default forecast horizon
+                  example: 30
+                forecast_algorithm:
+                  type: string
+                  enum: [linear_regression, exponential_smoothing]
+                  description: Default forecasting algorithm
+                  example: "linear_regression"
+                email_notifications_enabled:
+                  type: boolean
+                  description: Enable email notifications for anomalies
+                  example: true
+                notification_severity_filter:
+                  type: array
+                  items:
+                    type: string
+                    enum: [low, medium, high, critical]
+                  description: Which severity levels trigger notifications
+                  example: ["high", "critical"]
+                notification_digest_frequency:
+                  type: string
+                  enum: [realtime, daily, weekly]
+                  description: Notification frequency
+                  example: "daily"
+                benchmark_baseline_days:
+                  type: integer
+                  minimum: 7
+                  maximum: 365
+                  description: Days to use for benchmark calculations
+                  example: 30
+      responses:
+        '200':
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AnalyticsPreferences'
+        '400':
+          description: Bad request - Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Tenant not found
+
+components:
+  schemas:
+    Anomaly:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        tenant_id:
+          type: string
+          format: uuid
+          example: "11111111-1111-1111-1111-111111111111"
+        detected_date:
+          type: string
+          format: date
+          example: "2025-01-25"
+        metric_type:
+          type: string
+          enum: [revenue, transactions, average_ticket]
+          example: "revenue"
+        anomaly_type:
+          type: string
+          enum: [spike, drop, flat]
+          example: "drop"
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          example: "high"
+        actual_value:
+          type: number
+          format: float
+          example: 8500000
+        expected_value:
+          type: number
+          format: float
+          example: 12000000
+        variance_percent:
+          type: number
+          format: float
+          description: Percentage difference from expected
+          example: -29.17
+        z_score:
+          type: number
+          format: float
+          description: Statistical z-score
+          example: -2.8
+        context_data:
+          type: string
+          nullable: true
+          description: JSON string with additional context
+          example: '{"window_size":7,"std_dev":1200000}'
+        acknowledged:
+          type: boolean
+          example: false
+        acknowledged_by:
+          type: string
+          format: uuid
+          nullable: true
+          example: null
+        acknowledged_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-26T08:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-26T08:30:00Z"
+    
+    AnalyticsPreferences:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "b2c3d4e5-f6g7-8901-bcde-f12345678901"
+        tenant_id:
+          type: string
+          format: uuid
+          example: "11111111-1111-1111-1111-111111111111"
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: NULL means tenant-wide default
+          example: null
+        anomaly_window_days:
+          type: integer
+          example: 7
+        anomaly_threshold_low:
+          type: number
+          format: float
+          example: 1.5
+        anomaly_threshold_medium:
+          type: number
+          format: float
+          example: 2.0
+        anomaly_threshold_high:
+          type: number
+          format: float
+          example: 2.5
+        anomaly_threshold_critical:
+          type: number
+          format: float
+          example: 3.0
+        forecast_days_ahead:
+          type: integer
+          example: 30
+        forecast_algorithm:
+          type: string
+          example: "linear_regression"
+        email_notifications_enabled:
+          type: boolean
+          example: true
+        notification_severity_filter:
+          type: array
+          items:
+            type: string
+          example: ["high", "critical"]
+        notification_digest_frequency:
+          type: string
+          example: "daily"
+        benchmark_baseline_days:
+          type: integer
+          example: 30
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-01-26T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2025-01-26T00:00:00Z"

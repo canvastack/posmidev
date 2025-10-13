@@ -16,7 +16,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
 import { productApi } from '@/api/productApi';
@@ -26,7 +25,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getImageUrl } from '@/utils/imageHelpers';
 import { ArrowLeftIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import ProductImageGallery from '@/components/domain/products/ProductImageGallery';
-// Phase 9: Additional Business Features
+import { StatusSelect } from '@/components/domain/products/StatusSelect';
+import { CategoryMultiSelect } from '@/components/domain/products/CategoryMultiSelect';
+import { AddCategoryModal } from '@/components/domain/products/AddCategoryModal';
 import { SupplierSelector } from '@/components/domain/products/phase9/SupplierSelector';
 import { UomSelector } from '@/components/domain/products/phase9/UomSelector';
 import { TaxConfigFields } from '@/components/domain/products/phase9/TaxConfigFields';
@@ -45,8 +46,8 @@ export default function ProductEditPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  // Phase 9: SKU Generator Modal
   const [skuModalOpen, setSkuModalOpen] = useState(false);
+  const [addCategoryModalOpen, setAddCategoryModalOpen] = useState(false);
 
   const [form, setForm] = useState<ProductForm>({
     name: '',
@@ -56,8 +57,9 @@ export default function ProductEditPage() {
     description: '',
     cost_price: 0,
     category_id: undefined,
+    category_ids: [],
+    primary_category_id: null,
     status: 'active',
-    // Phase 9: Additional Business Features
     supplier_id: null,
     uom: null,
     tax_rate: null,
@@ -98,8 +100,9 @@ export default function ProductEditPage() {
           description: productData.description || '',
           cost_price: productData.cost_price || 0,
           category_id: productData.category_id,
+          category_ids: productData.categories?.map((cat) => cat.id) || (productData.category_id ? [productData.category_id] : []),
+          primary_category_id: productData.primary_category_id || productData.category_id || null,
           status: productData.status || 'active',
-          // Phase 9: Additional Business Features
           supplier_id: productData.supplier_id || null,
           uom: productData.uom || null,
           tax_rate: productData.tax_rate || null,
@@ -107,8 +110,8 @@ export default function ProductEditPage() {
           tag_ids: productData.tags?.map((tag) => tag.id) || [],
         });
         
-        // Fetch categories
-        const categoriesData = await categoryApi.getCategories(tenantId);
+        // Fetch categories (flat format with hierarchy info)
+        const categoriesData = await categoryApi.getCategoriesFlat(tenantId);
         setCategories(categoriesData);
         
       } catch (error) {
@@ -413,40 +416,35 @@ export default function ProductEditPage() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Status & Category */}
+            {/* Status & Categories */}
             <Card>
               <CardHeader>
-                <CardTitle>Status & Category</CardTitle>
+                <CardTitle>Status & Categories</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    id="status"
-                    value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value as any })}
-                  >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
-                    <option value="inactive">Inactive</option>
-                  </Select>
-                </div>
+                <StatusSelect
+                  value={form.status}
+                  onChange={(value) => setForm({ ...form, status: value })}
+                  error={validationErrors.status}
+                  disabled={submitting}
+                />
 
-                <div>
-                  <Label htmlFor="category_id">Category</Label>
-                  <Select
-                    id="category_id"
-                    value={form.category_id || ''}
-                    onChange={(e) => setForm({ ...form, category_id: e.target.value || undefined })}
-                  >
-                    <option value="">No Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <CategoryMultiSelect
+                  categories={categories}
+                  selectedIds={form.category_ids || []}
+                  primaryId={form.primary_category_id}
+                  onChange={(selectedIds, primaryId) => {
+                    setForm({
+                      ...form,
+                      category_ids: selectedIds,
+                      primary_category_id: primaryId,
+                      category_id: primaryId || undefined,
+                    });
+                  }}
+                  onAddCategory={() => setAddCategoryModalOpen(true)}
+                  error={validationErrors.category_ids}
+                  disabled={submitting}
+                />
               </CardContent>
             </Card>
 
@@ -498,6 +496,25 @@ export default function ProductEditPage() {
           setForm({ ...form, sku: generatedSku });
         }}
         categoryId={form.category_id}
+      />
+
+      {/* Add Category Modal */}
+      <AddCategoryModal
+        open={addCategoryModalOpen}
+        onClose={() => setAddCategoryModalOpen(false)}
+        onSuccess={async (newCategory) => {
+          const updatedCategories = await categoryApi.getCategoriesFlat(tenantId!);
+          setCategories(updatedCategories);
+          
+          setForm({
+            ...form,
+            category_ids: [...(form.category_ids || []), newCategory.id],
+            primary_category_id: form.category_ids?.length === 0 ? newCategory.id : form.primary_category_id,
+            category_id: form.category_ids?.length === 0 ? newCategory.id : form.category_id,
+          });
+        }}
+        tenantId={tenantId || ''}
+        categories={categories}
       />
     </div>
   );

@@ -85,9 +85,31 @@ class Product extends Model
         return $this->belongsTo(Tenant::class);
     }
 
+    /**
+     * Legacy category relationship (single category)
+     * @deprecated Use categories() or primaryCategory() instead
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Categories relationship (many-to-many via pivot)
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'category_product')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    /**
+     * Primary category relationship (for quick access)
+     */
+    public function primaryCategory(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function stockAdjustments(): HasMany

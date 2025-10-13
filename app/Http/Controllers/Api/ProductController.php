@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Pms\Core\Application\Services\ProductService;
+use Src\Pms\Core\Services\CategoryService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ProductController extends Controller
 {
     public function __construct(
-        private ProductService $productService
+        private ProductService $productService,
+        private CategoryService $categoryService
     ) {}
 
     public function index(Request $request, string $tenantId): JsonResponse
@@ -68,8 +70,8 @@ class ProductController extends Controller
             $onlyArchived
         );
 
-        // Load Phase 9 relationships
-        $products->getCollection()->load(['category', 'supplier', 'tags']);
+        // Load Phase 9 relationships + new categories relationship
+        $products->getCollection()->load(['category', 'categories', 'primaryCategory', 'supplier', 'tags']);
 
         return response()->json([
             'data' => ProductResource::collection($products->items())->toArray($request),
@@ -132,8 +134,18 @@ class ProductController extends Controller
                     }
                 }
                 
-                // Reload with relationships
-                $productModel->load(['category', 'supplier', 'tags']);
+                // NEW: Attach categories if provided (multi-select support)
+                if ($request->has('category_ids') && is_array($request->category_ids)) {
+                    $this->categoryService->attachToProduct(
+                        $tenantId,
+                        $productModel->id,
+                        $request->category_ids,
+                        $request->primary_category_id ?? null
+                    );
+                }
+                
+                // Reload with relationships (including new categories)
+                $productModel->load(['category', 'categories', 'primaryCategory', 'supplier', 'tags']);
                 
                 return response()->json(new ProductResource($productModel), 201);
             }
@@ -159,8 +171,8 @@ class ProductController extends Controller
 
         $this->authorize('view', [\Src\Pms\Infrastructure\Models\Product::class, $tenantId]);
 
-        // Load category relation and count variants, plus Phase 9 relationships
-        $product->load(['category', 'supplier', 'tags']);
+        // Load category relation and count variants, plus Phase 9 relationships, plus NEW categories
+        $product->load(['category', 'categories', 'primaryCategory', 'supplier', 'tags']);
         $product->loadCount('variants');
 
         return response()->json([
@@ -244,8 +256,21 @@ class ProductController extends Controller
             $product->tags()->sync($syncData);
         }
         
-        // Load Phase 9 relationships
-        $product->load(['category', 'supplier', 'tags']);
+        // NEW: Update categories if provided (multi-select support)
+        if ($request->has('category_ids')) {
+            $categoryIds = $request->category_ids ?? [];
+            if (is_array($categoryIds) && count($categoryIds) > 0) {
+                $this->categoryService->syncProductCategories(
+                    $tenantId,
+                    $product->id,
+                    $categoryIds,
+                    $request->primary_category_id ?? null
+                );
+            }
+        }
+        
+        // Load Phase 9 relationships + NEW categories
+        $product->load(['category', 'categories', 'primaryCategory', 'supplier', 'tags']);
 
         return response()->json([
             'data' => (new ProductResource($product))->toArray($request)

@@ -19,8 +19,11 @@ import type {
   AnalyticsCashierPerformanceRequest,
   AnalyticsApiResponse,
   AnalyticsComparison,
-  TrendPeriod,
-  BestSellersSortBy,
+  BackendAnomaly,
+  AnalyticsPreferences,
+  AnalyticsPreferencesUpdate,
+  AnomalyFilters,
+  PaginatedAnomaliesResponse,
 } from '@/types';
 
 /**
@@ -34,23 +37,33 @@ interface AnalyticsState {
   bestSellers: BestSeller[];
   cashierPerformance: CashierPerformance[];
 
+  // Phase 5: Backend-Powered Analytics
+  anomalies: BackendAnomaly[];
+  anomaliesMeta: PaginatedAnomaliesResponse['meta'] | null;
+  preferences: AnalyticsPreferences | null;
+
   // Loading states
   isLoadingOverview: boolean;
   isLoadingTrends: boolean;
   isLoadingBestSellers: boolean;
   isLoadingCashierPerformance: boolean;
+  isLoadingAnomalies: boolean; // Phase 5
+  isLoadingPreferences: boolean; // Phase 5
 
   // Error states
   overviewError: string | null;
   trendsError: string | null;
   bestSellersError: string | null;
   cashierPerformanceError: string | null;
+  anomaliesError: string | null; // Phase 5
+  preferencesError: string | null; // Phase 5
 
   // Last fetch timestamps (for cache management)
   lastOverviewFetch: Date | null;
   lastTrendsFetch: Date | null;
   lastBestSellersFetch: Date | null;
   lastCashierPerformanceFetch: Date | null;
+  lastAnomaliesFetch: Date | null; // Phase 5
 
   // Actions
   fetchOverview: (tenantId: string, params?: AnalyticsOverviewRequest) => Promise<void>;
@@ -58,11 +71,18 @@ interface AnalyticsState {
   fetchBestSellers: (tenantId: string, params?: AnalyticsBestSellersRequest) => Promise<void>;
   fetchCashierPerformance: (tenantId: string, params?: AnalyticsCashierPerformanceRequest) => Promise<void>;
   
+  // Phase 5: Backend-Powered Actions
+  fetchAnomalies: (tenantId: string, filters?: AnomalyFilters) => Promise<void>;
+  acknowledgeAnomaly: (tenantId: string, anomalyId: string) => Promise<void>;
+  fetchPreferences: (tenantId: string) => Promise<void>;
+  updatePreferences: (tenantId: string, prefs: AnalyticsPreferencesUpdate) => Promise<void>;
+  
   // Utility actions
   clearOverview: () => void;
   clearTrends: () => void;
   clearBestSellers: () => void;
   clearCashierPerformance: () => void;
+  clearAnomalies: () => void; // Phase 5
   clearAll: () => void;
 }
 
@@ -76,7 +96,7 @@ const getApiBaseUrl = (): string => {
 /**
  * Create Analytics Store
  */
-export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
+export const useAnalyticsStore = create<AnalyticsState>((set) => ({
   // Initial state
   overview: null,
   comparisonData: null, // Phase 4A+
@@ -84,20 +104,30 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
   bestSellers: [],
   cashierPerformance: [],
 
+  // Phase 5: Backend-Powered
+  anomalies: [],
+  anomaliesMeta: null,
+  preferences: null,
+
   isLoadingOverview: false,
   isLoadingTrends: false,
   isLoadingBestSellers: false,
   isLoadingCashierPerformance: false,
+  isLoadingAnomalies: false,
+  isLoadingPreferences: false,
 
   overviewError: null,
   trendsError: null,
   bestSellersError: null,
   cashierPerformanceError: null,
+  anomaliesError: null,
+  preferencesError: null,
 
   lastOverviewFetch: null,
   lastTrendsFetch: null,
   lastBestSellersFetch: null,
   lastCashierPerformanceFetch: null,
+  lastAnomaliesFetch: null,
 
   /**
    * Fetch POS Overview Metrics
@@ -268,12 +298,169 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
   },
 
   /**
+   * Phase 5: Fetch Anomalies from Backend
+   * Fetches stored anomalies with filtering and pagination
+   */
+  fetchAnomalies: async (tenantId: string, filters?: AnomalyFilters) => {
+    set({ isLoadingAnomalies: true, anomaliesError: null });
+
+    try {
+      const token = useAuthStore.getState().token;
+      const queryParams = new URLSearchParams();
+
+      // Build query parameters
+      if (filters?.severity) queryParams.append('severity', filters.severity);
+      if (filters?.metric_type) queryParams.append('metric_type', filters.metric_type);
+      if (filters?.anomaly_type) queryParams.append('anomaly_type', filters.anomaly_type);
+      if (filters?.acknowledged !== undefined) queryParams.append('acknowledged', String(filters.acknowledged));
+      if (filters?.start_date) queryParams.append('start_date', filters.start_date);
+      if (filters?.end_date) queryParams.append('end_date', filters.end_date);
+      if (filters?.page) queryParams.append('page', String(filters.page));
+      if (filters?.per_page) queryParams.append('per_page', String(filters.per_page));
+
+      const response = await axios.get<PaginatedAnomaliesResponse>(
+        `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/anomalies?${queryParams}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      set({
+        anomalies: response.data.data,
+        anomaliesMeta: response.data.meta,
+        isLoadingAnomalies: false,
+        anomaliesError: null,
+        lastAnomaliesFetch: new Date(),
+      });
+    } catch (error: unknown) {
+      const errorMessage = axios.isAxiosError(error) 
+        ? error.response?.data?.message || 'Failed to fetch anomalies'
+        : 'Failed to fetch anomalies';
+      set({
+        isLoadingAnomalies: false,
+        anomaliesError: errorMessage,
+      });
+      console.error('Analytics Anomalies Error:', error);
+    }
+  },
+
+  /**
+   * Phase 5: Acknowledge Anomaly
+   * Mark an anomaly as acknowledged
+   */
+  acknowledgeAnomaly: async (tenantId: string, anomalyId: string) => {
+    try {
+      const token = useAuthStore.getState().token;
+      await axios.post(
+        `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/anomalies/${anomalyId}/acknowledge`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state
+      set((state) => ({
+        anomalies: state.anomalies.map((anomaly) =>
+          anomaly.id === anomalyId
+            ? { ...anomaly, acknowledged: true, acknowledged_at: new Date().toISOString() }
+            : anomaly
+        ),
+      }));
+    } catch (error: unknown) {
+      const errorMessage = axios.isAxiosError(error) 
+        ? error.response?.data?.message || 'Failed to acknowledge anomaly'
+        : 'Failed to acknowledge anomaly';
+      console.error('Acknowledge Anomaly Error:', error);
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Phase 5: Fetch Analytics Preferences
+   * Get user or tenant-wide preferences
+   */
+  fetchPreferences: async (tenantId: string) => {
+    set({ isLoadingPreferences: true, preferencesError: null });
+
+    try {
+      const token = useAuthStore.getState().token;
+      const response = await axios.get<AnalyticsApiResponse<AnalyticsPreferences>>(
+        `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/preferences`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      set({
+        preferences: response.data.data,
+        isLoadingPreferences: false,
+        preferencesError: null,
+      });
+    } catch (error: unknown) {
+      const errorMessage = axios.isAxiosError(error) 
+        ? error.response?.data?.message || 'Failed to fetch preferences'
+        : 'Failed to fetch preferences';
+      set({
+        isLoadingPreferences: false,
+        preferencesError: errorMessage,
+      });
+      console.error('Analytics Preferences Error:', error);
+    }
+  },
+
+  /**
+   * Phase 5: Update Analytics Preferences
+   * Save user preferences
+   */
+  updatePreferences: async (tenantId: string, prefs: AnalyticsPreferencesUpdate) => {
+    set({ isLoadingPreferences: true, preferencesError: null });
+
+    try {
+      const token = useAuthStore.getState().token;
+      const response = await axios.put<AnalyticsApiResponse<AnalyticsPreferences>>(
+        `${getApiBaseUrl()}/tenants/${tenantId}/analytics/pos/preferences`,
+        prefs,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      set({
+        preferences: response.data.data,
+        isLoadingPreferences: false,
+        preferencesError: null,
+      });
+    } catch (error: unknown) {
+      const errorMessage = axios.isAxiosError(error) 
+        ? error.response?.data?.message || 'Failed to update preferences'
+        : 'Failed to update preferences';
+      set({
+        isLoadingPreferences: false,
+        preferencesError: errorMessage,
+      });
+      console.error('Update Preferences Error:', error);
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
    * Clear individual data sets
    */
   clearOverview: () => set({ overview: null, comparisonData: null, overviewError: null, lastOverviewFetch: null }),
   clearTrends: () => set({ trends: [], trendsError: null, lastTrendsFetch: null }),
   clearBestSellers: () => set({ bestSellers: [], bestSellersError: null, lastBestSellersFetch: null }),
   clearCashierPerformance: () => set({ cashierPerformance: [], cashierPerformanceError: null, lastCashierPerformanceFetch: null }),
+  clearAnomalies: () => set({ anomalies: [], anomaliesMeta: null, anomaliesError: null, lastAnomaliesFetch: null }),
 
   /**
    * Clear all analytics data
@@ -284,14 +471,20 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
     trends: [],
     bestSellers: [],
     cashierPerformance: [],
+    anomalies: [],
+    anomaliesMeta: null,
+    preferences: null,
     overviewError: null,
     trendsError: null,
     bestSellersError: null,
     cashierPerformanceError: null,
+    anomaliesError: null,
+    preferencesError: null,
     lastOverviewFetch: null,
     lastTrendsFetch: null,
     lastBestSellersFetch: null,
     lastCashierPerformanceFetch: null,
+    lastAnomaliesFetch: null,
   }),
 }));
 

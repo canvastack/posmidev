@@ -318,3 +318,100 @@ export interface AnomalyAlert {
   timestamp: string; // ISO timestamp
   dismissed: boolean;
 }
+
+/**
+ * Phase 5: Backend Integration Types
+ * Types for backend-powered analytics features
+ */
+
+/**
+ * Backend Anomaly (Persistent Storage)
+ * Represents an anomaly stored in the database
+ */
+export interface BackendAnomaly {
+  id: string;
+  tenant_id: string;
+  detected_date: string; // YYYY-MM-DD
+  metric_type: 'revenue' | 'transactions' | 'average_ticket';
+  anomaly_type: 'spike' | 'drop' | 'flat';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  actual_value: number;
+  expected_value: number;
+  variance_percent: number;
+  z_score: number;
+  context_data?: string | null;
+  acknowledged: boolean;
+  acknowledged_by?: string | null;
+  acknowledged_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Analytics User Preferences (Backend)
+ * User-configurable analytics settings
+ */
+export interface AnalyticsPreferences {
+  id: string;
+  tenant_id: string;
+  user_id?: string | null; // null = tenant-wide defaults
+  anomaly_window_days: number;
+  anomaly_threshold_low: number;
+  anomaly_threshold_medium: number;
+  anomaly_threshold_high: number;
+  anomaly_threshold_critical: number;
+  forecast_days_ahead: number;
+  forecast_algorithm: 'linear_regression' | 'exponential_smoothing';
+  email_notifications_enabled: boolean;
+  notification_severity_filter: string[]; // ['low', 'medium', 'high', 'critical']
+  notification_digest_frequency: 'realtime' | 'daily' | 'weekly';
+  benchmark_baseline_days: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Analytics Preferences Update Payload
+ */
+export interface AnalyticsPreferencesUpdate {
+  anomaly_window_days?: number;
+  anomaly_threshold_low?: number;
+  anomaly_threshold_medium?: number;
+  anomaly_threshold_high?: number;
+  anomaly_threshold_critical?: number;
+  forecast_days_ahead?: number;
+  forecast_algorithm?: 'linear_regression' | 'exponential_smoothing';
+  email_notifications_enabled?: boolean;
+  notification_severity_filter?: string[];
+  notification_digest_frequency?: 'realtime' | 'daily' | 'weekly';
+  benchmark_baseline_days?: number;
+}
+
+/**
+ * Anomaly Filters (for API queries)
+ */
+export interface AnomalyFilters {
+  severity?: string; // 'low' | 'medium' | 'high' | 'critical'
+  metric_type?: string; // 'revenue' | 'transactions' | 'average_ticket'
+  anomaly_type?: string; // 'spike' | 'drop' | 'flat'
+  acknowledged?: boolean; // true/false/undefined
+  start_date?: string; // YYYY-MM-DD
+  end_date?: string; // YYYY-MM-DD
+  page?: number;
+  per_page?: number;
+}
+
+/**
+ * Paginated Anomaly Response
+ */
+export interface PaginatedAnomaliesResponse {
+  data: BackendAnomaly[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+}

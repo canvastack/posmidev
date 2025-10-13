@@ -69,6 +69,9 @@ export interface Product {
   tenant_id: string;
   category_id?: string;
   category?: Category;
+  categories?: Category[];
+  primary_category_id?: string | null;
+  primaryCategory?: Category;
   description?: string;
   cost_price?: number;
   status?: 'active' | 'inactive' | 'discontinued';
@@ -108,6 +111,13 @@ export interface Category {
   name: string;
   description?: string;
   tenant_id: string;
+  parent_id?: string | null;
+  full_path?: string;
+  depth?: number;
+  children?: Category[];
+  parent?: Category;
+  products_count?: number;
+  children_count?: number;
   created_at: string;
 }
 
@@ -172,6 +182,8 @@ export interface ProductForm {
   price?: number;
   stock?: number;
   category_id?: string;
+  category_ids?: string[];
+  primary_category_id?: string | null;
   description?: string;
   cost_price?: number;
   status?: 'active' | 'inactive' | 'discontinued';

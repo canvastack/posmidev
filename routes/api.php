@@ -150,11 +150,20 @@ Route::prefix('v1')->group(function () {
                 
                 // Phase 4A: POS Analytics (Advanced Analytics Dashboard)
                 Route::prefix('pos')->group(function () {
+                    // Phase 4A: Client-side Analytics
                     Route::post('overview', [PosAnalyticsController::class, 'posOverview']);
                     Route::post('trends', [PosAnalyticsController::class, 'posTrends']);
                     Route::post('best-sellers', [PosAnalyticsController::class, 'bestSellers']);
                     Route::post('cashier-performance', [PosAnalyticsController::class, 'cashierPerformance']);
-                    Route::post('material-costs', [PosAnalyticsController::class, 'materialCosts']); // Phase 4A Day 5: Material Cost Tracking
+                    Route::post('material-costs', [PosAnalyticsController::class, 'materialCosts']);
+                    
+                    // Phase 5: Backend-powered Analytics
+                    Route::post('forecast', [PosAnalyticsController::class, 'posForecast']);
+                    Route::post('anomalies/detect', [PosAnalyticsController::class, 'detectAnomalies']);
+                    Route::get('anomalies', [PosAnalyticsController::class, 'getAnomalies']);
+                    Route::post('anomalies/{anomalyId}/acknowledge', [PosAnalyticsController::class, 'acknowledgeAnomaly']);
+                    Route::get('preferences', [PosAnalyticsController::class, 'getPreferences']);
+                    Route::put('preferences', [PosAnalyticsController::class, 'updatePreferences']);
                 });
             });
             
@@ -263,6 +272,9 @@ Route::prefix('v1')->group(function () {
             Route::get('variants/analytics/performance-summary', [VariantAnalyticsController::class, 'performanceSummary']);
             
             Route::apiResource('categories', CategoryController::class);
+            // Additional category routes
+            Route::get('categories/{categoryId}/products', [CategoryController::class, 'products']);
+            
             Route::apiResource('roles', RoleController::class);
             Route::apiResource('users', UserController::class); // enable index, show, store, update, destroy
             Route::post('uploads/user-photo', [UserController::class, 'uploadPhoto']); // upload user photo to storage
